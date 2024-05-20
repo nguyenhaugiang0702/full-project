@@ -8,8 +8,8 @@ class SubjectService {
             subject_name: payload.subject_name,
             subject_code: payload.subject_code,
             admin_id: ObjectId.isValid(payload.admin_id)
-            ? new ObjectId(payload.admin_id)
-            : null,
+                ? new ObjectId(payload.admin_id)
+                : null,
         };
         // Remove undefined fields
         Object.keys(subject).forEach(
@@ -39,27 +39,29 @@ class SubjectService {
     }
 
     async findByNameAndAdmin(subject_name, adminId) {
-        return await this.Subject.findOne({ 
-            subject_name: { $regex: new RegExp(`^${subject_name}$`, 'i') },
-            admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null, 
+        return await this.Subject.findOne({
+            subject_name: { $regex: new RegExp(subject_name, 'i') },
+            admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,
         });
     }
 
     async findByCodeAndAdmin(subject_code, adminId) {
-        return await this.Subject.findOne({ 
-            subject_code: { $regex: new RegExp(`^${subject_code}$`, 'i') },
-            admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,  
+        return await this.Subject.findOne({
+            subject_code: { $regex: new RegExp(subject_code, 'i') },
+            admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,
         });
     }
 
-    async findByCodeAndName(subject_code, subject_name) {
+    async findByCodeAndName(subject_code, subject_name, adminId) {
+        const adminID = new ObjectId(adminId);
         const codeRegex = new RegExp(subject_code, 'i'); // Tạo regex cho tìm kiếm không phân biệt chữ hoa chữ thường theo mã môn học
         const nameRegex = new RegExp(subject_name, 'i'); // Tạo regex cho tìm kiếm không phân biệt chữ hoa chữ thường theo tên môn học
         return await this.Subject.find({
+            admin_id: adminID,
             $or: [
                 { subject_code: { $regex: codeRegex } },
-                { subject_name: { $regex: nameRegex } }
-            ]
+                { subject_name: { $regex: nameRegex } },
+            ],
         }).toArray();
     }
 

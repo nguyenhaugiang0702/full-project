@@ -5,10 +5,10 @@ class QuestionService {
     }
     extractQuestionData(payload) {
         const question = {
-            question_name: payload.question_name ? payload.question_name.trim() : '',
+            question_name: payload.question_name,
             subject_id: ObjectId.isValid(payload.subject_id) ? new ObjectId(payload.subject_id) : null,
             options: payload.options ? payload.options.map(option => ({
-                answer: option.answer ? option.answer.trim() : '',
+                answer: option.answer,
                 is_correct: option.is_correct || false
             })) : []
         };
@@ -41,19 +41,20 @@ class QuestionService {
 
     async findByNameAndSubject(question_name, subject_id) {
         return await this.Question.findOne({
-            question_name: { $regex: new RegExp(`^${question_name}$`, 'i') },
+            question_name: { $regex: new RegExp(question_name, 'i') },
             subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
         });
     }
 
-    async findByNameAndAdmin(name, adminId) {
-        return await this.Subject.findOne({
-            subject_name: { $regex: new RegExp(`^${name}$`, 'i') },
-            admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,
-        });
+    async findByNameAndSubjectID(question_name, subject_id) {
+        const nameRegex = new RegExp(question_name, 'i');
+        return await this.Question.find({
+            subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
+            question_name: { $regex: nameRegex }, 
+        }).toArray();
     }
 
-    async findBySubjectID(subject_id) {
+    async findBySubjectID(subject_id) { 
         return await this.Subject.find({
             subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
         }).toArray();

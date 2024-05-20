@@ -47,13 +47,12 @@ exports.findALL = async (req, res, next) => {
     try {
         const subjectService = new SubjectService(MongoDB.client);
         const questionService = new QuestionService(MongoDB.client);
-        const admin_id = new ObjectId(req.admin.admin_id);
+        const admin_id = req.admin.admin_id;
         const { search_value } = req.query;
         if (search_value) {
-            documents = await subjectService.findByCodeAndName(search_value, search_value);
-            console.log('Documents found with search_value:', documents);
+            documents = await subjectService.findByCodeAndName(search_value, search_value, admin_id);
         } else {
-            documents = await subjectService.find({ admin_id: admin_id });
+            documents = await subjectService.find({ admin_id: new ObjectId(admin_id) });
         }
         // Đếm số câu hỏi cho mỗi môn học
         await Promise.all(documents.map(async (subject) => {

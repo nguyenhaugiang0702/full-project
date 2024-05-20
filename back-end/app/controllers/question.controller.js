@@ -35,14 +35,15 @@ exports.findALL = async (req, res, next) => {
         const questionService = new QuestionService(MongoDB.client);
         const subjectService = new SubjectService(MongoDB.client);
         const admin_id = new ObjectId(req.admin.admin_id);
-        const { name } = req.query;
-        const { subject_id } = req.query;
-        if (subject_id) {
-            documents = await questionService.findBySubjectID(subject_id);
+        const { search_value, subject_id } = req.query;
+        if (search_value && subject_id) {
+            documents = await questionService.findByNameAndSubjectID(search_value, subject_id);
         }
-        // else {
-        //     documents = await questionService.find({});
-        // }
+        console.log(documents);
+        await Promise.all(documents.map( async (document) => {
+            const subjectInfo = await subjectService.findById(document.subject_id);
+            document.subjectInfo = subjectInfo;
+        }))
         
     } catch (error) {
         return next(
@@ -80,7 +81,12 @@ exports.findQuestionsBySubjectID = async (req, res, next) => {
         const questionService = new QuestionService(MongoDB.client);
         const subjectService = new SubjectService(MongoDB.client);
         const subjectId = new ObjectId(req.params.subjectID);
-        documents = await questionService.find({ subject_id: subjectId });
+        const { search_value } = req.query;
+        if(search_value){
+            documents = await questionService.findByNameAndSubjectID(search_value, subjectId);
+        }else{
+            documents = await questionService.find({ subject_id: subjectId });
+        }
         if (!documents) {
             return next(new ApiError(404, "Contact not found"));
         }
@@ -93,7 +99,6 @@ exports.findQuestionsBySubjectID = async (req, res, next) => {
             new ApiError(500, "An Error Occurred while retrieving contacts")
         );
     }
-    console.log(documents);
     return res.send(documents);
 };
 
