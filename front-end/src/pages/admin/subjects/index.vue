@@ -1,22 +1,48 @@
 <template>
   <div class="main-top">
-    <h3 class="ms-2 text-underline"><span class="text-decoration-underline">Các môn học:</span></h3>
+    <h3 class="ms-2 text-underline">
+      <span class="text-decoration-underline">Các môn học:</span>
+    </h3>
   </div>
   <!-- Button trigger modal -->
-  <button
-    type="button"
-    class="btn btn-primary ms-2 mb-3"
-    data-bs-toggle="modal"
-    data-bs-target="#addSubjectModal"
-  >
-    Them moi mon hoc
-  </button>
+  <div class="row d-flex align-items-end mb-4">
+    <div class="col-6">
+      <button
+        type="button"
+        class="btn btn-primary ms-2 float-start"
+        data-bs-toggle="modal"
+        data-bs-target="#addSubjectModal"
+      >
+        Thêm mới môn học
+      </button>
+    </div>
+    <div class="col-6">
+      <span>Search</span>
+      <input
+        class="form-control border border-dark"
+        list="datalistOptions"
+        id="exampleDataList"
+        placeholder="Type to search..."
+        v-model="searchValue"
+        @input="debouncedSearch"
+      />
+    </div>
+  </div>
+  <hr />
 
-  <ModalAddSubject :newSubject="newSubject"/>
+  <!-- <datalist id="datalistOptions">
+  <option value="San Francisco">
+  <option value="New York">
+  <option value="Seattle">
+  <option value="Los Angeles">
+  <option value="Chicago">
+</datalist> -->
 
-  <ModalUpdateSubject :currentSubject="currentSubject"/>
+  <ModalAddSubject :newSubject="newSubject" />
 
-  <div class="subjects">
+  <ModalUpdateSubject :currentSubject="currentSubject" />
+
+  <div class="subjects row mx-auto">
     <div v-for="subject in subjects" :key="subject._id" class="card">
       <h4>{{ subject.subject_code }}</h4>
       <h4>{{ subject.subject_name }}</h4>
@@ -37,7 +63,12 @@
         <button
           class="edit_student col-5 mx-auto btn btn-primary"
           name="edit_teacher"
-          @click="$router.push({ name: 'admin-questions-id', params: { id: subject._id} })"
+          @click="
+            $router.push({
+              name: 'admin-questions-id',
+              params: { id: subject._id },
+            })
+          "
         >
           <i class="fa-solid fa-circle-info"></i>
           Xem chi tiet
@@ -56,15 +87,16 @@
 </template>
 
 <script>
-import ModalAddSubject from '../../../components/admin/modals/subjects/ModalAddSubject.vue';
-import ModalUpdateSubject from '../../../components/admin/modals/subjects/ModalUpdateSubject.vue';
+import ModalAddSubject from "../../../components/admin/modals/subjects/ModalAddSubject.vue";
+import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalUpdateSubject.vue";
 import { onMounted, ref } from "vue";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
+import { debounce } from "lodash";
 
 export default {
   components: {
-    ModalAddSubject, 
+    ModalAddSubject,
     ModalUpdateSubject,
   },
   setup(props) {
@@ -80,6 +112,7 @@ export default {
     });
 
     const subjects = ref([]);
+    const searchValue = ref("");
 
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
@@ -93,7 +126,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    };  
+    };
 
     const editSubject = (subject) => {
       currentSubject.value = { ...subject };
@@ -101,7 +134,8 @@ export default {
 
     const deleteSubject = async (subjectId) => {
       const result = await Swal.fire({
-        title: "Bạn có chắc chắn muốn xóa môn học này không, các câu hỏi cũng sẽ bị xóa theo ?",
+        title:
+          "Bạn có chắc chắn muốn xóa môn học này không, các câu hỏi cũng sẽ bị xóa theo ?",
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
         icon: "warning",
         showCancelButton: true,
@@ -144,6 +178,24 @@ export default {
       }
     };
 
+    const searchSubjects = async (searchValue) => {
+      const token = Cookies.get("accessToken");
+      await axios
+        .get(`http://127.0.0.1:3000/api/subject?search_value=${searchValue}`, {
+          headers: { Authorization: "Bearer " + token },
+        })
+        .then((response) => {
+          subjects.value = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    const debouncedSearch = debounce(async () => {
+      await searchSubjects(searchValue.value);
+    }, 300);
+
     onMounted(() => {
       getSubjects();
     });
@@ -152,9 +204,12 @@ export default {
       getSubjects,
       editSubject,
       deleteSubject,
+      searchSubjects,
+      debouncedSearch,
       newSubject,
       subjects,
       currentSubject,
+      searchValue,
     };
   },
 };
