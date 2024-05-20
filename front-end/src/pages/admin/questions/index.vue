@@ -3,14 +3,32 @@
     <h3 class="ms-2 text-underline"><span class="text-decoration-underline">Các câu hỏi của môn học:</span> {{ subjectInfo.subject_code }} ({{ subjectInfo.subject_name }})</h3>
   </div>
   <!-- Button trigger modal -->
-  <button
-    type="button"
-    class="btn btn-primary ms-2 my-2"
-    data-bs-toggle="modal"
-    data-bs-target="#staticBackdrop"
-  >
-    Them cau hoi
-  </button>
+  
+  <!-- Button trigger modal -->
+  <div class="row d-flex align-items-end mb-4">
+    <div class='col-6'>
+      <button
+        type="button"
+        class="btn btn-primary ms-2 float-start"
+        data-bs-toggle="modal"
+        data-bs-target="#addSubjectModal"
+      >
+      Thêm câu hỏi
+      </button>
+    </div>
+    <div class="col-6">
+      <span>Search</span>
+      <input
+        class="form-control border border-dark"
+        list="datalistOptions"
+        id="exampleDataList"
+        placeholder="Type to search..."
+        v-model="searchValue"
+        @input="debouncedSearch"
+      />
+    </div>
+  </div>
+  <hr />
   <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id"/>
   <ModalUpdateQuestion :currentQuestion="currentQuestion"/>
   <ModalDetailQuestion :currentQuestion="currentQuestion"/>
@@ -83,6 +101,7 @@ import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { debounce } from "lodash";
 export default {
   components:{
     ModalAddQuestion,
@@ -104,7 +123,8 @@ export default {
     const subject_id = route.params.id;
     const questions = ref([]);
     const currentQuestion = ref({});
-    const subjectInfo = ref({})
+    const subjectInfo = ref({});
+    const searchValue = ref('');
 
     const getQuestions = async () => {
       const token = Cookies.get("accessToken");
@@ -116,8 +136,6 @@ export default {
           if (response.status == 200) {
             questions.value = response.data;
             subjectInfo.value = questions.value[0].subjectInfo;
-            console.log(subjectInfo);
-            console.log(response.data);
           }
         })
         .catch((error) => {
@@ -197,6 +215,25 @@ export default {
       }
     };
 
+    const searchQuestions = async (searchValue) => {
+      const token = Cookies.get("accessToken");
+      await axios
+        .get(`http://127.0.0.1:3000/api/question/subject/${subject_id}?search_value=${searchValue}`, {
+          headers: { Authorization: "Bearer " + token },
+        })
+        .then((response) => {
+          questions.value = response.data;
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    const debouncedSearch = debounce(async () => {
+      await searchQuestions(searchValue.value);
+    }, 300);
+
     onMounted(() => {
       getQuestions();
     });
@@ -212,6 +249,9 @@ export default {
       questions,
       currentQuestion,
       subjectInfo,
+      searchQuestions,
+      debouncedSearch,
+      searchValue
     };
   },
 };
