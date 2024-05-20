@@ -62,7 +62,7 @@ exports.findOne = async (req, res, next) => {
         const subjectId = new ObjectId(req.params.subjectID);
         documents = await questionService.find({ subject_id: subjectId });
         if (!documents) {
-            return next(new ApiError(404, "Contact not found"));
+            return next(new ApiError(404, "Không tìm thấy"));
         }
         
     } catch (error) {

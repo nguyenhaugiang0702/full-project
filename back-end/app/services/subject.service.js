@@ -38,18 +38,29 @@ class SubjectService {
         });
     }
 
-    async findByNameAndAdmin(name, adminId) {
+    async findByNameAndAdmin(subject_name, adminId) {
         return await this.Subject.findOne({ 
-            subject_name: { $regex: new RegExp(`^${name}$`, 'i') },
+            subject_name: { $regex: new RegExp(`^${subject_name}$`, 'i') },
             admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null, 
         });
     }
 
-    async findByCodeAndAdmin(code, adminId) {
+    async findByCodeAndAdmin(subject_code, adminId) {
         return await this.Subject.findOne({ 
-            subject_code: { $regex: new RegExp(`^${code}$`, 'i') },
+            subject_code: { $regex: new RegExp(`^${subject_code}$`, 'i') },
             admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,  
         });
+    }
+
+    async findByCodeAndName(subject_code, subject_name) {
+        const codeRegex = new RegExp(subject_code, 'i'); // Tạo regex cho tìm kiếm không phân biệt chữ hoa chữ thường theo mã môn học
+        const nameRegex = new RegExp(subject_name, 'i'); // Tạo regex cho tìm kiếm không phân biệt chữ hoa chữ thường theo tên môn học
+        return await this.Subject.find({
+            $or: [
+                { subject_code: { $regex: codeRegex } },
+                { subject_name: { $regex: nameRegex } }
+            ]
+        }).toArray();
     }
 
     // update

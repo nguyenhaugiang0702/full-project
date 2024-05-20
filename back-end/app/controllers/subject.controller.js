@@ -48,9 +48,10 @@ exports.findALL = async (req, res, next) => {
         const subjectService = new SubjectService(MongoDB.client);
         const questionService = new QuestionService(MongoDB.client);
         const admin_id = new ObjectId(req.admin.admin_id);
-        const { name } = req.query;
-        if (name) {
-            documents = await subjectService.findByName(name);
+        const { search_value } = req.query;
+        if (search_value) {
+            documents = await subjectService.findByCodeAndName(search_value, search_value);
+            console.log('Documents found with search_value:', documents);
         } else {
             documents = await subjectService.find({ admin_id: admin_id });
         }
@@ -59,6 +60,7 @@ exports.findALL = async (req, res, next) => {
             const questionCount = await questionService.countBySubjectId(subject._id);
             subject.questionCount = questionCount;
         }));
+
     } catch (error) {
         return next(
             new ApiError(500, "An Error Occurred while retrieving contacts")
