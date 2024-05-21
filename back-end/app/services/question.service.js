@@ -50,11 +50,11 @@ class QuestionService {
         const nameRegex = new RegExp(question_name, 'i');
         return await this.Question.find({
             subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
-            question_name: { $regex: nameRegex }, 
+            question_name: { $regex: nameRegex },
         }).toArray();
     }
 
-    async findBySubjectID(subject_id) { 
+    async findBySubjectID(subject_id) {
         return await this.Subject.find({
             subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
         }).toArray();
@@ -92,6 +92,18 @@ class QuestionService {
     async deleteBySubjectId(subjectId) {
         const result = await this.Question.deleteMany({ subject_id: new ObjectId(subjectId) });
         return result.deletedCount;
+    }
+
+    shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    async aggregate(pipeline) {
+        return await this.Question.aggregate(pipeline).toArray();
     }
 }
 

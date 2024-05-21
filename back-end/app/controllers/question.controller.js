@@ -40,11 +40,11 @@ exports.findALL = async (req, res, next) => {
             documents = await questionService.findByNameAndSubjectID(search_value, subject_id);
         }
         console.log(documents);
-        await Promise.all(documents.map( async (document) => {
+        await Promise.all(documents.map(async (document) => {
             const subjectInfo = await subjectService.findById(document.subject_id);
             document.subjectInfo = subjectInfo;
         }))
-        
+
     } catch (error) {
         return next(
             new ApiError(500, "An Error Occurred while retrieving contacts")
@@ -65,7 +65,7 @@ exports.findOne = async (req, res, next) => {
         if (!documents) {
             return next(new ApiError(404, "Không tìm thấy"));
         }
-        
+
     } catch (error) {
         return next(
             new ApiError(500, "An Error Occurred while retrieving contacts")
@@ -82,18 +82,54 @@ exports.findQuestionsBySubjectID = async (req, res, next) => {
         const subjectService = new SubjectService(MongoDB.client);
         const subjectId = new ObjectId(req.params.subjectID);
         const { search_value } = req.query;
-        if(search_value){
+        if (search_value) {
             documents = await questionService.findByNameAndSubjectID(search_value, subjectId);
-        }else{
+        } else {
             documents = await questionService.find({ subject_id: subjectId });
         }
         if (!documents) {
             return next(new ApiError(404, "Contact not found"));
         }
-        await Promise.all(documents.map( async (document) => {
+        await Promise.all(documents.map(async (document) => {
             const subjectInfo = await subjectService.findById(document.subject_id);
             document.subjectInfo = subjectInfo;
         }))
+    } catch (error) {
+        return next(
+            new ApiError(500, "An Error Occurred while retrieving contacts")
+        );
+    }
+    return res.send(documents);
+};
+
+exports.findRandomQuestionsBySubjectID = async (req, res, next) => {
+    let documents = [];
+
+    try {
+        const questionService = new QuestionService(MongoDB.client);
+        const subjectService = new SubjectService(MongoDB.client);
+        const subjectId = new ObjectId(req.params.subjectID);
+        let { numberRandom } = req.query;
+        numberRandom = parseInt(numberRandom);
+        documents = await questionService.aggregate([
+            { $match: { subject_id: subjectId } },
+            { $sample: { size: numberRandom } }
+        ]);
+
+        // documents = await questionService.find({ subject_id: subjectId });
+        documents = await questionService.shuffleArray(documents);
+        if (!documents || documents.length === 0) {
+            return next(new ApiError(404, "No questions found for this subject"));
+        }
+        await Promise.all(documents.map(async (document) => {
+            const subjectInfo = await subjectService.findById(document.subject_id);
+            document.subjectInfo = subjectInfo;
+            // Trộn ngẫu nhiên các đáp án của câu hỏi
+            if (document.options && document.options.length > 0) {
+                document.options = await questionService.shuffleArray(document.options);
+            }
+        }))
+        console.log(documents);
     } catch (error) {
         return next(
             new ApiError(500, "An Error Occurred while retrieving contacts")

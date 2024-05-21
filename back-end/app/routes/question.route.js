@@ -14,6 +14,11 @@ router
     .get(authenticateToken.authenticateTokenFromHeader, questions.findQuestionsBySubjectID)
 
 router
+    .route("/subject/:subjectID/random")
+    .get(authenticateToken.authenticateTokenFromHeader, questions.findRandomQuestionsBySubjectID)
+
+
+router
     .route("/:questionID")
     .get(authenticateToken.authenticateTokenFromHeader, questions.findOne)
     .put(authenticateToken.authenticateTokenFromHeader, questions.update)
