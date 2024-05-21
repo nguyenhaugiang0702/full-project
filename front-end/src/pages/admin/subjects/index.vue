@@ -57,7 +57,7 @@
           name="edit_teacher"
           @click="
             $router.push({
-              name: 'admin-questions-id',
+              name: 'admin-questions',
               params: { id: subject._id },
             })
           "

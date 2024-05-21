@@ -1,0 +1,147 @@
+<template>
+  <div class="container mt-4">
+    <div class="header text-center border border-dark">
+      <h1>Trộn câu hỏi</h1>
+      <div class="text-center mt-4">
+        <button
+          class="btn btn-danger"
+          @click="shuffleQuestions"
+          :disabled="loading"
+        >
+          <span v-if="loading" class="spinner"></span>
+          <span v-else>Bắt đầu</span>
+        </button>
+        <input
+          type="number"
+          v-model="numberRandom"
+          class="ms-3 text-dark number-random text-center border border-dark"
+          min="1"
+        />
+      </div>
+    </div>
+    <div class="exam-content" :class="{ loading: loading }">
+      <div
+        v-for="(question, index) in questionsRandom"
+        :key="index"
+        class="mb-4"
+      >
+        <h5>{{ index + 1 }}. {{ question.question_name }}</h5>
+        <div class="options ms-3">
+          <div
+            v-for="(option, i) in question.options"
+            :key="i"
+            class="form-check"
+          >
+            <label
+              class="form-check-label"
+              :class="{ 'fw-bold': option.is_correct }"
+            >
+              {{ String.fromCharCode(65 + i) }}. {{ option.answer }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import Cookies from "js-cookie";
+export default {
+  setup() {
+    const questionsRandom = ref([]);
+    const subject_id = useRoute().params.id;
+    const loading = ref(false);
+    const numberRandom = ref(1);
+    const getQuestionsRandom = async (numberRandom) => {
+      console.log(numberRandom);
+      loading.value = true;
+      const token = Cookies.get("accessToken");
+      await axios
+        .get(
+          `http://127.0.0.1:3000/api/question/subject/${subject_id}/random?numberRandom=${numberRandom}`,
+          {
+            headers: { Authorization: "Bearer " + token },
+          }
+        )
+        .then((result) => {
+          if (result.status == 200) {
+            questionsRandom.value = result.data;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          loading.value = false; // Set loading to false after fetching data
+        });
+    };
+
+    const shuffleQuestions = async () => {
+      await getQuestionsRandom(numberRandom.value);
+    };
+
+    return {
+      getQuestionsRandom,
+      shuffleQuestions,
+      questionsRandom,
+      loading,
+      numberRandom,
+    };
+  },
+};
+</script>
+
+<style scoped>
+.header {
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+}
+.exam-content {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+}
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #007bff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: -25px;
+  margin-left: -25px;
+}
+.number-random {
+  width: 75px;
+  height: 30px;
+}
+</style>

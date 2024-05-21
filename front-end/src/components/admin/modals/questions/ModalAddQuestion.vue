@@ -2,17 +2,17 @@
   <!-- Modal add -->
   <div
     class="modal fade"
-    id="staticBackdrop"
+    id="addQuestionModal"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    aria-labelledby="staticBackdropLabel"
+    aria-labelledby="addQuestionModalLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          <h1 class="modal-title fs-5" id="addQuestionModalLabel">
             Them moi cau hoi
           </h1>
           <button

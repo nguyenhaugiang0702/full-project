@@ -11,8 +11,13 @@ const admin = [
       },
       {
         path: "subjects/:id",
-        name: "admin-questions-id",
+        name: "admin-questions",
         component: () => import("../pages/admin/questions/index.vue"),
+      },
+      {
+        path: "subjects/random-question/:id",
+        name: "admin-questions-radndom",
+        component: () => import("../pages/admin/questions/random-question.vue"),
       },
     ],
   },

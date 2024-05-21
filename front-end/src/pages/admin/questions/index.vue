@@ -1,19 +1,33 @@
 <template>
   <div class="main-top">
-    <h3 class="ms-2 text-underline"><span class="text-decoration-underline">Các câu hỏi của môn học:</span> {{ subjectInfo.subject_code }} ({{ subjectInfo.subject_name }})</h3>
+    <h3 class="ms-2 text-underline">
+      <span class="text-decoration-underline">Các câu hỏi của môn học:</span>
+      {{ subjectInfo.subject_code }} ({{ subjectInfo.subject_name }})
+    </h3>
   </div>
-  <!-- Button trigger modal -->
-  
+
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
-    <div class='col-6'>
+    <div class="col-6">
       <button
         type="button"
         class="btn btn-primary ms-2 float-start"
         data-bs-toggle="modal"
-        data-bs-target="#addSubjectModal"
+        data-bs-target="#addQuestionModal"
       >
-      Thêm câu hỏi
+        Thêm câu hỏi
+      </button>
+      <button
+        type="button"
+        class="btn btn-success ms-2 float-start"
+        @click="
+          $router.push({
+            name: 'admin-questions-radndom',
+            params: { id: subject_id },
+          })
+        "
+      >
+        Trộn câu hỏi
       </button>
     </div>
     <div class="col-6">
@@ -29,11 +43,15 @@
     </div>
   </div>
   <hr />
-  <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id"/>
-  <ModalUpdateQuestion :currentQuestion="currentQuestion"/>
-  <ModalDetailQuestion :currentQuestion="currentQuestion"/>
+  <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id" />
+  <ModalUpdateQuestion :currentQuestion="currentQuestion" />
+  <ModalDetailQuestion :currentQuestion="currentQuestion" />
   <div class="subjects row">
-    <div v-for="question in questions" :key="question._id" class="card">
+    <div
+      v-for="question in paginatedQuestions"
+      :key="question._id"
+      class="card"
+    >
       <div class="card-body">
         <span>
           {{
@@ -42,7 +60,11 @@
               : truncatedQuestionContent(question.question_name)
           }}
         </span>
-        <span v-if="question.question_name.length > 100" class="fw-bold hover-text ms-2" @click="expandQuestion(question)">
+        <span
+          v-if="question.question_name.length > 100"
+          class="fw-bold hover-text ms-2"
+          @click="expandQuestion(question)"
+        >
           {{ question.isExpanded ? "Thu gọn" : "Xem thêm" }}
         </span>
       </div>
@@ -91,22 +113,29 @@
       </div>
     </div>
   </div>
+  <div class="pagination">
+    <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button @click="nextPage" :disabled="currentPage === totalPages">
+      Next
+    </button>
+  </div>
 </template>
 <script>
 import ModalAddQuestion from "@/components/admin/modals/questions/ModalAddQuestion.vue";
 import ModalUpdateQuestion from "@/components/admin/modals/questions/ModalUpdateQuestion.vue";
 import ModalDetailQuestion from "@/components/admin/modals/questions/ModalDetailQuestion.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { debounce } from "lodash";
 export default {
-  components:{
+  components: {
     ModalAddQuestion,
     ModalUpdateQuestion,
-    ModalDetailQuestion
+    ModalDetailQuestion,
   },
   setup(props) {
     const newQuestion = ref({
@@ -124,7 +153,31 @@ export default {
     const questions = ref([]);
     const currentQuestion = ref({});
     const subjectInfo = ref({});
-    const searchValue = ref('');
+    const searchValue = ref("");
+    const currentPage = ref(1);
+    const questionsPerPage = ref(9);
+
+    const paginatedQuestions = computed(() => {
+      const start = (currentPage.value - 1) * questionsPerPage.value;
+      const end = start + questionsPerPage.value;
+      return questions.value.slice(start, end);
+    });
+
+    const totalPages = computed(() => {
+      return Math.ceil(questions.value.length / questionsPerPage.value);
+    });
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
+    };
 
     const getQuestions = async () => {
       const token = Cookies.get("accessToken");
@@ -218,9 +271,12 @@ export default {
     const searchQuestions = async (searchValue) => {
       const token = Cookies.get("accessToken");
       await axios
-        .get(`http://127.0.0.1:3000/api/question/subject/${subject_id}?search_value=${searchValue}`, {
-          headers: { Authorization: "Bearer " + token },
-        })
+        .get(
+          `http://127.0.0.1:3000/api/question/subject/${subject_id}?search_value=${searchValue}`,
+          {
+            headers: { Authorization: "Bearer " + token },
+          }
+        )
         .then((response) => {
           questions.value = response.data;
           console.log(response.data);
@@ -251,8 +307,58 @@ export default {
       subjectInfo,
       searchQuestions,
       debouncedSearch,
-      searchValue
+      searchValue,
+      nextPage,
+      prevPage,
+      totalPages,
+      paginatedQuestions,
+      questionsPerPage,
+      currentPage,
     };
   },
 };
 </script>
+<style>
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination button {
+  margin: 10px 10px;
+  padding: 5px 5px;
+  border: 1px solid #000;
+  border-radius: 10px;
+}
+
+.pagination button:hover {
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 10px;
+  transition: 0.6s;
+  cursor: pointer;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.subjects {
+  flex-grow: 1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+}
+</style>
