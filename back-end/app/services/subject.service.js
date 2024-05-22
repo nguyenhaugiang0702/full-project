@@ -38,6 +38,13 @@ class SubjectService {
         });
     }
 
+    // findByAdminId
+    async findByAdminId(id) {
+        return await this.Subject.findOne({
+            admin_id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+        });
+    }
+
     async findByNameAndAdmin(subject_name, adminId) {
         return await this.Subject.findOne({
             subject_name: { $regex: new RegExp(subject_name, 'i') },
@@ -88,8 +95,8 @@ class SubjectService {
     }
 
     // deleteAll
-    async deleteAll() {
-        const result = await this.Subject.deleteMany({});
+    async deleteAll(adminId) {
+        const result = await this.Subject.deleteMany({admin_id: adminId});
         return result.deletedCount;
     }
 }

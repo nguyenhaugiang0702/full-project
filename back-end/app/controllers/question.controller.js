@@ -23,7 +23,7 @@ exports.create = async (req, res, next) => {
         return res.send(document);
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while creating the contact")
+            new ApiError(500, "An Error Occurred while creating the question")
         );
     }
 };
@@ -47,7 +47,7 @@ exports.findALL = async (req, res, next) => {
 
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving questions")
         );
     }
 
@@ -68,7 +68,7 @@ exports.findOne = async (req, res, next) => {
 
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving questions")
         );
     }
     return res.send(documents);
@@ -88,7 +88,7 @@ exports.findQuestionsBySubjectID = async (req, res, next) => {
             documents = await questionService.find({ subject_id: subjectId });
         }
         if (!documents) {
-            return next(new ApiError(404, "Contact not found"));
+            return next(new ApiError(404, "questions not found"));
         }
         await Promise.all(documents.map(async (document) => {
             const subjectInfo = await subjectService.findById(document.subject_id);
@@ -96,7 +96,7 @@ exports.findQuestionsBySubjectID = async (req, res, next) => {
         }))
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving questions")
         );
     }
     return res.send(documents);
@@ -132,7 +132,7 @@ exports.findRandomQuestionsBySubjectID = async (req, res, next) => {
         console.log(documents);
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving questions")
         );
     }
     return res.send(documents);
@@ -175,11 +175,11 @@ exports.update = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Không tìm thấy câu hỏi"));
         }
-        return res.send({ messgae: "Subject was updated successfully" });
+        return res.send({ messgae: "Question was updated successfully" });
 
     } catch (error) {
         return next(
-            new ApiError(500, `Error updating contact with id=${req.params.questionID}`)
+            new ApiError(500, `Error updating question with id=${req.params.questionID}`)
         );
     }
 };
@@ -189,12 +189,12 @@ exports.delete = async (req, res, next) => {
         const questionService = new QuestionService(MongoDB.client);
         const document = await questionService.delete(req.params.questionID);
         if (!document) {
-            return next(new ApiError(404, "Subject not found"));
+            return next(new ApiError(404, "Question not found"));
         }
-        return res.send({ messgae: "Subject was deleted successfully" });
+        return res.send({ messgae: "Question was deleted successfully" });
     } catch (error) {
         return next(
-            new ApiError(500, `Could not delete Subject with id=${req.params.questionID}`)
+            new ApiError(500, `Could not delete Question with id=${req.params.questionID}`)
         );
     }
 };
@@ -204,11 +204,11 @@ exports.deleteALL = async (req, res, next) => {
         const questionService = new QuestionService(MongoDB.client);
         const deletedCount = await questionService.deleteAll();
         return res.send({
-            message: `${deletedCount} contacts were deleted successfully`,
+            message: `${deletedCount} Questions were deleted successfully`,
         });
     } catch (error) {
         return next(
-            new ApiError(500, 'An Error Occurred while removing all contacts')
+            new ApiError(500, 'An Error Occurred while removing all Questions')
         );
     }
 };

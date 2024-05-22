@@ -1,5 +1,4 @@
 const { ObjectId } = require("mongodb");
-const fs = require('fs').promises;
 const bcrypt = require('bcrypt');
 
 class adminService {
@@ -13,7 +12,7 @@ class adminService {
             admin_name: payload.admin_name,
             admin_password: payload.admin_password,
             admin_email: payload.admin_email,
-            admin_role: payload.admin_role || 'admin',
+            admin_role: payload.admin_role || 'teacher',
         };
         // Remove undefined fields
         Object.keys(admin).forEach(
@@ -33,8 +32,8 @@ class adminService {
     async authenticate(payload) {
         const adminData = this.extractAdminData(payload);
         const admin = await this.Admin.findOne({ admin_id: adminData.admin_id, admin_email: adminData.admin_email });
-        // const isPasswordValid = await bcrypt.compare(adminData.admin_pass, admin.admin_pass);
-        const isPasswordValid = adminData.admin_pass === admin.admin_pass;
+        const isPasswordValid = await bcrypt.compare(adminData.admin_password, admin.admin_password);
+
         if (isPasswordValid) {
             return admin;
         } else {
@@ -49,9 +48,27 @@ class adminService {
     }
 
     // findByName
-    async findByName(name) {
-        return await this.find({
-            name: { $regex: new RegExp(name), $options: "i" },
+    async findByAdminName(name) {
+        return await this.Admin.findOne({
+            admin_name: { $regex: new RegExp(name), $options: "i" },
+        });
+    }
+
+    // findByName
+    async findByAdminNameAndEmail(name, email, role) {
+        return await this.Admin.find({
+            admin_role: role,
+            $or: [
+                {admin_name: { $regex: new RegExp(name), $options: "i" },},
+                {admin_email: { $regex: new RegExp(email), $options: "i" },},
+            ]
+        }).toArray();
+    }
+
+    // findByName
+    async findByAdminEmail(email) {
+        return await this.Admin.findOne({
+            admin_email: { $regex: new RegExp(email), $options: "i" },
         });
     }
 
@@ -90,6 +107,29 @@ class adminService {
     async deleteAll() {
         const result = await this.Admin.deleteMany({});
         return result.deletedCount;
+    }
+
+    // check
+    async checkAdd(adminId, adminName, adminEmail) {
+        const adminIdExist = await this.Admin.findOne({
+            admin_id: adminId
+        });
+        if (adminIdExist) {
+            throw new Error('ID da ton tai');
+        }
+        const adminNameExist = await this.Admin.findOne({
+            admin_name: { $regex: new RegExp(adminName), $options: "i" },
+        });
+        if (adminNameExist) {
+            throw new Error('Ten da ton tai');
+        }
+        const adminEmailExist = await this.Admin.findOne({
+            admin_email: { $regex: new RegExp(adminEmail), $options: "i" },
+        });
+        if (adminEmailExist) {
+            throw new Error('Email da duoc su dung');
+        }
+        return true;
     }
 }
 module.exports = adminService;

@@ -36,7 +36,7 @@ exports.create = async (req, res, next) => {
         return res.send(document);
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while creating the contact")
+            new ApiError(500, "An Error Occurred while creating the subject")
         );
     }
 };
@@ -62,7 +62,7 @@ exports.findALL = async (req, res, next) => {
 
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving subjects")
         );
     }
 
@@ -75,12 +75,12 @@ exports.findOne = async (req, res, next) => {
         const subjectService = new SubjectService(MongoDB.client);
         const document = await subjectService.findById(req.params.id);
         if (!document) {
-            return next(new ApiError(404, "Contact not found"));
+            return next(new ApiError(404, "subject not found"));
         }
         return res.send(document);
     } catch (error) {
         return next(
-            new ApiError(500, "An Error Occurred while retrieving contacts")
+            new ApiError(500, "An Error Occurred while retrieving subjects")
         );
     }
 };
@@ -110,23 +110,23 @@ exports.update = async (req, res, next) => {
         };
 
         if (nameExist && !codeExist) {
-            const document = await subjectService.update(subjectId, req.body);
-            if (!document) {
-                return next(new ApiError(404, "Subject not found"));
-            }
+            // cap nhap ten
+            await subjectService.update(subjectId, req.body);
         } else if (!nameExist && codeExist) {
-            const document = await subjectService.update(subjectId, req.body);
-            if (!document) {
-                return next(new ApiError(404, "Subject not found"));
-            }
+            // cap nhap ma mon
+            await subjectService.update(subjectId, req.body);
+        } else if (!nameExist && !codeExist) {
+            // cap nhap ca 2
+            await subjectService.update(subjectId, req.body);
         } else {
+            // trung khi cap nhap
             return next(new ApiError(400, "Tên môn học, Mã môn học đã tồn tại"));
         }
 
         return res.send({ messgae: "Subject was updated successfully" });
     } catch (error) {
         return next(
-            new ApiError(500, `Error updating contact with id=${req.params.subjectID}`)
+            new ApiError(500, `Error updating subject with id=${req.params.subjectID}`)
         );
     }
 };
@@ -154,11 +154,11 @@ exports.deleteALL = async (req, res, next) => {
         const subjectService = new SubjectService(MongoDB.client);
         const deletedCount = await subjectService.deleteAll();
         return res.send({
-            message: `${deletedCount} contacts were deleted successfully`,
+            message: `${deletedCount} subjects were deleted successfully`,
         });
     } catch (error) {
         return next(
-            new ApiError(500, 'An Error Occurred while removing all contacts')
+            new ApiError(500, 'An Error Occurred while removing all subjects')
         );
     }
 };
