@@ -56,7 +56,6 @@ export default {
     const loading = ref(false);
     const numberRandom = ref(1);
     const getQuestionsRandom = async (numberRandom) => {
-      console.log(numberRandom);
       loading.value = true;
       const token = Cookies.get("accessToken");
       await axios

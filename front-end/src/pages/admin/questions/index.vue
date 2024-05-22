@@ -113,18 +113,13 @@
       </div>
     </div>
   </div>
-  <div class="pagination">
-    <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button @click="nextPage" :disabled="currentPage === totalPages">
-      Next
-    </button>
-  </div>
+  <Paginition :documents="questions" @update:paginatedDocument="handlePaginatedDocumentUpdate"/>
 </template>
 <script>
 import ModalAddQuestion from "@/components/admin/modals/questions/ModalAddQuestion.vue";
 import ModalUpdateQuestion from "@/components/admin/modals/questions/ModalUpdateQuestion.vue";
 import ModalDetailQuestion from "@/components/admin/modals/questions/ModalDetailQuestion.vue";
+import Paginition from "@/components/admin/Pagination.vue";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
@@ -136,6 +131,7 @@ export default {
     ModalAddQuestion,
     ModalUpdateQuestion,
     ModalDetailQuestion,
+    Paginition,
   },
   setup(props) {
     const newQuestion = ref({
@@ -154,30 +150,7 @@ export default {
     const currentQuestion = ref({});
     const subjectInfo = ref({});
     const searchValue = ref("");
-    const currentPage = ref(1);
-    const questionsPerPage = ref(9);
-
-    const paginatedQuestions = computed(() => {
-      const start = (currentPage.value - 1) * questionsPerPage.value;
-      const end = start + questionsPerPage.value;
-      return questions.value.slice(start, end);
-    });
-
-    const totalPages = computed(() => {
-      return Math.ceil(questions.value.length / questionsPerPage.value);
-    });
-
-    const nextPage = () => {
-      if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-      }
-    };
-
-    const prevPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value--;
-      }
-    };
+    const paginatedQuestions = ref([]);
 
     const getQuestions = async () => {
       const token = Cookies.get("accessToken");
@@ -204,6 +177,10 @@ export default {
           }
         });
     };
+
+    const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
+      paginatedQuestions.value = newPaginatedDocument;
+    }
 
     const editQuestion = (question) => {
       currentQuestion.value = { ...question };
@@ -308,12 +285,8 @@ export default {
       searchQuestions,
       debouncedSearch,
       searchValue,
-      nextPage,
-      prevPage,
-      totalPages,
-      paginatedQuestions,
-      questionsPerPage,
-      currentPage,
+      handlePaginatedDocumentUpdate,
+      paginatedQuestions
     };
   },
 };

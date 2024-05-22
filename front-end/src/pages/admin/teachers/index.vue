@@ -1,9 +1,10 @@
 <template>
   <div class="main-top">
     <h3 class="ms-2 text-underline">
-      <span class="text-decoration-underline">Các môn học:</span>
+      <span class="text-decoration-underline">Tai khoan giang vien</span>
     </h3>
   </div>
+
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
     <div class="col-6">
@@ -11,9 +12,9 @@
         type="button"
         class="btn btn-primary ms-2 float-start"
         data-bs-toggle="modal"
-        data-bs-target="#addSubjectModal"
+        data-bs-target="#addTeacherModal"
       >
-        Thêm mới môn học
+        Thêm mới giao vien
       </button>
     </div>
     <div class="col-6">
@@ -29,24 +30,22 @@
     </div>
   </div>
   <hr />
-
-  <ModalAddSubject :newSubject="newSubject" />
-
-  <ModalUpdateSubject :currentSubject="currentSubject" />
-
+  <ModalAddTeacher :newTeacher="newTeacher"/>
+  <ModalUpdateTeacher :currentTeacher="currentTeacher"/>
   <div class="subjects row mx-auto">
-    <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
-      <h4>{{ subject.subject_code }}</h4>
-      <h4>{{ subject.subject_name }}</h4>
-      <div>Số câu hỏi: {{ subject.questionCount }}</div>
+    <div v-for="teacher in teachers" :key="teacher._id" class="card">
+      <h4>ID: {{ teacher.admin_id }}</h4>
+      <h4> {{ teacher.admin_name }}</h4>
+      <div>Email: {{ teacher.admin_email }}</div>
+      <!-- <div>Số câu hỏi: {{ teacher.questionCount }}</div> -->
       <div class="row mt-2">
         <button
           class="edit_student col-3 mx-auto btn btn-warning ms-2"
           name="edit_teacher"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#updateSubjectModal"
-          @click="editSubject(subject)"
+          data-bs-target="#updateTeacherModal"
+          @click="editTeacher(teacher)"
         >
           <i class="fa-solid fa-pen-to-square"></i>
           Sua
@@ -58,7 +57,7 @@
           @click="
             $router.push({
               name: 'admin-questions',
-              params: { id: subject._id },
+              params: { id: teacher._id },
             })
           "
         >
@@ -68,7 +67,7 @@
         <button
           class="edit_student col-3 mx-auto btn btn-danger"
           name="edit_teacher"
-          @click="deleteSubject(subject._id)"
+          @click="deleteTeacher(teacher._id)"
         >
           <i class="fa-solid fa-trash"></i>
           Xoa
@@ -76,48 +75,49 @@
       </div>
     </div>
   </div>
-  <Paginition :documents="subjects" @update:paginatedDocument="handlePaginatedDocumentUpdate"/>
 </template>
-
 <script>
-import ModalAddSubject from "../../../components/admin/modals/subjects/ModalAddSubject.vue";
-import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalUpdateSubject.vue";
+import ModalAddTeacher from "../../../components/admin/modals/teachers/ModalAddTeacher.vue";
+import ModalUpdateTeacher from "../../../components/admin/modals/teachers/ModalUpdateTeacher.vue";
 import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import { debounce } from "lodash";
-
 export default {
   components: {
-    ModalAddSubject,
-    ModalUpdateSubject,
-    Paginition,
+    ModalAddTeacher,
+    ModalUpdateTeacher
   },
-  setup(props) {
-    const newSubject = ref({
-      subject_name: "",
-      subject_code: "",
+  setup() {
+    const newTeacher = ref({
+      admin_id: "",
+      admin_name: "",
+      admin_email: "",
+      admin_password: "",
     });
 
-    const currentSubject = ref({
+    const currentTeacher = ref({
       _id: "",
-      subject_name: "",
-      subject_code: "",
+      admin_id: "",
+      admin_name: "",
+      admin_email: "",
+      admin_password: "",
+      admin_role: "",
     });
 
-    const subjects = ref([]);
+    const teachers = ref([]);
     const paginatedSubjects = ref([]);
     const searchValue = ref("");
 
-    const getSubjects = async () => {
+    const getTeachers = async () => {
       const token = Cookies.get("accessToken");
       await axios
-        .get("http://127.0.0.1:3000/api/subject", {
+        .get("http://127.0.0.1:3000/api/admin", {
           headers: { Authorization: "Bearer " + token },
         })
         .then((response) => {
-          subjects.value = response.data;
+          teachers.value = response.data;
         })
         .catch((error) => {
           console.log(error);
@@ -126,16 +126,16 @@ export default {
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
       paginatedSubjects.value = newPaginatedDocument;
-    }
-
-    const editSubject = (subject) => {
-      currentSubject.value = { ...subject };
     };
 
-    const deleteSubject = async (subjectId) => {
+    const editTeacher = (teacher) => {
+      currentTeacher.value = { ...teacher };
+    };
+
+    const deleteTeacher = async (teacherId) => {
       const result = await Swal.fire({
         title:
-          "Bạn có chắc chắn muốn xóa môn học này không, các câu hỏi cũng sẽ bị xóa theo ?",
+          "Bạn có chắc chắn muốn xóa giảng viên này không, các câu hỏi và môn học cũng sẽ bị xóa theo ?",
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
         icon: "warning",
         showCancelButton: true,
@@ -147,7 +147,7 @@ export default {
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
         await axios
-          .delete(`http://127.0.0.1:3000/api/subject/${subjectId}`, {
+          .delete(`http://127.0.0.1:3000/api/admin/${teacherId}`, {
             headers: { Authorization: "Bearer " + token },
           })
           .then(async (response) => {
@@ -178,14 +178,14 @@ export default {
       }
     };
 
-    const searchSubjects = async (searchValue) => {
+    const searchTeachers = async (searchValue) => {
       const token = Cookies.get("accessToken");
       await axios
-        .get(`http://127.0.0.1:3000/api/subject?search_value=${searchValue}`, {
+        .get(`http://127.0.0.1:3000/api/admin?search_value=${searchValue}`, {
           headers: { Authorization: "Bearer " + token },
         })
         .then((response) => {
-          subjects.value = response.data;
+          teachers.value = response.data;
         })
         .catch((error) => {
           console.log(error);
@@ -193,25 +193,25 @@ export default {
     };
 
     const debouncedSearch = debounce(async () => {
-      await searchSubjects(searchValue.value);
+      await searchTeachers(searchValue.value);
     }, 300);
 
     onMounted(() => {
-      getSubjects();
+      getTeachers();
     });
 
     return {
-      getSubjects,
-      editSubject,
-      deleteSubject,
-      searchSubjects,
+      getTeachers,
+      editTeacher,
+      deleteTeacher,
+      searchTeachers,
       debouncedSearch,
-      newSubject,
-      subjects,
-      currentSubject,
+      newTeacher,
+      teachers,
+      currentTeacher,
       searchValue,
       handlePaginatedDocumentUpdate,
-      paginatedSubjects
+      paginatedSubjects,
     };
   },
 };

@@ -2,11 +2,18 @@ const admin = [
   {
     path: "/admin",
     component: () => import("../layouts/admin.vue"),
+    prop: true,
     children: [
       {
         path: "",
         name: "admin-subjects",
         component: () => import("../pages/admin/subjects/index.vue"),
+        prop: true,
+      },
+      {
+        path: "teachers",
+        name: "admin-teachers",
+        component: () => import("../pages/admin/teachers/index.vue"),
         prop: true,
       },
       {
