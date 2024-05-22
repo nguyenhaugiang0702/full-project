@@ -4,10 +4,9 @@
   </div>
   <div class="center">
     <h1>Login by Teacher</h1>
-    <Form
+    <form
       class="form"
       @submit.prevent="loginAdmin()"
-      :validation-schema="loginAdminSchema"
     >
       <div class="txt_field">
         <input
@@ -19,7 +18,6 @@
         />
         <span></span>
         <label>ID Number</label>
-        <ErrorMessage name="id_number" class="text-danger" />
       </div>
       <div class="txt_field">
         <input
@@ -31,7 +29,6 @@
         />
         <span></span>
         <label>Email</label>
-        <ErrorMessage name="email" class="text-danger" />
       </div>
       <div class="txt_field">
         <input
@@ -43,14 +40,13 @@
         />
         <span></span>
         <label>Password</label>
-        <ErrorMessage name="password" class="text-danger" />
       </div>
       <button class="btn_login">Login</button>
       <div class="text_bottom">
         Forgot Password. Please contact your teacher or IT Team.
         <br />
       </div>
-    </Form>
+    </form>
     <button class="back_home" onclick="window.location.href='/'">Home</button>
   </div>
 </template>
@@ -71,28 +67,7 @@ export default {
     });
     const router = useRouter();
 
-    const loginAdminSchema = yup.object().shape({
-      id_number: yup
-        .string()
-        .trim()
-        .required("Vui lòng nhập tên")
-        .min(5, "Tên phải ít nhất 5 ký tự.")
-        .max(50, "Tên có nhiều nhất 50 ký tự."),
-      password: yup
-        .string()
-        .trim()
-        .required("Vui lòng nhập mật khẩu")
-        .min(8, "Mật khẩu phải ít nhất 8 ký tự."),
-      email: yup
-        .string()
-        .trim()
-        .required("Vui lòng nhập E-mail")
-        .email("E-mail không đúng.")
-        .max(50, "E-mail tối đa 50 ký tự."),
-    });
-
     const loginAdmin = async () => {
-      // await loginAdminSchema.validate(admin.value, { abortEarly: false }
       const adminData = {
         ...admin.value,
         admin_id: Number(admin.value.admin_id),
@@ -136,7 +111,6 @@ export default {
     return {
       loginAdmin,
       admin,
-      loginAdminSchema,
     };
   },
 };

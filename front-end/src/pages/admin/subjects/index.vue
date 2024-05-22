@@ -6,7 +6,7 @@
   </div>
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
-    <div class="col-6">
+    <div class="col-md-6">
       <button
         type="button"
         class="btn btn-primary ms-2 float-start"
@@ -16,7 +16,7 @@
         Thêm mới môn học
       </button>
     </div>
-    <div class="col-6">
+    <div class="col-md-6">
       <span>Search</span>
       <input
         class="form-control border border-dark"
@@ -36,9 +36,9 @@
 
   <div class="subjects row mx-auto">
     <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
-      <h4>{{ subject.subject_code }}</h4>
-      <h4>{{ subject.subject_name }}</h4>
-      <div>Số câu hỏi: {{ subject.questionCount }}</div>
+      <h4 class="text-uppercase text-center">{{ subject.subject_code }}</h4>
+      <h4 class="text-uppercase text-center">{{ subject.subject_name }}</h4>
+      <div class="text-center">Số câu hỏi: {{ subject.questionCount }}</div>
       <div class="row mt-2">
         <button
           class="edit_student col-3 mx-auto btn btn-warning ms-2"
@@ -66,7 +66,7 @@
           Xem chi tiet
         </button>
         <button
-          class="edit_student col-3 mx-auto btn btn-danger"
+          class="edit_student col-3 col-sm-3 mx-auto btn btn-danger"
           name="edit_teacher"
           @click="deleteSubject(subject._id)"
         >
@@ -216,3 +216,6 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+</style>

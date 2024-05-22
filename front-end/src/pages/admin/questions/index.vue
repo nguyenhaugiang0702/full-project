@@ -8,7 +8,7 @@
 
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
-    <div class="col-6">
+    <div class="col-md-6">
       <button
         type="button"
         class="btn btn-primary ms-2 float-start"
@@ -30,7 +30,7 @@
         Trộn câu hỏi
       </button>
     </div>
-    <div class="col-6">
+    <div class="col-md-6">
       <span>Search</span>
       <input
         class="form-control border border-dark"

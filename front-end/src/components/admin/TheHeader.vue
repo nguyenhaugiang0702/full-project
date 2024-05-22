@@ -3,16 +3,15 @@
     <div class="row">
       <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
         <span @click="showDrawerMenu()">
-          <i class="fa-solid fa-bars fa-xl"></i>
+          <i class="fa-solid fa-bars fa-xl text-white"></i>
         </span>
       </div>
-      <div class="col-10 col-sm-9 d-flex align-items-center justify-content-center justify-content-sm-start">
-        <img width="120px" height="60px" src="../../assets/images/logo.jpg" class="mx-3" alt="ảnh admin" />
-        <span class="d-none d-sm-flex text-white">Quản Trị</span>
+      <div class="col-10 col-sm-9 d-flex align-items-center justify-content-center justify-content-sm-start p-4">
+        <span class="d-none d-sm-flex text-white fw-bold fs-5">Trường chính trị Thành phố Cần Thơ | Quản Trị </span>
       </div>
       <div class="col-sm-3 d-none d-sm-flex align-items-center justify-content-sm-end">
-        <div class="dropdown">
-          <div class="dropdown-toggle text-white  " data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="dropdown me-5">
+          <div class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
             Admin
           </div>
           <ul class="dropdown-menu">
@@ -24,13 +23,13 @@
       </div>
       <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
         <span @click="showDrawerAdmin()">
-          <i class="fa-solid fa-user fa-xl me-2"></i>
+          <i class="fa-solid fa-user fa-xl me-2 text-white"></i>
         </span>
       </div>
     </div>
   </div>
   <a-drawer v-model:open="open_menu" title="Danh Mục" placement="left">
-    <TheMenu />
+    <TheMenuResponsive />
   </a-drawer>
   <a-drawer v-model:open="open_admin" title="Admin" placement="right">
     <div>
@@ -42,10 +41,10 @@
 </template>
 <script>
 import { ref } from 'vue';
-import TheMenu from './TheMenu.vue';
+import TheMenuResponsive from './TheMenuResponsive.vue';
 export default {
   components: {
-    TheMenu,
+    TheMenuResponsive,
   },
   setup() {
     const open_menu = ref(false);

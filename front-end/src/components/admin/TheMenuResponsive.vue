@@ -1,16 +1,16 @@
 <template>
-  <nav class="sidebar border-right">
-    <li>
+  <a-menu
+    v-model:openKeys="openKeys"
+    v-model:selectedKeys="selectedKeys"
+    mode="inline"
+  >
+    <a-menu-item key="admin-subjects">
       <router-link :to="{ name: 'admin-subjects' }">
-        <div class="row py-4 d-flex">
-          <i class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"></i>
-          <div class="text-uppercase fw-bold col-7 ms-4 fs-4 text-break">{{
-            admin.admin_name
-          }}</div>
-        </div>
+        <i class="fa-solid fa-user-gear me-2"></i>
+        <span class="text-uppercase">{{ admin.admin_name }}</span>
       </router-link>
-    </li>
-    <li>
+    </a-menu-item>
+    <a-menu-item key="admin-subjects">
       <router-link
         :to="{ name: 'admin-subjects' }"
         :class="{
@@ -20,27 +20,33 @@
             isActive('admin-questions-radndom'),
         }"
       >
-        <i class="fas fa-list"></i>
-        <span class="nav-item">Môn Học</span>
+      <div class="ms-4">
+        <i class="fas fa-list me-2"></i>
+        <span class="">Môn Học</span>
+      </div>
       </router-link>
-    </li>
-    <li>
+    </a-menu-item>
+    <a-menu-item key="admin-teachers">
       <router-link
         v-if="admin.admin_role == 'admin'"
         :to="{ name: 'admin-teachers' }"
         :class="{ active: isActive('admin-teachers') }"
       >
-        <i class="fas fa-user-tie"></i>
-        <span class="nav-item">Teachers</span>
+      <div class="ms-4">
+        <i class="fas fa-user-tie me-2"></i>
+        <span class="">Teachers</span>
+      </div>
       </router-link>
-    </li>
-    <li>
+    </a-menu-item>
+    <a-menu-item>
+    <div class="ms-4">
       <a @click="logout" class="logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span class="nav-item">Log out</span>
+        <i class="fas fa-sign-out-alt me-2"></i>
+        <span class="">Log out</span>
       </a>
-    </li>
-  </nav>
+    </div>
+    </a-menu-item>
+  </a-menu>
 </template>
 <script>
 import { useRoute } from "vue-router";

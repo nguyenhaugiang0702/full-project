@@ -45,7 +45,7 @@ nav:hover {
   width: 300px;
   transition: 1s;
 }
-.logo {
+/* .logo {
   text-align: center;
   display: flex;
   padding: 10px 0 0 20px;
@@ -62,7 +62,7 @@ nav:hover {
   padding-left: 15px;
   font-size: 18px;
   text-transform: uppercase;
-}
+} */
 a {
   position: relative;
   width: 300px;
@@ -201,4 +201,20 @@ a:hover i {
 .input-option {
   width: 25px;
   height: 25px;
+}
+
+@media only screen and (max-width: 768px) {
+  .subjects .card {
+    width: 100%;
+    margin: 10px 0;
+  }
+  /* .sidebarresponsive{
+    display: none;
+  } */
+}
+
+@media (min-width: 769px) {
+  .sidebarresponsive {
+    display: none;
+  }
 }
