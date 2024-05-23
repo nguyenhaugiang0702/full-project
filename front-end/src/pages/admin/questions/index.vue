@@ -9,6 +9,7 @@
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
     <div class="col-md-6">
+      <!-- Button add question -->
       <button
         type="button"
         class="btn btn-primary ms-2 float-start"
@@ -17,6 +18,8 @@
       >
         Thêm câu hỏi
       </button>
+      <!-- End Button add question -->
+      <!-- Button tron cau hoi -->
       <button
         type="button"
         class="btn btn-success ms-2 float-start"
@@ -29,6 +32,24 @@
       >
         Trộn câu hỏi
       </button>
+      <!-- end Button tron cau hoi -->
+      <!-- Button import file quesstion -->
+      <button
+        type="button"
+        class="btn btn-secondary ms-2 float-start"
+        @click="handleFileButtonClick"
+      >
+        Import Questions
+      </button>
+      <input
+        ref="fileInput"
+        type="file"
+        id="fileInput"
+        accept=".doc,.docx,.txt"
+        @change="handleFileUpload"
+        style="display: none"
+      />
+      <!-- end Button import file quesstion -->
     </div>
     <div class="col-md-6">
       <span>Search</span>
@@ -129,6 +150,8 @@ import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
+import Mammoth from "mammoth";
+
 export default {
   components: {
     ModalAddQuestion,
@@ -230,8 +253,91 @@ export default {
       await searchQuestions(searchValue.value);
     }, 300);
 
+    const fileInputRef = ref(null);
+
+    const handleFileButtonClick = () => {
+      if (fileInputRef.value) {
+        fileInputRef.value.click();
+      } else {
+        console.error("File input element is null.");
+      }
+    };
+
+    const parsedQuestions = ref([]);
+
+    const handleFileUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const arrayBuffer = e.target.result;
+          Mammoth.extractRawText({ arrayBuffer }) // Pass arrayBuffer here
+            .then((result) => {
+              const text = result.value;
+              const data = parseFileContent(text);
+              parsedQuestions.value = data;
+              console.log(parsedQuestions.value);
+            })
+            .catch((error) => {
+              console.error("Error parsing file:", error);
+            });
+        };
+        reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
+      }
+    };
+
+    const parseFileContent = (content) => {
+      const questionsArray = content
+        .split(/\d+\./)
+        .filter((item) => item.trim() !== "");
+
+      const questionsData = questionsArray.map((questionBlock) => {
+        // Tìm vị trí của 'a -' để tách tên câu hỏi và các đáp án
+        const indexOfFirstAnswer = questionBlock.indexOf("a -");
+
+        // Tách tên câu hỏi từ đầu chuỗi đến ngay trước 'a -'
+        const questionName = questionBlock
+          .substring(0, indexOfFirstAnswer)
+          .trim();
+
+        // Phần còn lại là các đáp án
+        const answersPart = questionBlock.substring(indexOfFirstAnswer).trim();
+
+        // Sử dụng regex để tìm tất cả các đáp án
+        // const answerLines = answersPart.match(/[a-d] - [^\n]+/g);
+        const answerLines = answersPart.match(/([a-d] - .+?)(?=[a-d] - |\sĐÁP ÁN -)/g);
+
+
+        // Tìm đáp án đúng
+        const correctAnswerMatch = answersPart.match(/ĐÁP ÁN - ([A-D])/);
+        const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1] : null;
+
+        // Tạo một đối tượng question mới
+        const newQuestion = {
+          question_name: questionName,
+          options: [],
+        };
+
+        // Lặp qua các câu trả lời và đánh dấu đáp án đúng
+        answerLines.forEach((answer) => {
+          const option = answer[0]; // Ký tự đầu tiên là a, b, c hoặc d
+          const content = answer.substring(3).trim(); // Bỏ qua 'a - ' hoặc 'b - ' để lấy nội dung
+          const isCorrect = correctAnswer === option.toUpperCase(); // So sánh đáp án đúng
+          newQuestion.options.push({
+            answer: content,
+            is_correct: isCorrect,
+          });
+        });
+
+        return newQuestion;
+      });
+
+      return questionsData;
+    };
+
     onMounted(() => {
       getQuestions();
+      fileInputRef.value = document.getElementById("fileInput");
     });
 
     return {
@@ -250,6 +356,10 @@ export default {
       searchValue,
       handlePaginatedDocumentUpdate,
       paginatedQuestions,
+      handleFileUpload,
+      parseFileContent,
+      handleFileButtonClick,
+      parsedQuestions,
     };
   },
 };
