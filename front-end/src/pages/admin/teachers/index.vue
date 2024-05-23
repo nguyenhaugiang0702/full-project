@@ -166,7 +166,7 @@ export default {
     const searchTeachers = async (searchValue) => {
       const token = Cookies.get("accessToken");
       const response = await api.get(
-        `admin/?search_value=${searchValue}`,
+        `admin?search_value=${searchValue}`,
         token
       );
       if (response.status == 200) {

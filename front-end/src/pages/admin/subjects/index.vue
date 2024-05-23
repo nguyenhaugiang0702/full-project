@@ -34,10 +34,25 @@
 
   <ModalUpdateSubject :currentSubject="currentSubject" />
 
-  <div class="subjects row mx-auto">
+  <div class="subjects row">
     <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
       <h4 class="text-uppercase text-center">{{ subject.subject_code }}</h4>
-      <h4 class="text-uppercase text-center">{{ subject.subject_name }}</h4>
+      <div class="card-body">
+        <span class="fs-4 fw-bold text-uppercase">
+          {{
+            subject.isExpanded
+              ? subject.subject_name
+              : truncatedSubjectContent(subject.subject_name)
+          }}
+        </span>
+        <span
+          v-if="subject.subject_name.length > 20"
+          class="fw-bold hover-text ms-2"
+          @click="expandSubject(subject)"
+        >
+          {{ subject.isExpanded ? "Thu gọn" : "Xem thêm" }}
+        </span>
+      </div>
       <div class="text-center">Số câu hỏi: {{ subject.questionCount }}</div>
       <div class="row mt-2">
         <button
@@ -166,13 +181,27 @@ export default {
         token
       );
       if (response.status == 200) {
-        ubjects.value = response.data;
+        subjects.value = response.data;
       }
     };
 
     const debouncedSearch = debounce(async () => {
       await searchSubjects(searchValue.value);
     }, 300);
+
+    const expandSubject = (subject) => {
+      // Đảo ngược trạng thái của isExpanded khi click vào nút "Xem thêm"
+      subject.isExpanded = !subject.isExpanded;
+    };
+
+    const truncatedSubjectContent = (content) => {
+      const maxLength = 20;
+      if (content.length <= maxLength) {
+        return content;
+      } else {
+        return content.slice(0, maxLength) + "...";
+      }
+    };
 
     onMounted(() => {
       getSubjects();
@@ -190,6 +219,8 @@ export default {
       searchValue,
       handlePaginatedDocumentUpdate,
       paginatedSubjects,
+      expandSubject,
+      truncatedSubjectContent,
     };
   },
 };

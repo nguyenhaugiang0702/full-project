@@ -17,6 +17,9 @@
           class="ms-3 text-dark number-random text-center border border-dark"
           min="1"
         />
+        <button class="btn btn-info ms-3" @click="exportToWord">
+          Xuất ra file Word
+        </button>
       </div>
     </div>
     <div class="exam-content" :class="{ loading: loading }">
@@ -50,6 +53,9 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
+import Swal from "sweetalert2";
 export default {
   setup() {
     const questionsRandom = ref([]);
@@ -57,7 +63,7 @@ export default {
     const loading = ref(false);
     const numberRandom = ref(1);
     const api = new ApiService();
-    
+
     const getQuestionsRandom = async (numberRandom) => {
       loading.value = true;
       const token = Cookies.get("accessToken");
@@ -80,12 +86,58 @@ export default {
       await getQuestionsRandom(numberRandom.value);
     };
 
+    const exportToWord = () => {
+      if(questionsRandom.value.length === 0){
+        Swal.fire({
+          title: "Cảnh báo",
+          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: questionsRandom.value.map((question, index) => [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `${index + 1}. ${question.question_name}`,
+                    bold: true,
+                  }),
+                ],
+              }),
+              ...question.options.map((option, i) =>
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `${String.fromCharCode(65 + i)}. ${option.answer}`,
+                      bold: option.is_correct,
+                    }),
+                  ],
+                  indent: { left: 720 },
+                })
+              ),
+              new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
+            ]).flat(),
+          },
+        ],
+      });
+
+      Packer.toBlob(doc).then((blob) => {
+        saveAs(blob, "questions.docx");
+      });
+    };
+
     return {
       getQuestionsRandom,
       shuffleQuestions,
       questionsRandom,
       loading,
       numberRandom,
+      exportToWord
     };
   },
 };
