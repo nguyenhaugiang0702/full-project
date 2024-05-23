@@ -32,6 +32,7 @@
   <hr />
   <ModalAddTeacher :newTeacher="newTeacher"/>
   <ModalUpdateTeacher :currentTeacher="currentTeacher"/>
+  <ModalDetailTeacher :currentTeacher="currentTeacher"/>
   <div class="subjects row mx-auto">
     <div v-for="teacher in teachers" :key="teacher._id" class="card">
       <h4>ID: {{ teacher.admin_id }}</h4>
@@ -54,12 +55,9 @@
         <button
           class="edit_student col-5 mx-auto btn btn-primary"
           name="edit_teacher"
-          @click="
-            $router.push({
-              name: 'admin-questions',
-              params: { id: teacher._id },
-            })
-          "
+          data-bs-toggle="modal"
+          data-bs-target="#detailTeacherModal"
+          @click="editTeacher(teacher)"
         >
           <i class="fa-solid fa-circle-info"></i>
           Xem chi tiet
@@ -79,6 +77,7 @@
 <script>
 import ModalAddTeacher from "../../../components/admin/modals/teachers/ModalAddTeacher.vue";
 import ModalUpdateTeacher from "../../../components/admin/modals/teachers/ModalUpdateTeacher.vue";
+import ModalDetailTeacher from "../../../components/admin/modals/teachers/ModalDetailTeacher.vue";
 import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
 import Cookies from "js-cookie";
@@ -87,7 +86,8 @@ import { debounce } from "lodash";
 export default {
   components: {
     ModalAddTeacher,
-    ModalUpdateTeacher
+    ModalUpdateTeacher,
+    ModalDetailTeacher
   },
   setup() {
     const newTeacher = ref({

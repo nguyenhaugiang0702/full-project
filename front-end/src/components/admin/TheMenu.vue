@@ -1,14 +1,14 @@
 <template>
   <nav class="sidebar border-right">
-    <li>
-      <router-link :to="{ name: 'admin-subjects' }">
+    <li  @click="window.location.reload()">
+      <a>
         <div class="row py-4 d-flex">
           <i class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"></i>
           <div class="text-uppercase fw-bold col-7 ms-4 fs-4 text-break">{{
             admin.admin_name
           }}</div>
         </div>
-      </router-link>
+      </a>
     </li>
     <li>
       <router-link

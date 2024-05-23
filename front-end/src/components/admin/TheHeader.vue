@@ -1,27 +1,43 @@
 <template>
   <div class="container-fluid bg-primary">
     <div class="row">
-      <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
+      <div
+        class="col-1 d-flex d-sm-none align-items-center justify-content-center"
+      >
         <span @click="showDrawerMenu()">
           <i class="fa-solid fa-bars fa-xl text-white"></i>
         </span>
       </div>
-      <div class="col-10 col-sm-9 d-flex align-items-center justify-content-center justify-content-sm-start p-4">
-        <span class="d-none d-sm-flex text-white fw-bold fs-5">Trường chính trị Thành phố Cần Thơ | Quản Trị </span>
+      <div
+        class="col-10 col-sm-9 d-flex align-items-center justify-content-center justify-content-sm-start p-4"
+      >
+        <span class="d-none d-sm-flex text-white fw-bold fs-5"
+          >Trường chính trị Thành phố Cần Thơ | Quản Trị
+        </span>
       </div>
-      <div class="col-sm-3 d-none d-sm-flex align-items-center justify-content-sm-end">
+      <div
+        class="col-sm-3 d-none d-sm-flex align-items-center justify-content-sm-end"
+      >
         <div class="dropdown me-5">
-          <div class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+          <div
+            class="dropdown-toggle text-white"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             Admin
           </div>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" @click="logout" href="#">Đăng Xuất</a></li>
+            <li>
+              <a class="dropdown-item" @click="logout" href="#">Đăng Xuất</a>
+            </li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </div>
       </div>
-      <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
+      <div
+        class="col-1 d-flex d-sm-none align-items-center justify-content-center"
+      >
         <span @click="showDrawerAdmin()">
           <i class="fa-solid fa-user fa-xl me-2 text-white"></i>
         </span>
@@ -40,8 +56,8 @@
   </a-drawer>
 </template>
 <script>
-import { ref } from 'vue';
-import TheMenuResponsive from './TheMenuResponsive.vue';
+import { ref } from "vue";
+import TheMenuResponsive from "./TheMenuResponsive.vue";
 export default {
   components: {
     TheMenuResponsive,
@@ -59,18 +75,15 @@ export default {
 
     const logout = () => {
       sessionStorage.clear();
-      window.location.href="/admin";
-    }
+      window.location.href = "/admin";
+    };
     return {
       open_menu,
       open_admin,
       showDrawerAdmin,
       showDrawerMenu,
-      logout
-    }
-  }
-}
-
-
-
+      logout,
+    };
+  },
+};
 </script>
