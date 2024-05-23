@@ -11,10 +11,17 @@ exports.create = async (req, res, next) => {
     if (!req.body?.admin_name || !req.body?.admin_id || !req.body?.admin_email || !req.body?.admin_password) {
         return next(new ApiError(400, "Kiem tra lai cac truong"));
     }
-
-    if(req.body.admin_password.length < 8){
-        return next(new ApiError(400, "Mat khau phai tu 8 ky tu"));
+    
+    if (isNaN(req.body.admin_id)) {
+        return next(new ApiError(400, "ID quản trị phải là số"));
     }
+    if(req.body.admin_password.length < 8){
+        return next(new ApiError(400, "Mật khẩu phải từ 8 ký tự"));
+    }
+    if(req.body.admin_name.trim().length < 5){
+        return next(new ApiError(400, "Tên phải từ 5 ký tự"));
+    }
+    
 
     try {
         // const admin_id = new ObjectId(req.admin.admin_id);

@@ -9,6 +9,10 @@ exports.create = async (req, res, next) => {
         return next(new ApiError(400, "Kiem tra lai ten va ma mon hoc"));
     }
 
+    if(req.body.subject_code.trim().length < 5){
+        return next(new ApiError(400, "Mã môn phải từ 5 ký tự"));
+    }
+
     try {
         const admin_id = new ObjectId(req.admin.admin_id);
         // Loại bỏ khoảng trắng đầu và cuối chuỗi
@@ -100,8 +104,8 @@ exports.update = async (req, res, next) => {
         }
 
         // Kiểm tra trùng tên môn học và mã môn
-        const nameExist = await subjectService.findByNameAndAdmin(req.body.subject_name.trim(), admin_id);
-        const codeExist = await subjectService.findByCodeAndAdmin(req.body.subject_code.trim(), admin_id);
+        const nameExist = await subjectService.findByNameAndAdmin(req.body.subject_name.trim(), admin_id, subjectId);
+        const codeExist = await subjectService.findByCodeAndAdmin(req.body.subject_code.trim(), admin_id, subjectId);
 
         req.body = {
             subject_name: req.body.subject_name.trim(),

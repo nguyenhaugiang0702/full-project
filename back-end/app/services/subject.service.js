@@ -45,17 +45,23 @@ class SubjectService {
         });
     }
 
-    async findByNameAndAdmin(subject_name, adminId) {
+    async findByNameAndAdmin(subject_name, adminId, subjectId) {
         return await this.Subject.findOne({
             subject_name: { $regex: new RegExp(subject_name, 'i') },
             admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,
+            _id: {
+                $ne: ObjectId.isValid(subjectId) ? new ObjectId(subjectId) : null,
+            }
         });
     }
 
-    async findByCodeAndAdmin(subject_code, adminId) {
+    async findByCodeAndAdmin(subject_code, adminId, subjectId) {
         return await this.Subject.findOne({
             subject_code: { $regex: new RegExp(subject_code, 'i') },
             admin_id: ObjectId.isValid(adminId) ? new ObjectId(adminId) : null,
+            _id: {
+                $ne: ObjectId.isValid(subjectId) ? new ObjectId(subjectId) : null,
+            }
         });
     }
 
