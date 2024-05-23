@@ -4,10 +4,7 @@
   </div>
   <div class="center">
     <h1>Login by Teacher</h1>
-    <form
-      class="form"
-      @submit.prevent="loginAdmin()"
-    >
+    <form class="form" @submit.prevent="loginAdmin()">
       <div class="txt_field">
         <input
           class="input"
@@ -55,8 +52,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
-import * as yup from "yup";
-import { Form, Field, ErrorMessage } from "vee-validate";
+import ApiService from "@/service/ApiService";
 
 export default {
   setup(_, { emit }) {
@@ -66,48 +62,34 @@ export default {
       admin_password: "",
     });
     const router = useRouter();
+    const api = new ApiService();
 
     const loginAdmin = async () => {
       const adminData = {
         ...admin.value,
         admin_id: Number(admin.value.admin_id),
       };
-      await axios
-        .post("http://127.0.0.1:3000/api/admin/login", adminData)
-        .then(async (res) => {
-          if (res.status == 200) {
-            admin.value = {
-              admin_id: "",
-              admin_email: "",
-              admin_password: "",
-            };
-            const token = res.data.accessToken;
-            Cookies.set("accessToken", token, { expires: 24 });
-            await Swal.fire({
-              title: "Thành công!",
-              text: "Đăng nhập thành công.",
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-            });
-            window.location.reload();
-            router.push({ name: "admin-subjects" });
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            Swal.fire({
-              title: "Thất bại",
-              text: error.response.data.message,
-              icon: "error",
-              timer: 1500,
-              showConfirmButton: false,
-            });
-          } else {
-            console.error("Lỗi khi login:", error);
-          }
+      const response = await api.post("admin/login", adminData);
+      if (response.status == 200) {
+        admin.value = {
+          admin_id: "",
+          admin_email: "",
+          admin_password: "",
+        };
+        const token = response.data.accessToken;
+        Cookies.set("accessToken", token, { expires: 24 });
+        await Swal.fire({
+          title: "Thành công!",
+          text: "Đăng nhập thành công.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
         });
+        window.location.reload();
+        router.push({ name: "admin-subjects" });
+      }
     };
+
     return {
       loginAdmin,
       admin,

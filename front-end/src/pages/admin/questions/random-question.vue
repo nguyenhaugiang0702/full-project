@@ -49,33 +49,31 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
+import ApiService from "@/service/ApiService";
 export default {
   setup() {
     const questionsRandom = ref([]);
     const subject_id = useRoute().params.id;
     const loading = ref(false);
     const numberRandom = ref(1);
+    const api = new ApiService();
+    
     const getQuestionsRandom = async (numberRandom) => {
       loading.value = true;
       const token = Cookies.get("accessToken");
-      await axios
-        .get(
-          `http://127.0.0.1:3000/api/question/subject/${subject_id}/random?numberRandom=${numberRandom}`,
-          {
-            headers: { Authorization: "Bearer " + token },
-          }
-        )
-        .then((result) => {
-          if (result.status == 200) {
-            questionsRandom.value = result.data;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          loading.value = false; // Set loading to false after fetching data
-        });
+      try {
+        const response = await api.get(
+          `question/subject/${subject_id}/random?numberRandom=${numberRandom}`,
+          token
+        );
+        if (response.status === 200) {
+          questionsRandom.value = response.data;
+        }
+      } catch (error) {
+        console.error("Failed to fetch questions", error);
+      } finally {
+        loading.value = false;
+      }
     };
 
     const shuffleQuestions = async () => {

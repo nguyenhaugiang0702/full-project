@@ -1,12 +1,14 @@
 <template>
   <nav class="sidebar border-right">
-    <li  @click="window.location.reload()">
+    <li @click="window.location.reload()">
       <a>
         <div class="row py-4 d-flex">
-          <i class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"></i>
-          <div class="text-uppercase fw-bold col-7 ms-4 fs-4 text-break">{{
-            admin.admin_name
-          }}</div>
+          <i
+            class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"
+          ></i>
+          <div class="text-uppercase fw-bold col-7 ms-4 fs-4 text-break">
+            {{ admin.admin_name }}
+          </div>
         </div>
       </a>
     </li>
@@ -48,6 +50,7 @@ import { storeToRefs } from "pinia";
 import { useMenu } from "../../store/use-menu.js";
 import { defineComponent, toRefs, onMounted, ref } from "vue";
 import Cookies from "js-cookie";
+import ApiService from "@/service/ApiService";
 
 export default defineComponent({
   setup() {
@@ -55,6 +58,8 @@ export default defineComponent({
     const route = useRoute();
     const isActive = (name) => route.name === name;
     const admin = ref({});
+    const api = new ApiService();
+
     const logout = () => {
       document.cookie =
         "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
@@ -66,16 +71,10 @@ export default defineComponent({
 
     onMounted(async () => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get(`http://127.0.0.1:3000/api/admin/${token}`)
-        .then((response) => {
-          if (response.status == 200) {
-            admin.value = response.data;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      const response = await api.get(`admin/${token}`);
+      if (response.status == 200) {
+        admin.value = response.data;
+      }
     });
 
     const { selectedKeys, openKeys } = store;

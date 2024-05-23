@@ -76,7 +76,10 @@
       </div>
     </div>
   </div>
-  <Paginition :documents="subjects" @update:paginatedDocument="handlePaginatedDocumentUpdate"/>
+  <Paginition
+    :documents="subjects"
+    @update:paginatedDocument="handlePaginatedDocumentUpdate"
+  />
 </template>
 
 <script>
@@ -84,17 +87,17 @@ import ModalAddSubject from "../../../components/admin/modals/subjects/ModalAddS
 import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalUpdateSubject.vue";
 import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
+import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import { debounce } from "lodash";
-
+import ApiService from "@/service/ApiService";
 export default {
   components: {
     ModalAddSubject,
     ModalUpdateSubject,
     Paginition,
   },
-  setup(props) {
+  setup() {
     const newSubject = ref({
       subject_name: "",
       subject_code: "",
@@ -109,24 +112,19 @@ export default {
     const subjects = ref([]);
     const paginatedSubjects = ref([]);
     const searchValue = ref("");
+    const api = new ApiService();
 
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get("http://127.0.0.1:3000/api/subject", {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          subjects.value = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const response = await api.get("subject", token);
+      if (response.status == 200) {
+        subjects.value = response.data;
+      }
     };
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
       paginatedSubjects.value = newPaginatedDocument;
-    }
+    };
 
     const editSubject = (subject) => {
       currentSubject.value = { ...subject };
@@ -146,50 +144,30 @@ export default {
       });
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
-        await axios
-          .delete(`http://127.0.0.1:3000/api/subject/${subjectId}`, {
-            headers: { Authorization: "Bearer " + token },
-          })
-          .then(async (response) => {
-            if (response.status == 200) {
-              await Swal.fire({
-                title: "Thành công!",
-                text: "Dữ liệu đã được xóa thành công.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-              window.location.reload();
-            }
-          })
-          .catch((error) => {
-            if (error.response) {
-              Swal.fire({
-                title: "Thất bại",
-                text: error.response.data.message,
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-            }
+        const response = await api.delete(`subject/${subjectId}`, token);
+        if (response.status == 200) {
+          await Swal.fire({
+            title: "Thành công!",
+            text: "Dữ liệu đã được xóa thành công.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+            position: "top-end",
           });
+          window.location.reload();
+        }
       }
     };
 
     const searchSubjects = async (searchValue) => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get(`http://127.0.0.1:3000/api/subject?search_value=${searchValue}`, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          subjects.value = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const response = await api.get(
+        `subject?search_value=${searchValue}`,
+        token
+      );
+      if (response.status == 200) {
+        ubjects.value = response.data;
+      }
     };
 
     const debouncedSearch = debounce(async () => {
@@ -211,11 +189,10 @@ export default {
       currentSubject,
       searchValue,
       handlePaginatedDocumentUpdate,
-      paginatedSubjects
+      paginatedSubjects,
     };
   },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

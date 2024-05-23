@@ -30,13 +30,13 @@
     </div>
   </div>
   <hr />
-  <ModalAddTeacher :newTeacher="newTeacher"/>
-  <ModalUpdateTeacher :currentTeacher="currentTeacher"/>
-  <ModalDetailTeacher :currentTeacher="currentTeacher"/>
+  <ModalAddTeacher :newTeacher="newTeacher" />
+  <ModalUpdateTeacher :currentTeacher="currentTeacher" />
+  <ModalDetailTeacher :currentTeacher="currentTeacher" />
   <div class="subjects row mx-auto">
     <div v-for="teacher in teachers" :key="teacher._id" class="card">
       <h4>ID: {{ teacher.admin_id }}</h4>
-      <h4> {{ teacher.admin_name }}</h4>
+      <h4>{{ teacher.admin_name }}</h4>
       <div>Email: {{ teacher.admin_email }}</div>
       <!-- <div>Số câu hỏi: {{ teacher.questionCount }}</div> -->
       <div class="row mt-2">
@@ -73,6 +73,10 @@
       </div>
     </div>
   </div>
+  <Paginition
+    :documents="teachers"
+    @update:paginatedDocument="handlePaginatedDocumentUpdate"
+  />
 </template>
 <script>
 import ModalAddTeacher from "../../../components/admin/modals/teachers/ModalAddTeacher.vue";
@@ -80,14 +84,16 @@ import ModalUpdateTeacher from "../../../components/admin/modals/teachers/ModalU
 import ModalDetailTeacher from "../../../components/admin/modals/teachers/ModalDetailTeacher.vue";
 import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
+import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import { debounce } from "lodash";
+import ApiService from "@/service/ApiService";
 export default {
   components: {
     ModalAddTeacher,
     ModalUpdateTeacher,
-    ModalDetailTeacher
+    ModalDetailTeacher,
+    Paginition,
   },
   setup() {
     const newTeacher = ref({
@@ -107,25 +113,21 @@ export default {
     });
 
     const teachers = ref([]);
-    const paginatedSubjects = ref([]);
+    const paginatedTeachers = ref([]);
     const searchValue = ref("");
+
+    const api = new ApiService();
 
     const getTeachers = async () => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get("http://127.0.0.1:3000/api/admin", {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          teachers.value = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const response = await api.get("admin", token);
+      if (response.status == 200) {
+        teachers.value = response.data;
+      }
     };
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
-      paginatedSubjects.value = newPaginatedDocument;
+      paginatedTeachers.value = newPaginatedDocument;
     };
 
     const editTeacher = (teacher) => {
@@ -146,50 +148,30 @@ export default {
       });
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
-        await axios
-          .delete(`http://127.0.0.1:3000/api/admin/${teacherId}`, {
-            headers: { Authorization: "Bearer " + token },
-          })
-          .then(async (response) => {
-            if (response.status == 200) {
-              await Swal.fire({
-                title: "Thành công!",
-                text: "Dữ liệu đã được xóa thành công.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-              window.location.reload();
-            }
-          })
-          .catch((error) => {
-            if (error.response) {
-              Swal.fire({
-                title: "Thất bại",
-                text: error.response.data.message,
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-            }
+        const response = await api.delete(`admin/${teacherId}`, token);
+        if (response.status == 200) {
+          await Swal.fire({
+            title: "Thành công!",
+            text: "Dữ liệu đã được xóa thành công.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+            position: "top-end",
           });
+          window.location.reload();
+        }
       }
     };
 
     const searchTeachers = async (searchValue) => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get(`http://127.0.0.1:3000/api/admin?search_value=${searchValue}`, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          teachers.value = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const response = await api.get(
+        `admin/?search_value=${searchValue}`,
+        token
+      );
+      if (response.status == 200) {
+        teachers.value = response.data;
+      }
     };
 
     const debouncedSearch = debounce(async () => {
@@ -211,7 +193,7 @@ export default {
       currentTeacher,
       searchValue,
       handlePaginatedDocumentUpdate,
-      paginatedSubjects,
+      paginatedTeachers,
     };
   },
 };

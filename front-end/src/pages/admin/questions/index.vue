@@ -113,7 +113,10 @@
       </div>
     </div>
   </div>
-  <Paginition :documents="questions" @update:paginatedDocument="handlePaginatedDocumentUpdate"/>
+  <Paginition
+    :documents="questions"
+    @update:paginatedDocument="handlePaginatedDocumentUpdate"
+  />
 </template>
 <script>
 import ModalAddQuestion from "@/components/admin/modals/questions/ModalAddQuestion.vue";
@@ -122,10 +125,10 @@ import ModalDetailQuestion from "@/components/admin/modals/questions/ModalDetail
 import Paginition from "@/components/admin/Pagination.vue";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
+import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { debounce } from "lodash";
+import ApiService from "@/service/ApiService";
 export default {
   components: {
     ModalAddQuestion,
@@ -133,7 +136,7 @@ export default {
     ModalDetailQuestion,
     Paginition,
   },
-  setup(props) {
+  setup() {
     const newQuestion = ref({
       question_name: "",
       options: [
@@ -151,36 +154,20 @@ export default {
     const subjectInfo = ref({});
     const searchValue = ref("");
     const paginatedQuestions = ref([]);
+    const api = new ApiService();
 
     const getQuestions = async () => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get(`http://127.0.0.1:3000/api/question/subject/${subject_id}`, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then(async (response) => {
-          if (response.status == 200) {
-            questions.value = response.data;
-            subjectInfo.value = questions.value[0].subjectInfo;
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            Swal.fire({
-              title: "Thất bại",
-              text: error.response.data.message,
-              icon: "error",
-              timer: 1500,
-              showConfirmButton: false,
-              position: "top-end",
-            });
-          }
-        });
+      const response = await api.get(`question/subject/${subject_id}`, token);
+      if (response.status == 200) {
+        questions.value = response.data;
+        subjectInfo.value = questions.value[0].subjectInfo;
+      }
     };
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
       paginatedQuestions.value = newPaginatedDocument;
-    }
+    };
 
     const editQuestion = (question) => {
       currentQuestion.value = { ...question };
@@ -213,54 +200,30 @@ export default {
       });
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
-        await axios
-          .delete(`http://127.0.0.1:3000/api/question/${questionID}`, {
-            headers: { Authorization: "Bearer " + token },
-          })
-          .then(async (response) => {
-            if (response.status == 200) {
-              await Swal.fire({
-                title: "Thành công!",
-                text: "Dữ liệu đã được xóa thành công.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-              window.location.reload();
-            }
-          })
-          .catch((error) => {
-            if (error.response) {
-              Swal.fire({
-                title: "Thất bại",
-                text: error.response.data.message,
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-                position: "top-end",
-              });
-            }
+        const response = await api.delete(`question/${questionID}`, token);
+        if (response.status == 200) {
+          await Swal.fire({
+            title: "Thành công!",
+            text: "Dữ liệu đã được xóa thành công.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+            position: "top-end",
           });
+          window.location.reload();
+        }
       }
     };
 
     const searchQuestions = async (searchValue) => {
       const token = Cookies.get("accessToken");
-      await axios
-        .get(
-          `http://127.0.0.1:3000/api/question/subject/${subject_id}?search_value=${searchValue}`,
-          {
-            headers: { Authorization: "Bearer " + token },
-          }
-        )
-        .then((response) => {
-          questions.value = response.data;
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const response = await api.get(
+        `question/subject/${subject_id}?search_value=${searchValue}`,
+        token
+      );
+      if (response.status == 200) {
+        questions.value = response.data;
+      }
     };
 
     const debouncedSearch = debounce(async () => {
@@ -286,7 +249,7 @@ export default {
       debouncedSearch,
       searchValue,
       handlePaginatedDocumentUpdate,
-      paginatedQuestions
+      paginatedQuestions,
     };
   },
 };

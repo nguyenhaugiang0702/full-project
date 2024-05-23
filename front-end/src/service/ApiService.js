@@ -32,7 +32,16 @@ class ApiService {
             }
             return await axios.post(url, data, { headers });
         } catch (error) {
-            this.handleErrorResponse(error);
+            if (error.response) {
+                Swal.fire({
+                    title: "Thất bại",
+                    text: error.response.data.message,
+                    icon: "error",
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: "top-end",
+                });
+            }
         }
     }
 
@@ -47,7 +56,16 @@ class ApiService {
             }
             return await axios.put(url, data, { headers });
         } catch (error) {
-            this.handleErrorResponse(error);
+            if (error.response) {
+                Swal.fire({
+                    title: "Thất bại",
+                    text: error.response.data.message,
+                    icon: "error",
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: "top-end",
+                });
+            }
         }
     }
 
@@ -62,7 +80,16 @@ class ApiService {
             }
             return await axios.delete(url, { headers });
         } catch (error) {
-            this.handleErrorResponse(error);
+            if (error.response) {
+                Swal.fire({
+                    title: "Thất bại",
+                    text: error.response.data.message,
+                    icon: "error",
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: "top-end",
+                });
+            }
         }
     }
 
@@ -83,23 +110,7 @@ class ApiService {
                 timer: 1500,
                 showConfirmButton: true,
             });
-        } else if (error.response && error.response.status === 402) {
-            Swal.fire({
-                title: 'Lỗi',
-                text: error.response.data.message,
-                icon: 'error',
-                timer: 1500,
-                showConfirmButton: false,
-            });
-        } else if (error.response && error.response.status === 404) {
-            Swal.fire({
-                title: 'Lỗi',
-                text: error.response.data.message,
-                icon: 'error',
-                timer: 1500,
-                showConfirmButton: false,
-            });
-        } else if (error.response && error.response.status === 400) {
+        } else if (error.response) {
             Swal.fire({
                 title: 'Lỗi',
                 text: error.response.data.message,

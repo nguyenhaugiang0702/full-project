@@ -94,6 +94,7 @@
 import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
+import ApiService from "@/service/ApiService";
 export default {
   props: {
     newQuestion: {
@@ -109,6 +110,7 @@ export default {
     const { newQuestion } = toRefs(props);
     const { subject_id } = props;
     const correctOption = ref(0);
+    const api = new ApiService();
 
     const addQuestion = async () => {
       newQuestion.value.options.forEach((option, index) => {
@@ -119,52 +121,35 @@ export default {
         subject_id,
       };
       const token = Cookies.get("accessToken");
-      await axios
-        .post("http://127.0.0.1:3000/api/question", newQuestionData, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then(async (response) => {
-          if (response.status == 200) {
-            newQuestion.value = {
-              question_name: "",
-              options: [
-                { answer: "", is_correct: false },
-                { answer: "", is_correct: false },
-                { answer: "", is_correct: false },
-                { answer: "", is_correct: false },
-              ],
-            };
-            correctOption.value = 0;
-            await Swal.fire({
-              title: "Thành công!",
-              text: "Dữ liệu đã được thêm mới thành công.",
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-              position: "top-end",
-            });
-            window.location.reload();
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            Swal.fire({
-              title: "Thất bại",
-              text: error.response.data.message,
-              icon: "error",
-              timer: 1500,
-              showConfirmButton: false,
-              position: "top-end",
-            });
-          }
+      const response = api.post("question", newQuestionData, token);
+      if (response.status == 200) {
+        newQuestion.value = {
+          question_name: "",
+          options: [
+            { answer: "", is_correct: false },
+            { answer: "", is_correct: false },
+            { answer: "", is_correct: false },
+            { answer: "", is_correct: false },
+          ],
+        };
+        correctOption.value = 0;
+        await Swal.fire({
+          title: "Thành công!",
+          text: "Dữ liệu đã được thêm mới thành công.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          position: "top-end",
         });
+        window.location.reload();
+      }
     };
 
     return {
       newQuestion,
       addQuestion,
       correctOption,
-      subject_id
+      subject_id,
     };
   },
 };

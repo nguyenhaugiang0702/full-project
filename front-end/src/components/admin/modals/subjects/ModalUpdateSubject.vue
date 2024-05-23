@@ -64,6 +64,7 @@
 import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
+import ApiService from "@/service/ApiService";
 export default {
   props: {
     currentSubject: {
@@ -73,42 +74,26 @@ export default {
   },
   setup(props) {
     const { currentSubject } = toRefs(props);
+    const api = new ApiService();
 
     const updateSubject = async () => {
       const token = Cookies.get("accessToken");
-      await axios
-        .put(
-          `http://127.0.0.1:3000/api/subject/${currentSubject.value._id}`,
-          currentSubject.value,
-          {
-            headers: { Authorization: "Bearer " + token },
-          }
-        )
-        .then(async (response) => {
-          if (response.status == 200) {
-            await Swal.fire({
-              title: "Thành công!",
-              text: "Dữ liệu đã được cập nhật thành công.",
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-              position: "top-end",
-            });
-            window.location.reload();
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            Swal.fire({
-              title: "Thất bại",
-              text: error.response.data.message,
-              icon: "error",
-              timer: 1500,
-              showConfirmButton: false,
-              position: "top-end",
-            });
-          }
+      const response = await api.put(
+        `subject/${currentSubject.value._id}`,
+        currentSubject.value,
+        token
+      );
+      if (response.status == 200) {
+        await Swal.fire({
+          title: "Thành công!",
+          text: "Dữ liệu đã được cập nhật thành công.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          position: "top-end",
         });
+        window.location.reload();
+      }
     };
 
     return {
