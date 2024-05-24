@@ -6,22 +6,34 @@ const bcrypt = require('bcrypt');
 const SubjectService = require("../services/subject.service");
 const QuestionService = require("../services/question.service");
 const { ObjectId } = require("mongodb");
+const validator = require('validator');
 
 exports.create = async (req, res, next) => {
     if (!req.body?.admin_name || !req.body?.admin_id || !req.body?.admin_email || !req.body?.admin_password) {
         return next(new ApiError(400, "Kiem tra lai cac truong"));
     }
-    
-    if (isNaN(req.body.admin_id)) {
-        return next(new ApiError(400, "ID quản trị phải là số"));
+
+    // Check if admin_id is a natural number
+    const adminID = Number(req.body.admin_id);
+    if (!Number.isInteger(adminID) || adminID <= 0) {
+        return next(new ApiError(400, "ID phải là số > 0"));
     }
-    if(req.body.admin_password.length < 8){
-        return next(new ApiError(400, "Mật khẩu phải từ 8 ký tự"));
+
+    if (req.body.admin_password.length < 8 || req.body.admin_password.length > 50) {
+        return next(new ApiError(400, "Mật khẩu phải từ 8 đến 50 ký tự"));
     }
-    if(req.body.admin_name.trim().length < 5){
-        return next(new ApiError(400, "Tên phải từ 5 ký tự"));
+
+    if (req.body.admin_name.trim().length < 5 || req.body.admin_name.trim().length > 50) {
+        return next(new ApiError(400, "Tên phải từ 5 đến 50 ký tự"));
     }
-    
+
+    if (!validator.isEmail(req.body.admin_email)) {
+        return next(new ApiError(400, "Email không hợp lệ"));
+    }
+
+    if(req.body.admin_email.trim().length > 50){
+        return next(new ApiError(400, "Email phải nhỏ hơn 50 ký tự"));
+    }
 
     try {
         // const admin_id = new ObjectId(req.admin.admin_id);
@@ -39,14 +51,33 @@ exports.create = async (req, res, next) => {
 
         const adminService = new AdminService(MongoDB.client);
         // Kiem tra cac truong truoc khi them
-        const checkAdd = await adminService.checkAdd(admin_id, admin_name, admin_email);
-        if (checkAdd) {
-            const document = await adminService.create(payload);
-            return res.send(document);
+        const { nameExist, emailExist, IDExist, latestID } = await adminService.checkValidate(
+            admin_name,
+            admin_email,
+            admin_id,
+            null,
+            'teacher',
+            'add'
+        );
+
+        if (IDExist) {
+            const newID = latestID ? latestID + 1 : 1;
+            return next(new ApiError(400, `Đã tồn tại ID này, có thể thử ID mới: ${newID}`));
         }
 
+        if (nameExist) {
+            return next(new ApiError(400, "Đã tồn tại tên này"));
+        }
+
+        if (emailExist) {
+            return next(new ApiError(400, "Đã tồn tại Email này"));
+        }
+
+        const document = await adminService.create(payload);
+        return res.send(document);
+
     } catch (error) {
-        if (error.message === 'ID da ton tai' || error.message === 'Ten da ton tai' || error.message === 'Email da duoc su dung') {
+        if (error.message) {
             return next(new ApiError(400, error.message));
         }
         return next(
@@ -117,35 +148,61 @@ exports.update = async (req, res, next) => {
         return next(new ApiError(400, "Data to update can not be empty"));
     }
 
+    // Check if admin_id is a natural number
+    const adminID = Number(req.body.admin_id);
+    if (!Number.isInteger(adminID) || adminID <= 0) {
+        return next(new ApiError(400, "ID phải là số > 0"));
+    }
+
+    if (req.body.admin_password.length < 8 || req.body.admin_password.length > 50) {
+        return next(new ApiError(400, "Mật khẩu phải từ 8 đến 50 ký tự"));
+    }
+
+    if (req.body.admin_name.trim().length < 5 || req.body.admin_name.trim().length > 50) {
+        return next(new ApiError(400, "Tên phải từ 5 đến 50 ký tự"));
+    }
+
+    if (!validator.isEmail(req.body.admin_email)) {
+        return next(new ApiError(400, "Email không hợp lệ"));
+    }
+
+    if(req.body.admin_email.trim().length > 50){
+        return next(new ApiError(400, "Email phải nhỏ hơn 50 ký tự"));
+    }
+
     try {
-        console.log(req.body);
         const adminService = new AdminService(MongoDB.client);
         // Kiểm tra trùng tên môn học và mã môn
-        const nameExist = await adminService.findByAdminName(req.body.admin_name.trim());
-        const emailExist = await adminService.findByAdminEmail(req.body.admin_email.trim());
+        const { nameExist, emailExist, IDExist, latestID } = await adminService.checkValidate(
+            req.body.admin_name.trim(),
+            req.body.admin_email.trim(),
+            adminID,
+            req.body._id,
+            'teacher',
+            'update'
+        );
+
+        if (IDExist) {
+            const newID = latestID ? latestID + 1 : 1;
+            return next(new ApiError(400, `Đã tồn tại ID này, có thể thử ID mới: ${newID}`));
+        }
+        if (nameExist) {
+            return next(new ApiError(400, "Đã tồn tại tên này"));
+        }
+        if (emailExist) {
+            return next(new ApiError(400, "Đã tồn tại Email này"));
+        }
+
 
         req.body = {
             admin_name: req.body.admin_name.trim(),
             admin_email: req.body.admin_email.trim(),
+            admin_id: adminID
         }
 
-        if (nameExist && !emailExist) {
-            const document = await adminService.update(req.params.id, req.body);
-            if (!document) {
-                return next(new ApiError(404, "Khong tim thay ten giang vien"));
-            }
-        } else if (!nameExist && emailExist) {
-            const document = await adminService.update(req.params.id, req.body);
-            if (!document) {
-                return next(new ApiError(404, "Khong tim thay email giang vien"));
-            }
-        } else if (!nameExist && !emailExist) {
-            const document = await adminService.update(req.params.id, req.body);
-            if (!document) {
-                return next(new ApiError(404, "Loi khi them"));
-            }
-        }else{
-            return next(new ApiError(400, "Ten giang vien va email da ton tai"));
+        const document = await adminService.update(req.params.id, req.body);
+        if (!document) {
+            return next(new ApiError(404, "Không tìm thấy giảng viên"));
         }
 
         return res.send({ message: "admin was updated successfully" });

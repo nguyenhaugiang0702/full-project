@@ -9,8 +9,12 @@ exports.create = async (req, res, next) => {
         return next(new ApiError(400, "Kiem tra lai ten va ma mon hoc"));
     }
 
-    if(req.body.subject_code.trim().length < 5){
-        return next(new ApiError(400, "Mã môn phải từ 5 ký tự"));
+    if (req.body.subject_code.trim().length < 5 && req.body.subject_code.trim().length > 10) {
+        return next(new ApiError(400, "Mã môn phải từ 5 đến 10 ký tự"));
+    }
+
+    if (req.body.subject_name.trim().length < 5 && req.body.subject_name.trim().length > 50) {
+        return next(new ApiError(400, "Tên môn phải từ 5 đến 50 ký tự"));
     }
 
     try {
@@ -26,13 +30,11 @@ exports.create = async (req, res, next) => {
 
         const subjectService = new SubjectService(MongoDB.client);
         // Kiểm tra trùng tên môn học cho giáo viên hiện tại
-        const nameExist = await subjectService.findByNameAndAdmin(subject_name, admin_id);
+        const { nameExist, codeExist } = await subjectService.checkValidate(subject_name, subject_code, admin_id, null, 'add');
         if (nameExist) {
             return next(new ApiError(400, "Tên môn học đã tồn tại"));
         }
-
         // Kiểm tra trùng mã môn học cho giáo viên hiện tại
-        const codeExist = await subjectService.findByCodeAndAdmin(subject_code, admin_id);
         if (codeExist) {
             return next(new ApiError(400, "Mã môn học đã tồn tại"));
         }
@@ -94,6 +96,14 @@ exports.update = async (req, res, next) => {
         return next(new ApiError(400, "Kiểm tra lại tên và mã môn học"));
     }
 
+    if (req.body.subject_code.trim().length < 5 && req.body.subject_code.trim().length > 10) {
+        return next(new ApiError(400, "Mã môn phải từ 5 đến 10 ký tự"));
+    }
+
+    if (req.body.subject_name.trim().length < 5 && req.body.subject_name.trim().length > 50) {
+        return next(new ApiError(400, "Tên môn phải từ 5 đến 50 ký tự"));
+    }
+
     try {
         const subjectService = new SubjectService(MongoDB.client);
         const subjectId = req.params.subjectID;
@@ -104,8 +114,19 @@ exports.update = async (req, res, next) => {
         }
 
         // Kiểm tra trùng tên môn học và mã môn
-        const nameExist = await subjectService.findByNameAndAdmin(req.body.subject_name.trim(), admin_id, subjectId);
-        const codeExist = await subjectService.findByCodeAndAdmin(req.body.subject_code.trim(), admin_id, subjectId);
+        const { nameExist, codeExist } = await subjectService.checkValidate(
+            req.body.subject_name.trim(),
+            req.body.subject_code.trim(),
+            admin_id,
+            subjectId,
+            'update'
+        );
+        if (nameExist) {
+            return next(new ApiError(400, "Tên môn học đã tồn tại"));
+        }
+        if (codeExist) {
+            return next(new ApiError(400, "Mã môn học đã tồn tại"));
+        }
 
         req.body = {
             subject_name: req.body.subject_name.trim(),
@@ -113,18 +134,9 @@ exports.update = async (req, res, next) => {
             admin_id: new ObjectId(admin_id)
         };
 
-        if (nameExist && !codeExist) {
-            // cap nhap ten
-            await subjectService.update(subjectId, req.body);
-        } else if (!nameExist && codeExist) {
-            // cap nhap ma mon
-            await subjectService.update(subjectId, req.body);
-        } else if (!nameExist && !codeExist) {
-            // cap nhap ca 2
-            await subjectService.update(subjectId, req.body);
-        } else {
-            // trung khi cap nhap
-            return next(new ApiError(400, "Tên môn học, Mã môn học đã tồn tại"));
+        const document = await subjectService.update(subjectId, req.body);
+        if (!document) {
+            return next(new ApiError(404, "Không tìm thấy môn học"));
         }
 
         return res.send({ messgae: "Subject was updated successfully" });

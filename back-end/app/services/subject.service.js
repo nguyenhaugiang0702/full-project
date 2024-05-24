@@ -105,6 +105,19 @@ class SubjectService {
         const result = await this.Subject.deleteMany({admin_id: adminId});
         return result.deletedCount;
     }
+
+    // check validate
+    async checkValidate(subjectName, subjectCode, adminId, id, option) {
+        if(option == 'add' || !id ){
+            id = null
+        }else if(option == 'update' || id){
+            id = id;
+        }
+        const nameExist = await this.findByNameAndAdmin(subjectName, adminId, id);
+        const codeExist = await this.findByCodeAndAdmin(subjectCode, adminId, id); 
+
+        return { nameExist, codeExist};
+    }
 }
 
 module.exports = SubjectService;

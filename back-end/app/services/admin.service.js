@@ -48,9 +48,13 @@ class adminService {
     }
 
     // findByName
-    async findByAdminName(name) {
+    async findByAdminName(name, id, role) {
         return await this.Admin.findOne({
             admin_name: { $regex: new RegExp(name), $options: "i" },
+            _id: {
+                $ne: ObjectId.isValid(id) ? new ObjectId(id) : null,
+            },
+            admin_role: role
         });
     }
 
@@ -59,16 +63,30 @@ class adminService {
         return await this.Admin.find({
             admin_role: role,
             $or: [
-                {admin_name: { $regex: new RegExp(name), $options: "i" },},
-                {admin_email: { $regex: new RegExp(email), $options: "i" },},
+                { admin_name: { $regex: new RegExp(name), $options: "i" }, },
+                { admin_email: { $regex: new RegExp(email), $options: "i" }, },
             ]
         }).toArray();
     }
 
     // findByName
-    async findByAdminEmail(email) {
+    async findByAdminEmail(email, id, role) {
         return await this.Admin.findOne({
             admin_email: { $regex: new RegExp(email), $options: "i" },
+            _id: {
+                $ne: ObjectId.isValid(id) ? new ObjectId(id) : null,
+            },
+            admin_role: role
+        });
+    }
+
+    async findByAdminID(adminId, id, role) {
+        return await this.Admin.findOne({
+            admin_id: adminId,
+            _id: {
+                $ne: ObjectId.isValid(id) ? new ObjectId(id) : null,
+            },
+            admin_role: role
         });
     }
 
@@ -77,6 +95,11 @@ class adminService {
         return await this.Admin.findOne({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
+    }
+
+    async findLatestAdminID(role) {
+        const latestAdmin = await this.Admin.find({ admin_role: role }).sort({ admin_id: -1 }).limit(1).toArray();
+        return latestAdmin.length > 0 ? latestAdmin[0].admin_id : null;
     }
 
     // update
@@ -109,27 +132,23 @@ class adminService {
         return result.deletedCount;
     }
 
-    // check
-    async checkAdd(adminId, adminName, adminEmail) {
-        const adminIdExist = await this.Admin.findOne({
-            admin_id: adminId
-        });
-        if (adminIdExist) {
-            throw new Error('ID da ton tai');
+    // check validate
+    async checkValidate(adminName, adminEmail, adminId, id, role, option) {
+        if(option == 'add' || !id ){
+            id = null
+        }else if(option == 'update' || id){
+            id = id;
         }
-        const adminNameExist = await this.Admin.findOne({
-            admin_name: { $regex: new RegExp(adminName), $options: "i" },
-        });
-        if (adminNameExist) {
-            throw new Error('Ten da ton tai');
+        const nameExist = await this.findByAdminName(adminName, id, role);
+        const emailExist = await this.findByAdminEmail(adminEmail, id, role);
+        const IDExist = await this.findByAdminID(adminId, id, role);
+        let latestID = null;    
+
+        if (IDExist) {
+            latestID = await this.findLatestAdminID(role);
         }
-        const adminEmailExist = await this.Admin.findOne({
-            admin_email: { $regex: new RegExp(adminEmail), $options: "i" },
-        });
-        if (adminEmailExist) {
-            throw new Error('Email da duoc su dung');
-        }
-        return true;
+
+        return { nameExist, emailExist, IDExist, latestID };
     }
 }
 module.exports = adminService;
