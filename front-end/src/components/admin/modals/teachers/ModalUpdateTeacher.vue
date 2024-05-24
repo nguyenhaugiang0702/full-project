@@ -22,38 +22,40 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="updateTeacher">
+          <Form @submit="updateTeacher" :validation-schema="updateTeacherSchema">
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">ID</label>
-                <input
+                <Field
                   v-model="currentTeacher.admin_id"
                   type="text"
                   name="admin_id"
                   class="form-control"
                   placeholder="vi du: 00125"
-                  readonly
                 />
+                <ErrorMessage name="admin_id" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Ten</label>
-                <input
+                <Field
                   v-model="currentTeacher.admin_name"
                   type="text"
                   name="admin_name"
                   class="form-control"
                   placeholder="vi du: Nguyen van A"
                 />
+                <ErrorMessage name="admin_name" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input
+                <Field
                   class="form-control"
                   type="email"
                   name="admin_email"
                   placeholder="vi du: vanA@gmail.com"
                   v-model="currentTeacher.admin_email"
                 />
+                <ErrorMessage name="admin_email" class="text-danger" />
               </div>
             </div>
             <div class="modal-footer">
@@ -66,7 +68,7 @@
               </button>
               <button type="submit" class="btn btn-primary">Luu</button>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     </div>
@@ -77,7 +79,10 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { updateTeacherSchema } from "@/utils/validate";
+import { Form, Field, ErrorMessage } from "vee-validate";
 export default {
+  components: { Form, Field, ErrorMessage },
   props: {
     currentTeacher: {
       type: Object,
@@ -95,7 +100,7 @@ export default {
         currentTeacher.value,
         token
       );
-      if (response.status == 200) {
+      if (response?.status == 200) {
         await Swal.fire({
           title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",
@@ -111,6 +116,7 @@ export default {
     return {
       currentTeacher,
       updateTeacher,
+      updateTeacherSchema,
     };
   },
 };

@@ -22,25 +22,31 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="addSubject">
+          <Form
+            :submit="addSubject"
+            :validation-schema="subjectSchema"
+          >
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">Ten mon hoc</label>
-                <input
+                <Field
                   v-model="newSubject.subject_name"
                   type="text"
                   name="subject_name"
                   class="form-control"
                   placeholder="vi du: Tu Tuong Ho Chi Minh"
                 />
+                <ErrorMessage name="subject_name" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Ma mon hoc</label>
-                <input
+                <Field
                   class="form-control"
+                  name="subject_code"
                   v-model="newSubject.subject_code"
                   type="text"
                 />
+                <ErrorMessage name="subject_code" class="text-danger" />
               </div>
             </div>
             <div class="modal-footer">
@@ -49,11 +55,11 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Luu</button>
+              <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     </div>
@@ -64,7 +70,16 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { Field, Form, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import { subjectSchema } from "@/utils/validate"; 
+
 export default {
+  components: {
+    Field,
+    Form,
+    ErrorMessage,
+  },
   props: {
     newSubject: {
       type: Object,
@@ -78,7 +93,7 @@ export default {
     const addSubject = async () => {
       const token = Cookies.get("accessToken");
       const response = await api.post("subject", newSubject.value, token);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         newSubject.value = {
           subject_name: "",
           subject_code: "",
@@ -98,6 +113,7 @@ export default {
     return {
       newSubject,
       addSubject,
+      subjectSchema,
     };
   },
 };

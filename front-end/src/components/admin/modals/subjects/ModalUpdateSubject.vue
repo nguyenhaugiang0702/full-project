@@ -23,25 +23,28 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="updateSubject">
+          <Form @submit="updateSubject" :validation-schema="subjectSchema">
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">Ten mon hoc</label>
-                <input
+                <Field
                   v-model="currentSubject.subject_name"
                   type="text"
                   name="subject_name"
                   class="form-control"
                   placeholder="vi du: Tu Tuong Ho Chi Minh"
                 />
+                <ErrorMessage name="subject_name" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Ma mon hoc</label>
-                <input
+                <Field
                   class="form-control"
+                  name="subject_code"
                   v-model="currentSubject.subject_code"
                   type="text"
                 />
+                <ErrorMessage name="subject_code" class="text-danger" />
               </div>
             </div>
             <div class="modal-footer">
@@ -54,7 +57,7 @@
               </button>
               <button type="submit" class="btn btn-primary">Luu</button>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     </div>
@@ -65,7 +68,10 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { subjectSchema } from "@/utils/validate";
+import { Form, Field, ErrorMessage } from "vee-validate";
 export default {
+  components: { Form, Field, ErrorMessage },
   props: {
     currentSubject: {
       type: Object,
@@ -83,7 +89,7 @@ export default {
         currentSubject.value,
         token
       );
-      if (response.status == 200) {
+      if (response?.status == 200) {
         await Swal.fire({
           title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",
@@ -99,6 +105,7 @@ export default {
     return {
       currentSubject,
       updateSubject,
+      subjectSchema,
     };
   },
 };

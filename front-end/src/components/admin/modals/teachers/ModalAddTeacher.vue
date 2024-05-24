@@ -22,44 +22,50 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="addTeacher">
+          <Form @submit="addTeacher" :validation-schema="createTeacherSchema">
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">ID</label>
-                <input
+                <Field
                   v-model="newTeacher.admin_id"
                   type="text"
                   name="admin_id"
                   class="form-control"
                   placeholder="vi du: 00125"
                 />
+                <ErrorMessage name="admin_id" class="text-danger"/>
               </div>
               <div class="mb-3">
                 <label class="form-label">Ten</label>
-                <input
+                <Field
                   v-model="newTeacher.admin_name"
                   type="text"
                   name="admin_name"
                   class="form-control"
                   placeholder="vi du: Nguyen van A"
                 />
+                <ErrorMessage name="admin_name" class="text-danger"/>
               </div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input
+                <Field
                   class="form-control"
                   type="email"
+                  name="admin_email"
                   placeholder="vi du: vanA@gmail.com"
                   v-model="newTeacher.admin_email"
                 />
+                <ErrorMessage name="admin_email" class="text-danger"/>
               </div>
               <div class="mb-3">
                 <label class="form-label">Mat khau</label>
-                <input
+                <Field
                   class="form-control"
                   type="password"
+                  name="admin_password"
                   v-model="newTeacher.admin_password"
                 />
+                <ErrorMessage name="admin_password" class="text-danger"/>
               </div>
             </div>
             <div class="modal-footer">
@@ -72,7 +78,7 @@
               </button>
               <button type="submit" class="btn btn-primary">Luu</button>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     </div>
@@ -83,7 +89,11 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { createTeacherSchema } from "@/utils/validate";
+import { Form, Field, ErrorMessage } from "vee-validate";
+
 export default {
+  components: { Form, Field, ErrorMessage },
   props: {
     newTeacher: {
       type: Object,
@@ -97,7 +107,7 @@ export default {
     const addTeacher = async () => {
       const token = Cookies.get("accessToken");
       const response = await api.post("admin", newTeacher.value, token);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         newTeacher.value = {
           admin_id: "",
           admin_name: "",
@@ -119,6 +129,7 @@ export default {
     return {
       newTeacher,
       addTeacher,
+      createTeacherSchema
     };
   },
 };
