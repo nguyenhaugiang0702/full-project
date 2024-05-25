@@ -32,16 +32,7 @@ class ApiService {
             }
             return await axios.post(url, data, { headers });
         } catch (error) {
-            if (error.response) {
-                Swal.fire({
-                    title: "Thất bại",
-                    text: error.response.data.message,
-                    icon: "error",
-                    timer: 1500,
-                    showConfirmButton: false,
-                    position: "top-end",
-                });
-            }
+            this.handleErrorResponse(error);
         }
     }
 
@@ -56,16 +47,7 @@ class ApiService {
             }
             return await axios.put(url, data, { headers });
         } catch (error) {
-            if (error.response) {
-                Swal.fire({
-                    title: "Thất bại",
-                    text: error.response.data.message,
-                    icon: "error",
-                    timer: 1500,
-                    showConfirmButton: false,
-                    position: "top-end",
-                });
-            }
+            this.handleErrorResponse(error);
         }
     }
 
@@ -80,16 +62,7 @@ class ApiService {
             }
             return await axios.delete(url, { headers });
         } catch (error) {
-            if (error.response) {
-                Swal.fire({
-                    title: "Thất bại",
-                    text: error.response.data.message,
-                    icon: "error",
-                    timer: 1500,
-                    showConfirmButton: false,
-                    position: "top-end",
-                });
-            }
+            this.handleErrorResponse(error);
         }
     }
 
@@ -117,6 +90,7 @@ class ApiService {
                 icon: 'error',
                 timer: 1500,
                 showConfirmButton: false,
+                position: "top-end",
             });
         } else {
             console.log(error);

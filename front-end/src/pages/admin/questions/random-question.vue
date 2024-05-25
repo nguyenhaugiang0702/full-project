@@ -21,10 +21,10 @@
           Xuất ra file Word
         </button>
         <button class="btn btn-info ms-3" @click="addToWorkbook">
-          Thêm vào Workbook
+          Tạo đáp án đề thi
         </button>
         <button class="btn btn-info ms-3" @click="saveWorkbook">
-          Lưu Workbook
+          Xuất ra file đáp án Excel
         </button>
       </div>
     </div>
@@ -72,6 +72,7 @@ export default {
     const numberRandom = ref(1);
     const api = new ApiService();
     const currentSheetIndex = ref(101);
+    const currentDocxIndex = ref(101);
     const workbook = ref(XLSX.utils.book_new());
 
     const getQuestionsRandom = async (numberRandom) => {
@@ -106,43 +107,59 @@ export default {
         });
         return;
       }
+
+      const examCode = currentDocxIndex.value; // Sử dụng chỉ số đề làm mã đề
       const doc = new Document({
         sections: [
           {
             properties: {},
-            children: questionsRandom.value
-              .map((question, index) => [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `${index + 1}. ${question.question_name}`,
-                      bold: true,
-                    }),
-                  ],
-                }),
-                ...question.options.map(
-                  (option, i) =>
-                    new Paragraph({
-                      children: [
-                        new TextRun({
-                          text: `${String.fromCharCode(65 + i)}. ${
-                            option.answer
-                          }`,
-                          bold: option.is_correct,
-                        }),
-                      ],
-                      indent: { left: 720 },
-                    })
-                ),
-                new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
-              ])
-              .flat(),
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `Mã đề: ${examCode}`,
+                    bold: true,
+                    size: 24,
+                  }),
+                ],
+                alignment: "center",
+                spacing: { after: 400 }, // khoảng cách sau đoạn văn bản
+              }),
+              ...questionsRandom.value
+                .map((question, index) => [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `${index + 1}. ${question.question_name}`,
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                  ...question.options.map(
+                    (option, i) =>
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `${String.fromCharCode(65 + i)}. ${
+                              option.answer
+                            }`,
+                            bold: option.is_correct,
+                          }),
+                        ],
+                        indent: { left: 720 },
+                      })
+                  ),
+                  new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
+                ])
+                .flat(),
+            ],
           },
         ],
       });
 
       Packer.toBlob(doc).then((blob) => {
-        saveAs(blob, "questions.docx");
+        saveAs(blob, `Đề_${examCode}.docx`);
+        currentDocxIndex.value++;
       });
     };
 
@@ -191,35 +208,6 @@ export default {
         });
       }
 
-      // Tạo một mảng chứa dữ liệu cho file Excel
-      // const excelData = [["Câu", "Đáp án"]];
-
-      // Điền dữ liệu câu hỏi và đáp án vào mảng dữ liệu
-      // questionsRandom.value.forEach((question, index) => {
-      //   const rowData = [`${index + 1}`];
-
-      //   // Thêm các đáp án vào hàng tiếp theo
-      //   question.options.forEach((option, i) => {
-      //     rowData.push(option.is_correct ? String.fromCharCode(65 + i) : "");
-      //   });
-
-      //   // Thêm hàng dữ liệu vào mảng dữ liệu
-      //   excelData.push(rowData);
-      // });
-
-      // Loại bỏ các phần tử rỗng trong mảng excelData
-      // const cleanedExcelData = excelData.map((row) =>
-      //   row.filter((data) => data !== "")
-      // );
-
-      // // Lọc các hàng có ít hơn 2 phần tử (bao gồm cả tiêu đề và cột 101)
-      // const filteredExcelData = cleanedExcelData.filter(
-      //   (row) => row.length >= 2
-      // );
-
-      // Tạo một Worksheet mới từ dữ liệu
-      // const worksheet = XLSX.utils.aoa_to_sheet(filteredExcelData);
-
       // Thêm Worksheet vào Workbook
       XLSX.utils.book_append_sheet(
         workbook.value,
@@ -235,17 +223,79 @@ export default {
         title: "Thành công",
         text: `Đã thêm thành công Đề ${
           currentSheetIndex.value - 1
-        } vào Workbook.`,
+        }.`,
         icon: "success",
         confirmButtonText: "OK",
       });
     };
 
+    // const addToWorkbook = () => {
+    //   if (questionsRandom.value.length === 0) {
+    //     // Hiển thị cảnh báo nếu không có câu hỏi
+    //     Swal.fire({
+    //       title: "Cảnh báo",
+    //       text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
+    //       icon: "warning",
+    //       confirmButtonText: "OK",
+    //     });
+    //     return;
+    //   }
+
+    //   // Tạo một mảng chứa dữ liệu cho file Excel
+    //   const excelData = [["Câu", "Đáp án"]];
+
+    //   // Điền dữ liệu câu hỏi và đáp án vào mảng dữ liệu
+    //   questionsRandom.value.forEach((question, index) => {
+    //     const rowData = [`${index + 1}`];
+
+    //     // Thêm các đáp án vào hàng tiếp theo
+    //     question.options.forEach((option, i) => {
+    //       rowData.push(option.is_correct ? String.fromCharCode(65 + i) : "");
+    //     });
+
+    //     // Thêm hàng dữ liệu vào mảng dữ liệu
+    //     excelData.push(rowData);
+    //   });
+
+    //   // Loại bỏ các phần tử rỗng trong mảng excelData
+    //   const cleanedExcelData = excelData.map((row) =>
+    //     row.filter((data) => data !== "")
+    //   );
+
+    //   // Lọc các hàng có ít hơn 2 phần tử (bao gồm cả tiêu đề và cột 101)
+    //   const filteredExcelData = cleanedExcelData.filter(
+    //     (row) => row.length >= 2
+    //   );
+
+    //   // Tạo một Worksheet mới từ dữ liệu
+    //   const worksheet = XLSX.utils.aoa_to_sheet(filteredExcelData);
+
+    //   // Thêm Worksheet vào Workbook
+    //   XLSX.utils.book_append_sheet(
+    //     workbook.value,
+    //     worksheet,
+    //     `Đề ${currentSheetIndex.value}`
+    //   );
+
+    //   // Tăng chỉ số đề
+    //   currentSheetIndex.value++;
+
+    //   // Hiển thị thông báo thành công
+    //   Swal.fire({
+    //     title: "Thành công",
+    //     text: `Đã thêm thành công Đề ${
+    //       currentSheetIndex.value - 1
+    //     } vào Workbook.`,
+    //     icon: "success",
+    //     confirmButtonText: "OK",
+    //   });
+    // };
+
     const saveWorkbook = () => {
       if (workbook.value.SheetNames.length === 0) {
         Swal.fire({
           title: "Cảnh báo",
-          text: "Chưa có đề nào trong workbook. Vui lòng thêm đề trước khi lưu.",
+          text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu.",
           icon: "warning",
           confirmButtonText: "OK",
         });
