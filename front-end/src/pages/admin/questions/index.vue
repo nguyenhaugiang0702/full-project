@@ -265,18 +265,34 @@ export default {
 
     const parsedQuestions = ref([]);
 
-    const handleFileUpload = (event) => {
+    const handleFileUpload = async (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const arrayBuffer = e.target.result;
           Mammoth.extractRawText({ arrayBuffer }) // Pass arrayBuffer here
-            .then((result) => {
+            .then(async (result) => {
               const text = result.value;
               const data = parseFileContent(text);
-              parsedQuestions.value = data;
-              console.log(parsedQuestions.value);
+              parsedQuestions.value = { ...data, subject_id };
+              const token = Cookies.get("accessToken");
+              const response = await api.post(
+                'question/subject/bulk',
+                parsedQuestions.value,
+                token
+              );
+              if (response?.status == 200) {
+                await Swal.fire({
+                  title: "Thành công!",
+                  text: "Dữ liệu đã được tải thành công.",
+                  icon: "success",
+                  timer: 1500,
+                  showConfirmButton: false,
+                  position: "top-end",
+                });
+                getQuestions();
+              }
             })
             .catch((error) => {
               console.error("Error parsing file:", error);
@@ -304,12 +320,14 @@ export default {
         const answersPart = questionBlock.substring(indexOfFirstAnswer).trim();
 
         // Sử dụng regex để tìm tất cả các đáp án
-        // const answerLines = answersPart.match(/[a-d] - [^\n]+/g);
-        const answerLines = answersPart.match(/([a-d] - .+?)(?=[a-d] - |\sĐÁP ÁN -)/g);
+        const answerLines = answersPart.match(
+          /([a-d] - .+?)(?=[a-d] - |\s*ĐÁP ÁN|$)/gs
+        );
 
-
-        // Tìm đáp án đúng
-        const correctAnswerMatch = answersPart.match(/ĐÁP ÁN - ([A-D])/);
+        // Tìm đáp án đúng, chú ý cả dấu cách hoặc dấu gạch ngang khác nhau
+        const correctAnswerMatch = answersPart.match(
+          /ĐÁP ÁN\s*[-–]\s*([a-d])/i
+        );
         const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1] : null;
 
         // Tạo một đối tượng question mới
