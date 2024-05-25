@@ -9,7 +9,7 @@ exports.create = async (req, res, next) => {
     if (!req.body?.question_name || !req.body?.options) {
         return next(new ApiError(400, "Kiem tra lai cac cau hoi"));
     }
-    console.log(req.body);
+
     try {
         const admin_id = new ObjectId(req.admin.admin_id);
         const question_name = req.body.question_name.trim();
@@ -49,7 +49,20 @@ exports.createBulk = async (req, res, next) => {
                     options: question.options
                 };
             });
-        const documents = await questionService.insertMany(questions);
+        // Kiểm tra tên câu hỏi trùng lặp
+        const newQuestions = [];
+        for (const question of questions) {
+            const questionExist = await questionService.findByNameAndSubject(question.question_name, subjectId);
+            if (!questionExist) {
+                newQuestions.push(question);
+            }
+        }
+
+        if (newQuestions.length == 0) {
+            return next(new ApiError(400, "Tất cả các câu hỏi trong file đã tồn tại"));
+        }
+
+        const documents = await questionService.insertMany(newQuestions);
         return res.send(documents);
     } catch (error) {
         return next(

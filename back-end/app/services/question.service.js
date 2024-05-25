@@ -1,4 +1,6 @@
 const { ObjectId } = require("mongodb");
+const stringSimilarity = require('string-similarity');
+
 class QuestionService {
     constructor(client) {
         this.Question = client.db().collection("questions");
@@ -46,9 +48,9 @@ class QuestionService {
 
     async findByNameAndSubject(question_name, subject_id) {
         return await this.Question.findOne({
-            question_name: { $regex: new RegExp(question_name, 'i') },
-            subject_id: ObjectId.isValid(subject_id) ? new ObjectId(subject_id) : null,
-        });
+            question_name: question_name,
+            subject_id: subject_id
+        });     
     }
 
     async findByNameAndSubjectID(question_name, subject_id) {
