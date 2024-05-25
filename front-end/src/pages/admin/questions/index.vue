@@ -25,7 +25,7 @@
         class="btn btn-success ms-2 float-start"
         @click="
           $router.push({
-            name: 'admin-questions-radndom',
+            name: 'admin-questions-random',
             params: { id: subject_id },
           })
         "

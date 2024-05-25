@@ -20,6 +20,9 @@
         <button class="btn btn-info ms-3" @click="exportToWord">
           Xuất ra file Word
         </button>
+        <button class="btn btn-info ms-3" @click="exportToExcel">
+          Xuất ra file Excel
+        </button>
       </div>
     </div>
     <div class="exam-content" :class="{ loading: loading }">
@@ -56,6 +59,8 @@ import ApiService from "@/service/ApiService";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
+import { data } from "jquery";
 export default {
   setup() {
     const questionsRandom = ref([]);
@@ -87,7 +92,7 @@ export default {
     };
 
     const exportToWord = () => {
-      if(questionsRandom.value.length === 0){
+      if (questionsRandom.value.length === 0) {
         Swal.fire({
           title: "Cảnh báo",
           text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
@@ -100,28 +105,33 @@ export default {
         sections: [
           {
             properties: {},
-            children: questionsRandom.value.map((question, index) => [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: `${index + 1}. ${question.question_name}`,
-                    bold: true,
-                  }),
-                ],
-              }),
-              ...question.options.map((option, i) =>
+            children: questionsRandom.value
+              .map((question, index) => [
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: `${String.fromCharCode(65 + i)}. ${option.answer}`,
-                      bold: option.is_correct,
+                      text: `${index + 1}. ${question.question_name}`,
+                      bold: true,
                     }),
                   ],
-                  indent: { left: 720 },
-                })
-              ),
-              new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
-            ]).flat(),
+                }),
+                ...question.options.map(
+                  (option, i) =>
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `${String.fromCharCode(65 + i)}. ${
+                            option.answer
+                          }`,
+                          bold: option.is_correct,
+                        }),
+                      ],
+                      indent: { left: 720 },
+                    })
+                ),
+                new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
+              ])
+              .flat(),
           },
         ],
       });
@@ -131,13 +141,65 @@ export default {
       });
     };
 
+    const exportToExcel = () => {
+      if (questionsRandom.value.length === 0) {
+        // Hiển thị cảnh báo nếu không có câu hỏi
+        Swal.fire({
+          title: "Cảnh báo",
+          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      // Tạo một mảng chứa dữ liệu cho file Excel
+      const excelData = [["Câu/ Đề", 101]];
+
+      // Điền dữ liệu câu hỏi và đáp án vào mảng dữ liệu
+      questionsRandom.value.forEach((question, index) => {
+        const rowData = [`${index + 1}`];
+
+        // Thêm các đáp án vào hàng tiếp theo
+        question.options.forEach((option, i) => {
+          rowData.push(option.is_correct ? String.fromCharCode(65 + i) : "");
+        });
+
+        // Thêm hàng dữ liệu vào mảng dữ liệu
+        excelData.push(rowData);
+      });
+
+      // Loại bỏ các phần tử rỗng trong mảng excelData
+      const cleanedExcelData = excelData.map((row) =>
+        row.filter((data) => data !== "")
+      );
+
+      // Lọc các hàng có ít hơn 2 phần tử (bao gồm cả tiêu đề và cột 101)
+      const filteredExcelData = cleanedExcelData.filter(
+        (row) => row.length >= 2
+      );
+
+      // Tạo một Workbook mới
+      const workbook = XLSX.utils.book_new();
+
+      // Tạo một Worksheet mới từ dữ liệu
+      const worksheet = XLSX.utils.aoa_to_sheet(filteredExcelData);
+
+      // Thêm Worksheet vào Workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách câu hỏi");
+
+      // Xuất Workbook ra file Excel
+      XLSX.writeFile(workbook, "questions.xlsx");
+    };
+
     return {
       getQuestionsRandom,
       shuffleQuestions,
       questionsRandom,
       loading,
       numberRandom,
-      exportToWord
+      exportToWord,
+      exportToExcel,
     };
   },
 };
