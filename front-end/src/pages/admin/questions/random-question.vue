@@ -20,8 +20,11 @@
         <button class="btn btn-info ms-3" @click="exportToWord">
           Xuất ra file Word
         </button>
-        <button class="btn btn-info ms-3" @click="exportToExcel">
-          Xuất ra file Excel
+        <button class="btn btn-info ms-3" @click="addToWorkbook">
+          Thêm vào Workbook
+        </button>
+        <button class="btn btn-info ms-3" @click="saveWorkbook">
+          Lưu Workbook
         </button>
       </div>
     </div>
@@ -68,6 +71,8 @@ export default {
     const loading = ref(false);
     const numberRandom = ref(1);
     const api = new ApiService();
+    const currentSheetIndex = ref(101);
+    const workbook = ref(XLSX.utils.book_new());
 
     const getQuestionsRandom = async (numberRandom) => {
       loading.value = true;
@@ -141,7 +146,7 @@ export default {
       });
     };
 
-    const exportToExcel = () => {
+    const addToWorkbook = () => {
       if (questionsRandom.value.length === 0) {
         // Hiển thị cảnh báo nếu không có câu hỏi
         Swal.fire({
@@ -153,43 +158,101 @@ export default {
         return;
       }
 
+      const worksheet = XLSX.utils.aoa_to_sheet([]);
+      // Số câu mỗi vùng
+      const chunkSize = 10;
+      // Tạo các vùng dữ liệu
+      for (let i = 0; i < questionsRandom.value.length; i += chunkSize) {
+        // Tạo dữ liệu cho vùng hiện tại
+        const chunkData = [["Câu", "Đáp án"]];
+        questionsRandom.value
+          .slice(i, i + chunkSize)
+          .forEach((question, index) => {
+            const rowData = [`${i + index + 1}`];
+            question.options.forEach((option, idx) => {
+              if (option.is_correct) {
+                rowData.push(String.fromCharCode(65 + idx));
+              }
+            });
+            chunkData.push(rowData);
+          });
+
+        // Xác định vị trí bắt đầu của vùng hiện tại trong worksheet
+        const startRow = 0; // +1 để tạo khoảng cách giữa các vùng
+        const startCol = Math.floor(i / chunkSize) * 3; // +3 để tạo khoảng cách giữa các vùng
+
+        // Điền dữ liệu vào worksheet
+        chunkData.forEach((row, rowIndex) => {
+          row.forEach((cell, colIndex) => {
+            XLSX.utils.sheet_add_aoa(worksheet, [[cell]], {
+              origin: { r: startRow + rowIndex, c: startCol + colIndex },
+            });
+          });
+        });
+      }
+
       // Tạo một mảng chứa dữ liệu cho file Excel
-      const excelData = [["Câu/ Đề", 101]];
+      // const excelData = [["Câu", "Đáp án"]];
 
       // Điền dữ liệu câu hỏi và đáp án vào mảng dữ liệu
-      questionsRandom.value.forEach((question, index) => {
-        const rowData = [`${index + 1}`];
+      // questionsRandom.value.forEach((question, index) => {
+      //   const rowData = [`${index + 1}`];
 
-        // Thêm các đáp án vào hàng tiếp theo
-        question.options.forEach((option, i) => {
-          rowData.push(option.is_correct ? String.fromCharCode(65 + i) : "");
-        });
+      //   // Thêm các đáp án vào hàng tiếp theo
+      //   question.options.forEach((option, i) => {
+      //     rowData.push(option.is_correct ? String.fromCharCode(65 + i) : "");
+      //   });
 
-        // Thêm hàng dữ liệu vào mảng dữ liệu
-        excelData.push(rowData);
-      });
+      //   // Thêm hàng dữ liệu vào mảng dữ liệu
+      //   excelData.push(rowData);
+      // });
 
       // Loại bỏ các phần tử rỗng trong mảng excelData
-      const cleanedExcelData = excelData.map((row) =>
-        row.filter((data) => data !== "")
-      );
+      // const cleanedExcelData = excelData.map((row) =>
+      //   row.filter((data) => data !== "")
+      // );
 
-      // Lọc các hàng có ít hơn 2 phần tử (bao gồm cả tiêu đề và cột 101)
-      const filteredExcelData = cleanedExcelData.filter(
-        (row) => row.length >= 2
-      );
-
-      // Tạo một Workbook mới
-      const workbook = XLSX.utils.book_new();
+      // // Lọc các hàng có ít hơn 2 phần tử (bao gồm cả tiêu đề và cột 101)
+      // const filteredExcelData = cleanedExcelData.filter(
+      //   (row) => row.length >= 2
+      // );
 
       // Tạo một Worksheet mới từ dữ liệu
-      const worksheet = XLSX.utils.aoa_to_sheet(filteredExcelData);
+      // const worksheet = XLSX.utils.aoa_to_sheet(filteredExcelData);
 
       // Thêm Worksheet vào Workbook
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách câu hỏi");
+      XLSX.utils.book_append_sheet(
+        workbook.value,
+        worksheet,
+        `Đề ${currentSheetIndex.value}`
+      );
 
+      // Tăng chỉ số đề
+      currentSheetIndex.value++;
+
+      // Hiển thị thông báo thành công
+      Swal.fire({
+        title: "Thành công",
+        text: `Đã thêm thành công Đề ${
+          currentSheetIndex.value - 1
+        } vào Workbook.`,
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    };
+
+    const saveWorkbook = () => {
+      if (workbook.value.SheetNames.length === 0) {
+        Swal.fire({
+          title: "Cảnh báo",
+          text: "Chưa có đề nào trong workbook. Vui lòng thêm đề trước khi lưu.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
       // Xuất Workbook ra file Excel
-      XLSX.writeFile(workbook, "questions.xlsx");
+      XLSX.writeFile(workbook.value, "questions.xlsx");
     };
 
     return {
@@ -199,7 +262,8 @@ export default {
       loading,
       numberRandom,
       exportToWord,
-      exportToExcel,
+      addToWorkbook,
+      saveWorkbook,
     };
   },
 };
