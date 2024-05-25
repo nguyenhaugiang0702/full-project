@@ -28,6 +28,36 @@ exports.create = async (req, res, next) => {
     }
 };
 
+exports.createBulk = async (req, res, next) => {
+    if (!req.body) {
+        return next(new ApiError(400, "Vui long kiem tra lai file"));
+    }
+
+    try {
+        const adminId = new ObjectId(req.admin.admin_id);
+        const subjectId = new ObjectId(req.body.subject_id);
+        const questionService = new QuestionService(MongoDB.client);
+        // Kiểm tra trùng tên câu hỏi trong subject hiện tại
+        // Chuẩn bị dữ liệu câu hỏi từ req.body
+        const questions = Object.keys(req.body)
+            .filter(key => key !== 'subject_id') // Loại bỏ key subject_id 
+            .map(key => {
+                const question = req.body[key];
+                return {
+                    ...question,
+                    subject_id: subjectId,
+                    options: question.options
+                };
+            });
+        const documents = await questionService.insertMany(questions);
+        return res.send(documents);
+    } catch (error) {
+        return next(
+            new ApiError(500, "An Error Occurred while creating the question")
+        );
+    }
+};
+
 exports.findALL = async (req, res, next) => {
     let documents = [];
 

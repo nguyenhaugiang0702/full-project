@@ -26,6 +26,11 @@ class QuestionService {
         return result;
     }
 
+    async insertMany(questions) {
+        const result = await this.Question.insertMany(questions);
+        return result.ops;
+    }
+
     // find
     async find(filter) {
         const cursor = await this.Question.find(filter);

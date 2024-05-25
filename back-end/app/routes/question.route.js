@@ -8,7 +8,9 @@ router
     .get(authenticateToken.authenticateTokenFromHeader, questions.findALL)
     .post(authenticateToken.authenticateTokenFromHeader, questions.create)
     .delete(questions.deleteALL);
-
+router
+    .route("/subject/bulk")
+    .post(authenticateToken.authenticateTokenFromHeader, questions.createBulk)
 router
     .route("/subject/:subjectID")
     .get(authenticateToken.authenticateTokenFromHeader, questions.findQuestionsBySubjectID)
