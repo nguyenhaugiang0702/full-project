@@ -34,7 +34,7 @@ exports.createBulk = async (req, res, next) => {
 
     try {
         const adminId = new ObjectId(req.admin.admin_id);
-        const subjectId = req.body.subject_id;
+        const subjectId = new ObjectId(req.body.subject_id);
         const questionService = new QuestionService(MongoDB.client);
         // Kiểm tra trùng tên câu hỏi trong subject hiện tại
         // Chuẩn bị dữ liệu câu hỏi từ req.body
@@ -51,7 +51,7 @@ exports.createBulk = async (req, res, next) => {
         // Kiểm tra tên câu hỏi trùng lặp
         const newQuestions = [];
         for (const question of questions) {
-            const questionExist = await questionService.findByNameAndSubject(question.question_name.trim(), subjectId);
+            const questionExist = await questionService.findByNameAndSubject(question.question_name, subjectId);
             if (!questionExist) {
                 newQuestions.push(question);
             }
@@ -60,7 +60,7 @@ exports.createBulk = async (req, res, next) => {
         if (newQuestions.length == 0) {
             return next(new ApiError(400, "Tất cả các câu hỏi trong file đã tồn tại"));
         }
-
+        console.log(newQuestions);
         const documents = await questionService.insertMany(newQuestions);
         return res.send(documents);
     } catch (error) {
