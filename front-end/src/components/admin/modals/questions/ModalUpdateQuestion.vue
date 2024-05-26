@@ -9,7 +9,7 @@
     aria-labelledby="updateQuestionModalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="updateQuestionModalLabel">
@@ -24,19 +24,22 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <form @submit.prevent="updateQuestion">
+            <Form @submit="updateQuestion" :validation-schema="questionSchema">
               <div class="mb-3">
                 <label
                   for="exampleFormControlTextarea_update1"
                   class="form-label"
                   >Noi dung cau hoi</label
                 >
-                <textarea
+                <Field
+                  as="textarea"
                   class="form-control border border-dark border-1"
                   id="exampleFormControlTextarea_update1"
                   rows="3"
+                  name="question_name"
                   v-model="currentQuestion.question_name"
-                ></textarea>
+                />
+                <ErrorMessage class="text-danger" name="question_name" />
               </div>
               <div class="mb-3">
                 <label
@@ -69,12 +72,15 @@
                     </label>
                   </div>
                   <div class="col-10">
-                    <textarea
+                    <Field
+                      as="textarea"
                       class="form-control border border-dark border-1"
                       :id="'textarea_update' + index"
                       rows="2"
+                      :name="'options[' + index + '].answer'" 
                       v-model="option.answer"
-                    ></textarea>
+                    />
+                    <ErrorMessage class="text-danger" :name="'options[' + index + '].answer'"  />
                   </div>
                 </div>
               </div>
@@ -88,7 +94,7 @@
                 </button>
                 <button type="submit" class="btn btn-primary">Luu</button>
               </div>
-            </form>
+            </Form>
           </div>
         </div>
       </div>
@@ -100,12 +106,19 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import { questionSchema } from "@/utils/validate";
 export default {
   props: {
     currentQuestion: {
       type: Object,
       required: true,
     },
+  },
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
   },
   setup(props) {
     const { currentQuestion } = toRefs(props);
@@ -139,6 +152,7 @@ export default {
       currentQuestion,
       updateQuestion,
       setCorrectOption,
+      questionSchema,
     };
   },
 };

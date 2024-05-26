@@ -51,3 +51,14 @@ export const updateTeacherSchema = yup.object().shape({
         .email("E-mail không đúng.")
         .max(50, "E-mail tối đa 50 ký tự."),
 });
+
+export const questionSchema = yup.object().shape({
+    question_name: yup
+        .string()
+        .required("Vui lòng nhập tên câu hỏi"),
+    options: yup.array().of(
+        yup.object().shape({
+            answer: yup.string().required("Vui lòng nhập đáp án")
+        })
+    )
+});

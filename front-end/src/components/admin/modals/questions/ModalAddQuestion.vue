@@ -9,7 +9,7 @@
     aria-labelledby="addQuestionModalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="addQuestionModalLabel">
@@ -24,17 +24,19 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <form @submit.prevent="addQuestion">
+            <Form @submit="addQuestion" :validation-schema="questionSchema">
               <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label"
+                <label for="exampleFormControlTextarea_add1" class="form-label"
                   >Noi dung cau hoi</label
                 >
-                <textarea
+                <Field as="textarea"
                   class="form-control border border-dark border-1"
-                  id="exampleFormControlTextarea1"
+                  id="exampleFormControlTextarea_add1"
                   rows="3"
+                  name="question_name"
                   v-model="newQuestion.question_name"
-                ></textarea>
+                />
+                <ErrorMessage class="text-danger" name="question_name" />
               </div>
               <div class="mb-3">
                 <label for="exampleFormControlTextarea2" class="form-label"
@@ -64,12 +66,17 @@
                     </label>
                   </div>
                   <div class="col-10">
-                    <textarea
+                    <Field as="textarea"
                       class="form-control border border-dark border-1"
                       :id="'textarea' + index"
+                      :name="'options[' + index + '].answer'" 
                       rows="2"
                       v-model="option.answer"
-                    ></textarea>
+                    />
+                    <ErrorMessage
+                      class="text-danger"
+                      :name="'options[' + index + '].answer'"
+                    />
                   </div>
                 </div>
               </div>
@@ -83,7 +90,7 @@
                 </button>
                 <button type="submit" class="btn btn-primary">Luu</button>
               </div>
-            </form>
+            </Form>
           </div>
         </div>
       </div>
@@ -95,6 +102,8 @@ import { ref, toRefs } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import { questionSchema } from "@/utils/validate";
 export default {
   props: {
     newQuestion: {
@@ -105,6 +114,11 @@ export default {
       type: String,
       required: true,
     },
+  },
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
   },
   setup(props) {
     const { newQuestion } = toRefs(props);
@@ -150,6 +164,7 @@ export default {
       addQuestion,
       correctOption,
       subject_id,
+      questionSchema,
     };
   },
 };
