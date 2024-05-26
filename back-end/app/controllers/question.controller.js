@@ -2,11 +2,10 @@ const ApiError = require("../api-error");
 const MongoDB = require("../utils/mongodb.util");
 const QuestionService = require("../services/question.service");
 const { ObjectId } = require("mongodb");
-const { options } = require("../routes/question.route");
 const SubjectService = require("../services/subject.service");
 
 exports.create = async (req, res, next) => {
-    if (!req.body?.question_name || !req.body?.options) {
+    if (!req.body?.question_name || req.body?.options?.some(item => item.answer === '')) {
         return next(new ApiError(400, "Kiem tra lai cac cau hoi"));
     }
 
