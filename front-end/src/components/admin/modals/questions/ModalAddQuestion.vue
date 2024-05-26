@@ -29,7 +29,8 @@
                 <label for="exampleFormControlTextarea_add1" class="form-label"
                   >Noi dung cau hoi</label
                 >
-                <Field as="textarea"
+                <Field
+                  as="textarea"
                   class="form-control border border-dark border-1"
                   id="exampleFormControlTextarea_add1"
                   rows="3"
@@ -66,10 +67,11 @@
                     </label>
                   </div>
                   <div class="col-10">
-                    <Field as="textarea"
+                    <Field
+                      as="textarea"
                       class="form-control border border-dark border-1"
                       :id="'textarea' + index"
-                      :name="'options[' + index + '].answer'" 
+                      :name="'options[' + index + '].answer'"
                       rows="2"
                       v-model="option.answer"
                     />
@@ -135,7 +137,7 @@ export default {
         subject_id,
       };
       const token = Cookies.get("accessToken");
-      const response = api.post("question", newQuestionData, token);
+      const response = await api.post("question", newQuestionData, token);
       if (response.status == 200) {
         newQuestion.value = {
           question_name: "",

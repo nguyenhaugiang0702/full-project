@@ -158,7 +158,7 @@ export default {
             showConfirmButton: false,
             position: "top-end",
           });
-          window.location.reload();
+          getTeachers();
         }
       }
     };
