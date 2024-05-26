@@ -11,7 +11,7 @@ router
 
 router
     .route("/:subjectID")
-    .get(subjects.findOne)
+    .get(authenticateToken.authenticateTokenFromHeader, subjects.findOne)
     .put(authenticateToken.authenticateTokenFromHeader, subjects.update)
     .delete(authenticateToken.authenticateTokenFromHeader, subjects.delete);
 

@@ -171,7 +171,6 @@ exports.findRandomQuestionsBySubjectID = async (req, res, next) => {
                 document.options = await questionService.shuffleArray(document.options);
             }
         }))
-        console.log(documents);
     } catch (error) {
         return next(
             new ApiError(500, "An Error Occurred while retrieving questions")

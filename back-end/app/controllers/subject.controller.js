@@ -79,7 +79,9 @@ exports.findALL = async (req, res, next) => {
 exports.findOne = async (req, res, next) => {
     try {
         const subjectService = new SubjectService(MongoDB.client);
-        const document = await subjectService.findById(req.params.id);
+        const questionService = new QuestionService(MongoDB.client);
+        const document = await subjectService.findById(req.params.subjectID);
+        document.questionCount = await questionService.countBySubjectId(req.params.subjectID);
         if (!document) {
             return next(new ApiError(404, "subject not found"));
         }
