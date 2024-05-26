@@ -34,7 +34,7 @@ exports.createBulk = async (req, res, next) => {
 
     try {
         const adminId = new ObjectId(req.admin.admin_id);
-        const subjectId = new ObjectId(req.body.subject_id);
+        const subjectId = req.body.subject_id;
         const questionService = new QuestionService(MongoDB.client);
         // Kiểm tra trùng tên câu hỏi trong subject hiện tại
         // Chuẩn bị dữ liệu câu hỏi từ req.body
@@ -51,7 +51,7 @@ exports.createBulk = async (req, res, next) => {
         // Kiểm tra tên câu hỏi trùng lặp
         const newQuestions = [];
         for (const question of questions) {
-            const questionExist = await questionService.findByNameAndSubject(question.question_name, subjectId);
+            const questionExist = await questionService.findByNameAndSubject(question.question_name.trim(), subjectId);
             if (!questionExist) {
                 newQuestions.push(question);
             }
@@ -216,7 +216,7 @@ exports.update = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Không tìm thấy câu hỏi"));
         }
-        return res.send({ messgae: "Question was updated successfully" });
+        return res.send({ message: "Question was updated successfully" });
 
     } catch (error) {
         return next(
@@ -232,7 +232,7 @@ exports.delete = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Question not found"));
         }
-        return res.send({ messgae: "Question was deleted successfully" });
+        return res.send({ message: "Question was deleted successfully" });
     } catch (error) {
         return next(
             new ApiError(500, `Could not delete Question with id=${req.params.questionID}`)

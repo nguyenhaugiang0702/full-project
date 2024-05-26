@@ -49,7 +49,7 @@ class QuestionService {
     async findByNameAndSubject(question_name, subject_id) {
         return await this.Question.findOne({
             question_name: question_name,
-            subject_id: subject_id
+            subject_id: new ObjectId(subject_id),
         });     
     }
 

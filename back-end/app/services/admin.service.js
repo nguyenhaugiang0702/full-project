@@ -50,7 +50,7 @@ class adminService {
     // findByName
     async findByAdminName(name, id, role) {
         return await this.Admin.findOne({
-            admin_name: { $regex: new RegExp(name), $options: "i" },
+            admin_name: name,
             _id: {
                 $ne: ObjectId.isValid(id) ? new ObjectId(id) : null,
             },
@@ -72,7 +72,7 @@ class adminService {
     // findByName
     async findByAdminEmail(email, id, role) {
         return await this.Admin.findOne({
-            admin_email: { $regex: new RegExp(email), $options: "i" },
+            admin_email: email,
             _id: {
                 $ne: ObjectId.isValid(id) ? new ObjectId(id) : null,
             },
