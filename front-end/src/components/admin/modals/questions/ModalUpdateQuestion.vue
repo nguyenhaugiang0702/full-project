@@ -130,7 +130,7 @@ export default {
         currentQuestion.value,
         token
       );
-      if (response.status == 200) {
+      if (response?.status == 200) {
         await Swal.fire({
           title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",

@@ -281,7 +281,7 @@ export default {
           Mammoth.extractRawText({ arrayBuffer }) // Pass arrayBuffer here
             .then(async (result) => {
               const text = result.value;
-              const data = parseFileContent(text);
+              const data = await parseFileContent(text);
               parsedQuestions.value = { ...data, subject_id };
               const token = Cookies.get("accessToken");
               const response = await api.post(

@@ -72,7 +72,7 @@ export default defineComponent({
     onMounted(async () => {
       const token = Cookies.get("accessToken");
       const response = await api.get(`admin/${token}`);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         admin.value = response.data;
       }
     });

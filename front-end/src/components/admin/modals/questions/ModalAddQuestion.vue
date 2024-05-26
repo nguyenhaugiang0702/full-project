@@ -138,7 +138,7 @@ export default {
       };
       const token = Cookies.get("accessToken");
       const response = await api.post("question", newQuestionData, token);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         newQuestion.value = {
           question_name: "",
           options: [

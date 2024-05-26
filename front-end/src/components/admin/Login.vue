@@ -70,7 +70,7 @@ export default {
         admin_id: Number(admin.value.admin_id),
       };
       const response = await api.post("admin/login", adminData);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         admin.value = {
           admin_id: "",
           admin_email: "",

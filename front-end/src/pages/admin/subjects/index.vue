@@ -132,7 +132,7 @@ export default {
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
       const response = await api.get("subject", token);
-      if (response.status == 200) {
+      if (response?.status == 200) {
         subjects.value = response.data;
       }
     };
@@ -180,7 +180,7 @@ export default {
         `subject?search_value=${searchValue}`,
         token
       );
-      if (response.status == 200) {
+      if (response?.status == 200) {
         subjects.value = response.data;
       }
     };
