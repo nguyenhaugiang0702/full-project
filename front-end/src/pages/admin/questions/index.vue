@@ -184,7 +184,14 @@ export default {
       const response = await api.get(`question/subject/${subject_id}`, token);
       if (response.status == 200) {
         questions.value = response.data;
-        subjectInfo.value = questions.value[0].subjectInfo;
+      }
+    };
+
+    const getSubject = async () => {
+      const token = Cookies.get("accessToken");
+      const response = await api.get(`subject/${subject_id}`, token);
+      if (response.status == 200) {
+        subjectInfo.value = response.data;
       }
     };
 
@@ -355,6 +362,7 @@ export default {
 
     onMounted(() => {
       getQuestions();
+      getSubject();
       fileInputRef.value = document.getElementById("fileInput");
     });
 
@@ -378,6 +386,7 @@ export default {
       parseFileContent,
       handleFileButtonClick,
       parsedQuestions,
+      getSubject,
     };
   },
 };
