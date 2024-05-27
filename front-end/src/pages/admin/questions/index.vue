@@ -151,7 +151,7 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
-import { showAlert, showConfirmation, showSuccess } from "@/utils/swalUtils";
+import { showConfirmation, showSuccess } from "@/utils/swalUtils";
 
 export default {
   components: {
