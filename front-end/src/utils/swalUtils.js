@@ -1,17 +1,6 @@
 // src/utils/swalUtils.js
 import Swal from 'sweetalert2';
 
-export const showAlert = async ({ title, text, icon, timer = null, showConfirmButton = true, position = 'center' }) => {
-    return await Swal.fire({
-        title,
-        text,
-        icon,
-        timer,
-        showConfirmButton,
-        position,
-    });
-};
-
 export const showConfirmation = async ({ title, text, confirmButtonText = 'Xóa', cancelButtonText = 'Hủy' }) => {
     return await Swal.fire({
         title,

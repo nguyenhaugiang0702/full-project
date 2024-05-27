@@ -229,12 +229,9 @@ export default {
         const token = Cookies.get("accessToken");
         const response = await api.delete(`question/${questionID}`, token);
         if (response.status == 200) {
-          await showAlert({
+          await showSuccess({
             title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false,
           });
           getQuestions();
         }
