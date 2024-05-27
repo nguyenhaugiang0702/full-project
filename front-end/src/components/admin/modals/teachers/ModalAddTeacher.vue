@@ -31,9 +31,9 @@
                   type="text"
                   name="admin_id"
                   class="form-control"
-                  placeholder="vi du: 00125"
+                  placeholder="vi du: 125"
                 />
-                <ErrorMessage name="admin_id" class="text-danger"/>
+                <ErrorMessage name="admin_id" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Ten</label>
@@ -44,7 +44,7 @@
                   class="form-control"
                   placeholder="vi du: Nguyen van A"
                 />
-                <ErrorMessage name="admin_name" class="text-danger"/>
+                <ErrorMessage name="admin_name" class="text-danger" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -55,17 +55,23 @@
                   placeholder="vi du: vanA@gmail.com"
                   v-model="newTeacher.admin_email"
                 />
-                <ErrorMessage name="admin_email" class="text-danger"/>
+                <ErrorMessage name="admin_email" class="text-danger" />
               </div>
-              <div class="mb-3">
+              <div class="mb-3 row">
                 <label class="form-label">Mat khau</label>
-                <Field
-                  class="form-control"
-                  type="password"
-                  name="admin_password"
-                  v-model="newTeacher.admin_password"
-                />
-                <ErrorMessage name="admin_password" class="text-danger"/>
+                <div class="col-11">
+                  <Field
+                    class="form-control"
+                    :type="showPassword ? 'text' : 'password'"
+                    name="admin_password"
+                    v-model="newTeacher.admin_password"
+                  />
+                </div>
+                <button type="button" @click="togglePasswordVisibility" class="col-1 bg-white fs-4">
+                  <i v-if="!showPassword" class="fa-solid fa-eye-slash"></i>
+                  <i v-else class="fa-solid fa-eye"></i>
+                </button>
+                <ErrorMessage name="admin_password" class="text-danger" />
               </div>
             </div>
             <div class="modal-footer">
@@ -103,6 +109,7 @@ export default {
   setup(props) {
     const { newTeacher } = toRefs(props);
     const api = new ApiService();
+    const showPassword = ref(false);
 
     const addTeacher = async () => {
       const token = Cookies.get("accessToken");
@@ -126,11 +133,29 @@ export default {
       }
     };
 
+    const togglePasswordVisibility = () => {
+      showPassword.value = !showPassword.value;
+    };
+
     return {
       newTeacher,
       addTeacher,
-      createTeacherSchema
+      showPassword,
+      createTeacherSchema,
+      togglePasswordVisibility,
     };
   },
 };
 </script>
+<style scoped>
+.txt_field button {
+  position: absolute;
+  top: 30%;
+  right: 0px;
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  margin-left: 5px;
+}
+</style>

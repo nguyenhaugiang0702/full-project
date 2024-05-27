@@ -31,12 +31,16 @@
         <input
           class="input"
           v-model="admin.admin_password"
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
           name="password"
           required
         />
         <span></span>
         <label>Password</label>
+        <button type="button" @click="togglePasswordVisibility">
+          <i v-if="!showPassword" class="fa-solid fa-eye-slash text-dark"></i>
+          <i v-else class="fa-solid fa-eye text-dark"></i>
+        </button>
       </div>
       <button class="btn_login">Login</button>
       <div class="text_bottom">
@@ -63,6 +67,7 @@ export default {
     });
     const router = useRouter();
     const api = new ApiService();
+    const showPassword = ref(false);
 
     const loginAdmin = async () => {
       const adminData = {
@@ -90,9 +95,15 @@ export default {
       }
     };
 
+    const togglePasswordVisibility = () => {
+      showPassword.value = !showPassword.value;
+    };
+
     return {
       loginAdmin,
       admin,
+      showPassword,
+      togglePasswordVisibility
     };
   },
 };
@@ -100,4 +111,5 @@ export default {
 
 <style scoped>
 @import "../../../src/assets/css/login.css";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 </style>

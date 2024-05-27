@@ -39,7 +39,8 @@ body {
   margin: 30px 0;
 }
 .txt_field .input {
-  width: 100%;
+  width: calc(100% - 40px);
+  z-index: 1;
   padding: 0 5px;
   height: 40px;
   font-size: 16px;
@@ -56,6 +57,16 @@ body {
   font-size: 16px;
   pointer-events: none;
   transition: 0.5s;
+}
+.txt_field button {
+  position: absolute;
+  top: 30%;
+  right: 0px;
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  margin-left: 5px;
 }
 .txt_field span::before {
   content: "";
