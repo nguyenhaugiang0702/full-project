@@ -97,7 +97,7 @@ import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { createTeacherSchema } from "@/utils/validate";
 import { Form, Field, ErrorMessage } from "vee-validate";
-
+import { showSuccess } from "@/utils/swalUtils";
 export default {
   components: { Form, Field, ErrorMessage },
   props: {
@@ -121,13 +121,9 @@ export default {
           admin_email: "",
           admin_password: "",
         };
-        await Swal.fire({
+        await showSuccess({
           title: "Thành công!",
           text: "Dữ liệu đã được thêm mới thành công.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          position: "top-end",
         });
         window.location.reload();
       }

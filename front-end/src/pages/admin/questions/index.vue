@@ -151,6 +151,7 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
+import { showAlert, showConfirmation, showSuccess } from "@/utils/swalUtils";
 
 export default {
   components: {
@@ -177,6 +178,8 @@ export default {
     const subjectInfo = ref({});
     const searchValue = ref("");
     const paginatedQuestions = ref([]);
+    const fileInputRef = ref(null);
+    const parsedQuestions = ref([]);
     const api = new ApiService();
 
     const getQuestions = async () => {
@@ -218,27 +221,20 @@ export default {
     };
 
     const deleteQuestion = async (questionID) => {
-      const result = await Swal.fire({
+      const result = await showConfirmation({
         title: "Bạn có chắc chắn muốn xóa câu hỏi này không?",
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Xóa",
-        cancelButtonText: "Hủy",
       });
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
         const response = await api.delete(`question/${questionID}`, token);
         if (response.status == 200) {
-          await Swal.fire({
+          await showAlert({
             title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
             icon: "success",
             timer: 1500,
             showConfirmButton: false,
-            position: "top-end",
           });
           getQuestions();
         }
@@ -260,17 +256,13 @@ export default {
       await searchQuestions(searchValue.value);
     }, 300);
 
-    const fileInputRef = ref(null);
-
     const handleFileButtonClick = () => {
       if (fileInputRef.value) {
-        fileInputRef.value.click();
+        fileInputRef.value?.click();
       } else {
         console.error("File input element is null.");
       }
     };
-
-    const parsedQuestions = ref([]);
 
     const handleFileUpload = async (event) => {
       const file = event.target.files[0];
@@ -283,29 +275,25 @@ export default {
               const text = result.value;
               const data = await parseFileContent(text);
               parsedQuestions.value = { ...data, subject_id };
-              const token = Cookies.get("accessToken");
-              const response = await api.post(
-                'question/subject/bulk',
-                parsedQuestions.value,
-                token
-              );
-              if (response?.status == 200) {
-                await Swal.fire({
-                  title: "Thành công!",
-                  text: "Dữ liệu đã được tải thành công.",
-                  icon: "success",
-                  timer: 1500,
-                  showConfirmButton: false,
-                  position: "top-end",
-                });
-                getQuestions();
-              }
+              await uploadQuestions(parsedQuestions.value);              
             })
             .catch((error) => {
               console.error("Error parsing file:", error);
             });
         };
         reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
+      }
+    };
+
+    const uploadQuestions = async (data) => {
+      const token = Cookies.get("accessToken");
+      const response = await api.post('question/subject/bulk', { ...data, subject_id }, token);
+      if (response?.status == 200) {
+        await showSuccess({
+          title: "Thành công!",
+          text: "Dữ liệu đã được tải thành công.",
+        });
+        getQuestions();
       }
     };
 
@@ -387,6 +375,7 @@ export default {
       handleFileButtonClick,
       parsedQuestions,
       getSubject,
+      uploadQuestions
     };
   },
 };

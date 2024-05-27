@@ -88,6 +88,7 @@ import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
+import { showSuccess, showConfirmation } from "@/utils/swalUtils"; 
 export default {
   components: {
     ModalAddTeacher,
@@ -135,28 +136,18 @@ export default {
     };
 
     const deleteTeacher = async (teacherId) => {
-      const result = await Swal.fire({
+      const result = await showConfirmation({
         title:
           "Bạn có chắc chắn muốn xóa giảng viên này không, các câu hỏi và môn học cũng sẽ bị xóa theo ?",
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Xóa",
-        cancelButtonText: "Hủy",
       });
       if (result.isConfirmed) {
         const token = Cookies.get("accessToken");
         const response = await api.delete(`admin/${teacherId}`, token);
         if (response.status == 200) {
-          await Swal.fire({
+          await showSuccess({
             title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false,
-            position: "top-end",
           });
           getTeachers();
         }

@@ -106,6 +106,7 @@ import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { questionSchema } from "@/utils/validate";
+import { showSuccess } from "@/utils/swalUtils";
 export default {
   props: {
     newQuestion: {
@@ -149,13 +150,9 @@ export default {
           ],
         };
         correctOption.value = 0;
-        await Swal.fire({
+        await showSuccess({
           title: "Thành công!",
           text: "Dữ liệu đã được thêm mới thành công.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          position: "top-end",
         });
         window.location.reload();
       }

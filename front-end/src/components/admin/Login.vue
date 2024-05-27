@@ -57,6 +57,7 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
+import { showSuccess } from "@/utils/swalUtils";
 
 export default {
   setup(_, { emit }) {
@@ -83,12 +84,9 @@ export default {
         };
         const token = response.data.accessToken;
         Cookies.set("accessToken", token, { expires: 24 });
-        await Swal.fire({
+        await showSuccess({
           title: "Thành công!",
           text: "Đăng nhập thành công.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
         });
         window.location.reload();
         router.push({ name: "admin-subjects" });

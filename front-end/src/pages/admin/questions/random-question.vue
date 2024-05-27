@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <h4>Môn học: {{ subjectInfo.subject_name }} - Mã môn: {{ subjectInfo.subject_code }} - Số câu: {{ subjectInfo.questionCount }}</h4>
+    <h4>
+      Môn học: {{ subjectInfo.subject_name }} - Mã môn:
+      {{ subjectInfo.subject_code }} - Số câu: {{ subjectInfo.questionCount }}
+    </h4>
     <div class="header text-center border border-dark">
       <h2>Trộn câu hỏi</h2>
       <div class="text-center mt-4">
@@ -61,7 +64,7 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
-import { data } from "jquery";
+import { showWarning, showSuccess } from "@/utils/swalUtils";
 export default {
   setup() {
     const questionsRandom = ref([]);
@@ -110,11 +113,9 @@ export default {
 
     const exportToWord = () => {
       if (questionsRandom.value.length === 0) {
-        Swal.fire({
+        showWarning({
           title: "Cảnh báo",
-          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
-          icon: "warning",
-          confirmButtonText: "OK",
+          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước."
         });
         return;
       }
@@ -213,21 +214,17 @@ export default {
       XLSX.utils.book_append_sheet(workbook.value, worksheet, `Đề ${examCode}`);
 
       // Hiển thị thông báo thành công
-      Swal.fire({
+      showSuccess({
         title: "Thành công",
-        text: `Đã tạo thành công đề thi và sheet đáp án Đề ${examCode - 1}.`,
-        icon: "success",
-        confirmButtonText: "OK",
+        text: `Đã tạo thành công đề thi và sheet đáp án Đề ${examCode - 1}.`
       });
     };
 
     const saveWorkbook = () => {
       if (workbook.value.SheetNames.length === 0) {
-        Swal.fire({
+        showWarning({
           title: "Cảnh báo",
-          text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu.",
-          icon: "warning",
-          confirmButtonText: "OK",
+          text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu."
         });
         return;
       }

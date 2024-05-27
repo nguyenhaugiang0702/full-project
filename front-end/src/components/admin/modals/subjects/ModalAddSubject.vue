@@ -73,7 +73,7 @@ import ApiService from "@/service/ApiService";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 import { subjectSchema } from "@/utils/validate"; 
-
+import { showSuccess } from "@/utils/swalUtils";
 export default {
   components: {
     Field,
@@ -98,13 +98,9 @@ export default {
           subject_name: "",
           subject_code: "",
         };
-        await Swal.fire({
+        await showSuccess({
           title: "Thành công!",
           text: "Dữ liệu đã được thêm mới thành công.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          position: "top-end",
         });
         window.location.reload();
       }
