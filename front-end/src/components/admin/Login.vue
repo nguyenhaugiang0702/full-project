@@ -3,63 +3,78 @@
     Welcome to admin control panel
   </div>
   <div class="center">
-    <h1>Login by Teacher</h1>
-    <form class="form" @submit.prevent="loginAdmin()">
+    <h1>Đăng nhập</h1>
+    <Form class="form" @submit="loginAdmin()" :validation-schema="loginSchema">
       <div class="txt_field">
-        <input
+        <Field
+          as="input"
           class="input"
           v-model="admin.admin_id"
           type="text"
-          name="id_number"
+          name="admin_id"
           required
         />
-        <span></span>
+        <span class="under-line"></span>
         <label>ID Number</label>
+        <ErrorMessage name="admin_id" class="text-danger" />
       </div>
-      <div class="txt_field">
-        <input
+      <div class="txt_field mt-5">
+        <Field
+          as="input"
           class="input"
           v-model="admin.admin_email"
           type="email"
-          name="email"
+          name="admin_email"
           required
         />
-        <span></span>
+        <span class="under-line"></span>
         <label>Email</label>
+        <ErrorMessage name="admin_email" class="text-danger" />
       </div>
-      <div class="txt_field">
-        <input
-          class="input"
+      <div class="txt_field mt-5">
+        <Field
+          as="input"
+          class="input-password input"
           v-model="admin.admin_password"
           :type="showPassword ? 'text' : 'password'"
-          name="password"
+          name="admin_password"
           required
         />
-        <span></span>
+        <span class="under-line"></span>
         <label>Password</label>
         <button type="button" @click="togglePasswordVisibility">
           <i v-if="!showPassword" class="fa-solid fa-eye-slash text-dark"></i>
           <i v-else class="fa-solid fa-eye text-dark"></i>
         </button>
+        <ErrorMessage name="admin_password" class="text-danger" />
       </div>
-      <button class="btn_login">Login</button>
+      <button class="btn_login mt-4">Đăng nhập</button>
       <div class="text_bottom">
-        Forgot Password. Please contact your teacher or IT Team.
+        Forgot Password.
+        <a
+          class="forgot_route"
+          @click="$router.push({ name: 'forgotpassword' })"
+          >Click Here</a
+        >
         <br />
       </div>
-    </form>
-    <button class="back_home" onclick="window.location.href='/'">Home</button>
+    </Form>
   </div>
 </template>
 <script>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { showSuccess } from "@/utils/swalUtils";
-
+import { loginSchema } from "@/utils/validate";
+import { Form, Field, ErrorMessage } from "vee-validate";
 export default {
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
   setup(_, { emit }) {
     const admin = ref({
       admin_id: "",
@@ -85,11 +100,9 @@ export default {
         const token = response.data.accessToken;
         Cookies.set("accessToken", token, { expires: 24 });
         await showSuccess({
-          title: "Thành công!",
           text: "Đăng nhập thành công.",
         });
-        window.location.reload();
-        router.push({ name: "admin-subjects" });
+        router.push({ name: "admin" });
       }
     };
 
@@ -101,7 +114,8 @@ export default {
       loginAdmin,
       admin,
       showPassword,
-      togglePasswordVisibility
+      togglePasswordVisibility,
+      loginSchema,
     };
   },
 };
@@ -110,4 +124,9 @@ export default {
 <style scoped>
 @import "../../../src/assets/css/login.css";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
+.text-danger {
+  position: absolute;
+  top: 45px;
+  left: 0;
+}
 </style>

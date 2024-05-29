@@ -74,8 +74,12 @@ export default {
     };
 
     const logout = () => {
-      sessionStorage.clear();
-      window.location.href = "/admin";
+      document.cookie =
+        "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+      document.cookie =
+        "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+      delete axios.defaults.headers.common["Authorization"];
+      window.location.href = "/";
     };
     return {
       open_menu,
@@ -87,3 +91,20 @@ export default {
   },
 };
 </script>
+<style scoped>
+.dropdown:hover .dropdown-menu {
+  display: block;
+  animation: fadeInUp 0.35s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

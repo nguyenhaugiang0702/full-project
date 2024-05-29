@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="updateTeacherModalLabel">
-            Them moi giang vien
+            Cập nhật giảng viên
           </h1>
           <button
             type="button"
@@ -36,7 +36,7 @@
                 <ErrorMessage name="admin_id" class="text-danger" />
               </div>
               <div class="mb-3">
-                <label class="form-label">Ten</label>
+                <label class="form-label">Tên</label>
                 <Field
                   v-model="currentTeacher.admin_name"
                   type="text"
@@ -64,9 +64,9 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Luu</button>
+              <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
           </Form>
         </div>
@@ -75,8 +75,7 @@
   </div>
 </template>
 <script>
-import { ref, toRefs } from "vue";
-import Swal from "sweetalert2";
+import { toRefs } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { updateTeacherSchema } from "@/utils/validate";
@@ -103,7 +102,6 @@ export default {
       );
       if (response?.status == 200) {
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",
         });
         window.location.reload();

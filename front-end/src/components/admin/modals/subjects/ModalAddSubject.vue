@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="addSubjectModalLabel">
-            Them moi mon hoc
+            Thêm mới môn học
           </h1>
           <button
             type="button"
@@ -28,7 +28,7 @@
           >
             <div class="row">
               <div class="mb-3">
-                <label class="form-label">Ten mon hoc</label>
+                <label class="form-label">Tên môn học</label>
                 <Field
                   v-model="newSubject.subject_name"
                   type="text"
@@ -39,7 +39,7 @@
                 <ErrorMessage name="subject_name" class="text-danger" />
               </div>
               <div class="mb-3">
-                <label class="form-label">Ma mon hoc</label>
+                <label class="form-label">Mã môn học</label>
                 <Field
                   class="form-control"
                   name="subject_code"
@@ -66,12 +66,10 @@
   </div>
 </template>
 <script>
-import { ref, toRefs } from "vue";
-import Swal from "sweetalert2";
+import { toRefs } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { Field, Form, ErrorMessage } from "vee-validate";
-import * as yup from "yup";
 import { subjectSchema } from "@/utils/validate"; 
 import { showSuccess } from "@/utils/swalUtils";
 export default {
@@ -99,7 +97,6 @@ export default {
           subject_code: "",
         };
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được thêm mới thành công.",
         });
         window.location.reload();

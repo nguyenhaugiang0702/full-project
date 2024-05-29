@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="detailTeacherModalLabel">
-            Chi tiet giang vien
+            Chi tiết giảng viên
           </h1>
           <button
             type="button"
@@ -35,7 +35,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label class="form-label">Ten</label>
+                <label class="form-label">Tên</label>
                 <input
                   v-model="currentTeacher.admin_name"
                   type="text"
@@ -61,7 +61,7 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
             </div>
           </form>

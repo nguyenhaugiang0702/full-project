@@ -28,18 +28,30 @@
     </li>
     <li>
       <router-link
+        :to="{ name: 'admin-teachers-changepassword' }"
+        :class="{
+          active:
+            isActive('admin-teachers-changepassword')
+        }"
+      >
+        <i class="fas fa-list"></i>
+        <span class="nav-item">Đổi mật khẩu</span>
+      </router-link>
+    </li>
+    <li>
+      <router-link
         v-if="admin.admin_role == 'admin'"
         :to="{ name: 'admin-teachers' }"
         :class="{ active: isActive('admin-teachers') }"
       >
         <i class="fas fa-user-tie"></i>
-        <span class="nav-item">Teachers</span>
+        <span class="nav-item">Giảng Viên</span>
       </router-link>
     </li>
     <li>
       <a @click="logout" class="logout">
         <i class="fas fa-sign-out-alt"></i>
-        <span class="nav-item">Log out</span>
+        <span class="nav-item">Đăng xuất</span>
       </a>
     </li>
   </nav>
@@ -66,7 +78,7 @@ export default defineComponent({
       document.cookie =
         "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
       delete axios.defaults.headers.common["Authorization"];
-      window.location.href = "/admin";
+      window.location.href = "/";
     };
 
     onMounted(async () => {

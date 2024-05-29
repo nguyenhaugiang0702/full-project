@@ -13,7 +13,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="updateQuestionModalLabel">
-            Cap nhat cau hoi
+            Cập nhật câu hỏi
           </h1>
           <button
             type="button"
@@ -29,7 +29,7 @@
                 <label
                   for="exampleFormControlTextarea_update1"
                   class="form-label"
-                  >Noi dung cau hoi</label
+                  >Nội dung câu hỏi</label
                 >
                 <Field
                   as="textarea"
@@ -45,7 +45,7 @@
                 <label
                   for="exampleFormControlTextarea_update2"
                   class="form-label"
-                  >Cac dap an</label
+                  >Các đáp án</label
                 >
                 <div
                   class="row my-2"
@@ -77,10 +77,13 @@
                       class="form-control border border-dark border-1"
                       :id="'textarea_update' + index"
                       rows="2"
-                      :name="'options[' + index + '].answer'" 
+                      :name="'options[' + index + '].answer'"
                       v-model="option.answer"
                     />
-                    <ErrorMessage class="text-danger" :name="'options[' + index + '].answer'"  />
+                    <ErrorMessage
+                      class="text-danger"
+                      :name="'options[' + index + '].answer'"
+                    />
                   </div>
                 </div>
               </div>
@@ -90,9 +93,9 @@
                   class="btn btn-secondary"
                   data-bs-dismiss="modal"
                 >
-                  Dong
+                  Đóng
                 </button>
-                <button type="submit" class="btn btn-primary">Luu</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
               </div>
             </Form>
           </div>
@@ -102,8 +105,7 @@
   </div>
 </template>
 <script>
-import { ref, toRefs } from "vue";
-import Swal from "sweetalert2";
+import { toRefs } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { Form, Field, ErrorMessage } from "vee-validate";
@@ -133,7 +135,6 @@ export default {
       );
       if (response?.status == 200) {
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",
         });
         window.location.reload();

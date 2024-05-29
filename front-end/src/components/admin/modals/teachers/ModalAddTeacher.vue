@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="addTeacherModalLabel">
-            Them moi giang vien
+            Thêm mới giảng viên
           </h1>
           <button
             type="button"
@@ -36,7 +36,7 @@
                 <ErrorMessage name="admin_id" class="text-danger" />
               </div>
               <div class="mb-3">
-                <label class="form-label">Ten</label>
+                <label class="form-label">Tên</label>
                 <Field
                   v-model="newTeacher.admin_name"
                   type="text"
@@ -58,7 +58,7 @@
                 <ErrorMessage name="admin_email" class="text-danger" />
               </div>
               <div class="mb-3 row">
-                <label class="form-label">Mat khau</label>
+                <label class="form-label">Mật khẩu</label>
                 <div class="col-11">
                   <Field
                     class="form-control"
@@ -67,7 +67,11 @@
                     v-model="newTeacher.admin_password"
                   />
                 </div>
-                <button type="button" @click="togglePasswordVisibility" class="col-1 bg-white fs-4">
+                <button
+                  type="button"
+                  @click="togglePasswordVisibility"
+                  class="col-1 bg-white fs-4"
+                >
                   <i v-if="!showPassword" class="fa-solid fa-eye-slash"></i>
                   <i v-else class="fa-solid fa-eye"></i>
                 </button>
@@ -80,9 +84,9 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Luu</button>
+              <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
           </Form>
         </div>
@@ -92,7 +96,6 @@
 </template>
 <script>
 import { ref, toRefs } from "vue";
-import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { createTeacherSchema } from "@/utils/validate";
@@ -122,7 +125,6 @@ export default {
           admin_password: "",
         };
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được thêm mới thành công.",
         });
         window.location.reload();

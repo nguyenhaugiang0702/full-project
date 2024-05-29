@@ -110,7 +110,7 @@
             @click="editQuestion(question)"
           >
             <i class="fa-solid fa-pen-to-square"></i>
-            Sua
+            Sửa
           </button>
 
           <button
@@ -120,7 +120,7 @@
             @click="editQuestion(question)"
           >
             <i class="fa-solid fa-circle-info"></i>
-            Xem chi tiet
+            Xem chi tiết
           </button>
           <button
             class="edit_student col-3 mx-auto btn btn-danger"
@@ -128,7 +128,7 @@
             @click="deleteQuestion(question._id)"
           >
             <i class="fa-solid fa-trash"></i>
-            Xoa
+            Xóa
           </button>
         </div>
       </div>
@@ -230,7 +230,6 @@ export default {
         const response = await api.delete(`question/${questionID}`, token);
         if (response.status == 200) {
           await showSuccess({
-            title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
           });
           getQuestions();
@@ -287,7 +286,6 @@ export default {
       const response = await api.post('question/subject/bulk', { ...data, subject_id }, token);
       if (response?.status == 200) {
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được tải thành công.",
         });
         getQuestions();

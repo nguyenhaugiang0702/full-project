@@ -62,3 +62,39 @@ export const questionSchema = yup.object().shape({
         })
     )
 });
+
+export const changePasswordSchema = yup.object().shape({
+    admin_password: yup
+        .string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(8, "Mật khẩu phải từ 8 ký tự"),
+    confirm_admin_password: yup
+        .string()
+        .oneOf([yup.ref('admin_password'), null], 'Mật khẩu xác nhận không khớp')
+        .required("Vui lòng nhập mật khẩu")
+        .min(8, "Mật khẩu phải từ 8 ký tự"),
+});
+
+export const loginSchema = yup.object().shape({
+    admin_id: yup
+        .number()
+        .required("Vui lòng nhập ID")
+        .typeError("ID phải là số"),
+    admin_email: yup
+        .string()
+        .required("Vui lòng nhập E-mail")
+        .email("E-mail không đúng.")
+        .max(50, "E-mail tối đa 50 ký tự."),
+    admin_password: yup
+        .string()
+        .required("Vui lòng nhập mật khẩu")
+        .min(8, "Mật khẩu phải từ 8 ký tự"),
+});
+
+export const forgotPasswordSchema = yup.object().shape({
+    admin_email: yup
+        .string()
+        .required("Vui lòng nhập E-mail")
+        .email("E-mail không đúng.")
+        .max(50, "E-mail tối đa 50 ký tự."),
+});

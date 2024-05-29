@@ -4,7 +4,6 @@ import App from "./App.vue";
 import router from "./router/index.js";
 import axios from "axios";
 window.axios=axios;
-import '../src/assets/mycss.css';
 
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';

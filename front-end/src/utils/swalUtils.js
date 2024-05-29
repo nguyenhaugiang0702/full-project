@@ -14,7 +14,7 @@ export const showConfirmation = async ({ title, text, confirmButtonText = 'Xóa'
     });
 };
 
-export const showWarning = async ({ title, text, position = 'center' }) => {
+export const showWarning = async ({ title = "Cảnh báo!", text, position = 'center' }) => {
     return await Swal.fire({
         title,
         text,
@@ -24,7 +24,7 @@ export const showWarning = async ({ title, text, position = 'center' }) => {
     });
 };
 
-export const showSuccess = async ({ title, text, timer = 1000, position = 'center', showConfirmButton = false }) => {
+export const showSuccess = async ({ title = "Thành công!", text, timer = 1000, position = 'center', showConfirmButton = false }) => {
     return await Swal.fire({
         title,
         text,

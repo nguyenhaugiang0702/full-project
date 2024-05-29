@@ -13,7 +13,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="updateSubjectModalLabel">
-            Cap nhat mon hoc
+            Cập nhật môn học
           </h1>
           <button
             type="button"
@@ -26,7 +26,7 @@
           <Form @submit="updateSubject" :validation-schema="subjectSchema">
             <div class="row">
               <div class="mb-3">
-                <label class="form-label">Ten mon hoc</label>
+                <label class="form-label">Tên môn học</label>
                 <Field
                   v-model="currentSubject.subject_name"
                   type="text"
@@ -37,7 +37,7 @@
                 <ErrorMessage name="subject_name" class="text-danger" />
               </div>
               <div class="mb-3">
-                <label class="form-label">Ma mon hoc</label>
+                <label class="form-label">Mã môn học</label>
                 <Field
                   class="form-control"
                   name="subject_code"
@@ -53,9 +53,9 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Luu</button>
+              <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
           </Form>
         </div>
@@ -64,8 +64,7 @@
   </div>
 </template>
 <script>
-import { ref, toRefs } from "vue";
-import Swal from "sweetalert2";
+import { toRefs } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { subjectSchema } from "@/utils/validate";
@@ -92,7 +91,6 @@ export default {
       );
       if (response?.status == 200) {
         await showSuccess({
-          title: "Thành công!",
           text: "Dữ liệu đã được cập nhật thành công.",
         });
         window.location.reload();

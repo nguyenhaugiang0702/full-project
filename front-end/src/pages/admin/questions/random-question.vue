@@ -62,7 +62,6 @@ import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { showWarning, showSuccess } from "@/utils/swalUtils";
 export default {
@@ -73,7 +72,6 @@ export default {
     const numberRandom = ref(1);
     const api = new ApiService();
     const subjectInfo = ref([]);
-    const currentSheetIndex = ref(101);
     const currentDocxIndex = ref(101);
     const workbook = ref(XLSX.utils.book_new());
 
@@ -114,7 +112,6 @@ export default {
     const exportToWord = () => {
       if (questionsRandom.value.length === 0) {
         showWarning({
-          title: "Cảnh báo",
           text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước."
         });
         return;
@@ -215,7 +212,6 @@ export default {
 
       // Hiển thị thông báo thành công
       showSuccess({
-        title: "Thành công",
         text: `Đã tạo thành công đề thi và sheet đáp án Đề ${examCode - 1}.`
       });
     };
@@ -223,7 +219,6 @@ export default {
     const saveWorkbook = () => {
       if (workbook.value.SheetNames.length === 0) {
         showWarning({
-          title: "Cảnh báo",
           text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu."
         });
         return;

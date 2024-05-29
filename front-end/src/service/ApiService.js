@@ -1,9 +1,10 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import config from '../config/index';
 
 class ApiService {
     constructor() {
-        this.baseUrl = 'http://localhost:3000/api/';
+        this.baseUrl = config.apiUrl;
     }
 
     async get(endpoint, token) {

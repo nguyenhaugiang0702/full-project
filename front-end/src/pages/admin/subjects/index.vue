@@ -64,7 +64,7 @@
           @click="editSubject(subject)"
         >
           <i class="fa-solid fa-pen-to-square"></i>
-          Sua
+          Sửa
         </button>
 
         <button
@@ -78,7 +78,7 @@
           "
         >
           <i class="fa-solid fa-circle-info"></i>
-          Xem chi tiet
+          Xem chi tiết
         </button>
         <button
           class="edit_student col-3 col-sm-3 mx-auto btn btn-danger"
@@ -86,7 +86,7 @@
           @click="deleteSubject(subject._id)"
         >
           <i class="fa-solid fa-trash"></i>
-          Xoa
+          Xóa
         </button>
       </div>
     </div>
@@ -104,7 +104,6 @@ import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
 import { debounce } from "lodash";
 import Cookies from "js-cookie";
-import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 export default {
@@ -157,7 +156,6 @@ export default {
         const response = await api.delete(`subject/${subjectId}`, token);
         if (response.status == 200) {
           await showSuccess({
-            title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
           });
           getSubjects();
@@ -216,5 +214,3 @@ export default {
   },
 };
 </script>
-
-<style scoped></style>

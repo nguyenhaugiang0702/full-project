@@ -1,7 +1,7 @@
 <template>
   <div class="main-top">
     <h3 class="ms-2 text-underline">
-      <span class="text-decoration-underline">Tai khoan giang vien</span>
+      <span class="text-decoration-underline">Tài khoản giảng viên</span>
     </h3>
   </div>
 
@@ -38,7 +38,6 @@
       <h4>ID: {{ teacher.admin_id }}</h4>
       <h4>{{ teacher.admin_name }}</h4>
       <div>Email: {{ teacher.admin_email }}</div>
-      <!-- <div>Số câu hỏi: {{ teacher.questionCount }}</div> -->
       <div class="row mt-2">
         <button
           class="edit_student col-3 mx-auto btn btn-warning ms-2"
@@ -86,7 +85,6 @@ import Paginition from "@/components/admin/Pagination.vue";
 import { onMounted, ref } from "vue";
 import { debounce } from "lodash";
 import Cookies from "js-cookie";
-import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils"; 
 export default {
@@ -146,7 +144,6 @@ export default {
         const response = await api.delete(`admin/${teacherId}`, token);
         if (response.status == 200) {
           await showSuccess({
-            title: "Thành công!",
             text: "Dữ liệu đã được xóa thành công.",
           });
           getTeachers();

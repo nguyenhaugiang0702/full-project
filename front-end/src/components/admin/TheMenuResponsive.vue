@@ -34,7 +34,7 @@
       >
       <div class="ms-4">
         <i class="fas fa-user-tie me-2"></i>
-        <span class="">Teachers</span>
+        <span class="">Giảng Viên</span>
       </div>
       </router-link>
     </a-menu-item>
@@ -42,7 +42,7 @@
     <div class="ms-4">
       <a @click="logout" class="logout">
         <i class="fas fa-sign-out-alt me-2"></i>
-        <span class="">Log out</span>
+        <span class="">Đăng xuất</span>
       </a>
     </div>
     </a-menu-item>

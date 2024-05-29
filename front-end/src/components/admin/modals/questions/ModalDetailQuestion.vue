@@ -13,7 +13,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="showDetailQuestionModalLabel">
-            Xem chi tiet cau hoi
+            Xem chi tiết câu hỏi
           </h1>
           <button
             type="button"
@@ -26,7 +26,7 @@
           <div class="row">
             <div class="mb-3">
               <label for="exampleFormControlTextarea_update1" class="form-label"
-                >Noi dung cau hoi</label
+                >Nội dung câu hỏi</label
               >
               <textarea
                 class="form-control border border-dark border-1"
@@ -38,7 +38,7 @@
             </div>
             <div class="mb-3">
               <label for="exampleFormControlTextarea_update2" class="form-label"
-                >Cac dap an</label
+                >Các đáp án</label
               >
               <div
                 class="row my-2"
@@ -81,7 +81,7 @@
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                Dong
+                Đóng
               </button>
             </div>
           </div>

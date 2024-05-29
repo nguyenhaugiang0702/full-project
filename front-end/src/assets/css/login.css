@@ -1,10 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Poppins:wght@400;500;600&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
+
 body {
   /* background-image: url("website background.jpg"); */
   background-position: center;
@@ -13,6 +15,7 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
 .center {
   position: absolute;
   top: 55%;
@@ -22,25 +25,28 @@ body {
   background: white;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15),
-              0 6px 6px rgba(0, 0, 0, 0.1);
+    0 6px 6px rgba(0, 0, 0, 0.1);
 }
+
 .center h1 {
   text-align: center;
   padding: 20px 0;
   border-bottom: 1px solid silver;
 }
+
 .center .form {
   padding: 0 40px;
   box-sizing: border-box;
 }
+
 .form .txt_field {
   position: relative;
   border-bottom: 2px solid #adadad;
   margin: 30px 0;
 }
+
 .txt_field .input {
-  width: calc(100% - 40px);
-  z-index: 1;
+  width: 100%;
   padding: 0 5px;
   height: 40px;
   font-size: 16px;
@@ -48,6 +54,11 @@ body {
   background: none;
   outline: none;
 }
+
+.txt_field .input-password {
+  width: calc(100% - 30px);
+}
+
 .txt_field label {
   position: absolute;
   top: 50%;
@@ -58,6 +69,7 @@ body {
   pointer-events: none;
   transition: 0.5s;
 }
+
 .txt_field button {
   position: absolute;
   top: 30%;
@@ -68,7 +80,8 @@ body {
   cursor: pointer;
   margin-left: 5px;
 }
-.txt_field span::before {
+
+.txt_field .under-line::before {
   content: "";
   position: absolute;
   top: 40px;
@@ -78,23 +91,16 @@ body {
   background: #2691d9;
   transition: 0.5s;
 }
-.txt_field .input:focus ~ label,
-.txt_field .input:valid ~ label {
+
+.txt_field .input:focus~label,
+.txt_field .input:valid~label {
   top: -5px;
   color: #2691d9;
 }
-.txt_field .input:focus ~ span::before,
-.txt_field .input:valid ~ span::before {
-  width: 100%;
-}
-.pass {
-  margin: -5px 0 20px 5px;
-  color: #a6a6a6;
-  cursor: pointer;
-}
 
-.pass:hover {
-  text-decoration: underline;
+.txt_field .input:focus~.under-line::before,
+.txt_field .input:valid~.under-line::before {
+  width: 100%;
 }
 
 .btn_login {
@@ -114,6 +120,7 @@ body {
   border-color: #2691d9;
   transition: 0.5s;
 }
+
 .text_bottom {
   margin: 30px 0;
   text-align: center;
@@ -121,20 +128,6 @@ body {
   color: #666666;
 }
 
-.back_home {
-  height: 55px;
-  width: 100%;
-  color: black;
-  font-size: 1rem;
-  font-weight: 400;
-  margin-top: 30px;
-  border: 1px solid #2691d9;
-  border-radius: 10px;
+.forgot_route{
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: white;
-  padding: 10px;
-}
-.back_home:hover {
-  background: #2691d9;
 }
