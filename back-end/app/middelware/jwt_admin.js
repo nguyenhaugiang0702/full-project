@@ -37,4 +37,22 @@ function authenticateTokenFromParams(req, res, next) {
     });
 }
 
-module.exports = { authenticateTokenFromHeader, authenticateTokenFromParams };
+// Hàm để xác thực token từ route params
+function authenticateTokenFromParamsWithEmail(req, res, next) {
+    const token = req.params.token;
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, 'my_secret_key_admin_email', (err, email) => {
+        if (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.sendStatus(401);
+            } else {
+                return res.sendStatus(403);
+            }
+        }
+        req.admin = email;
+        next();
+    });
+}
+
+module.exports = { authenticateTokenFromHeader, authenticateTokenFromParams, authenticateTokenFromParamsWithEmail };

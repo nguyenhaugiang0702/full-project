@@ -80,6 +80,13 @@ class adminService {
         });
     }
 
+    // findByEmailToCheckWhenForgot
+    async findByEmail(email) {
+        return await this.Admin.findOne({
+            admin_email: email,
+        });
+    }
+
     async findByAdminID(adminId, id, role) {
         return await this.Admin.findOne({
             admin_id: adminId,

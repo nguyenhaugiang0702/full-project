@@ -7,6 +7,8 @@ const SubjectService = require("../services/subject.service");
 const QuestionService = require("../services/question.service");
 const { ObjectId } = require("mongodb");
 const validator = require('validator');
+const sendEmail = require('../utils/email.utils');
+const config = require("../config/index");
 
 exports.create = async (req, res, next) => {
     if (!req.body?.admin_name || !req.body?.admin_id || !req.body?.admin_email || !req.body?.admin_password) {
@@ -31,7 +33,7 @@ exports.create = async (req, res, next) => {
         return next(new ApiError(400, "Email không hợp lệ"));
     }
 
-    if(req.body.admin_email.trim().length > 50){
+    if (req.body.admin_email.trim().length > 50) {
         return next(new ApiError(400, "Email phải nhỏ hơn 50 ký tự"));
     }
 
@@ -107,6 +109,94 @@ exports.login = async (req, res, next) => {
     }
 };
 
+exports.forgotPassword = async (req, res, next) => {
+    if (!req.body?.admin_email) {
+        return next(new ApiError(400, "Kiểm tra lại email"));
+    }
+
+    try {
+        const adminService = new AdminService(MongoDB.client);
+        const userEmailExist = await adminService.findByEmail(req.body.admin_email);
+        if (!userEmailExist) {
+            return next(new ApiError(404, "Không tìm thấy địa chỉ Email"));
+        }
+        const accessTokenWithEmail = jwt.sign({ admin_email: userEmailExist.admin_email, _id: userEmailExist._id }, 'my_secret_key_admin_email', { expiresIn: '15m' });
+        const resetUrl = `${config.viteApp.viteURL}/resetpassword/${accessTokenWithEmail}`;
+        const message = `
+        <p>Chúng tôi đã nhận được yêu cầu đổi mật khẩu. Vui lòng click vào link bên dưới để thay đổi mật khẩu:</p>
+        <a href="${resetUrl}">Click Here</a>
+        <p>Thời hạn là 15 phút, sau thời gian này bạn không thể đổi mật khẩu.</p>
+    `;
+        try {
+            await sendEmail({
+                email: userEmailExist.admin_email,
+                subject: "Yeu cau thay doi mat khau",
+                html: message
+            });
+        } catch (error) {
+            console.log('loi khi gui mail' + error);
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'password reset link send to the user email'
+        });
+    } catch (error) {
+        const errorMessage = error.message || "Có lỗi xảy ra";
+        return next(new ApiError(500, errorMessage));
+    }
+};
+
+exports.resetpassword = async (req, res, next) => {
+    if (!req.admin?.admin_email || !req.admin?._id) {
+        return next(new ApiError(405, "Kiểm tra lại Email"));
+    }
+
+    try {
+        const adminService = new AdminService(MongoDB.client);
+        const userEmailExist = await adminService.findByEmail(req.admin.admin_email);
+        const user_IDExist = await adminService.findById(req.admin._id);
+        if (!userEmailExist) {
+            return next(new ApiError(404, "Không tìm thấy địa chỉ Email"));
+        }
+        if (!user_IDExist) {
+            return next(new ApiError(404, "Không tìm thấy ID người dùng"));
+        }
+        req.body = {
+            admin_password: await bcrypt.hash(req.body.admin_password , 10),
+        }
+        const document = await adminService.update(req.admin._id, req.body);
+
+        return res.send(document);
+    } catch (error) {
+        const errorMessage = error.message || "Có lỗi xảy ra";
+        return next(new ApiError(500, errorMessage));
+    }
+};
+
+exports.changepassword = async (req, res, next) => {
+    if (!req.admin?.admin_id) {
+        return next(new ApiError(405, "Kiểm tra lại Email"));
+    }
+
+    try {
+        const adminService = new AdminService(MongoDB.client);
+        const user_IDExist = await adminService.findById(req.admin.admin_id);
+        if (!user_IDExist) {
+            return next(new ApiError(404, "Không tìm thấy ID người dùng"));
+        }
+        req.body = {
+            admin_password: await bcrypt.hash(req.body.admin_password , 10),
+        }
+        const document = await adminService.update(req.admin.admin_id, req.body);
+
+        return res.send(document);
+    } catch (error) {
+        const errorMessage = error.message || "Có lỗi xảy ra";
+        return next(new ApiError(500, errorMessage));
+    }
+};
+
 exports.findALL = async (req, res, next) => {
     let documents = [];
 
@@ -166,7 +256,7 @@ exports.update = async (req, res, next) => {
         return next(new ApiError(400, "Email không hợp lệ"));
     }
 
-    if(req.body.admin_email.trim().length > 50){
+    if (req.body.admin_email.trim().length > 50) {
         return next(new ApiError(400, "Email phải nhỏ hơn 50 ký tự"));
     }
 
