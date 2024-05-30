@@ -141,7 +141,7 @@ exports.update = async (req, res, next) => {
             return next(new ApiError(404, "Không tìm thấy môn học"));
         }
 
-        return res.send({ messgae: "Subject was updated successfully" });
+        return res.send({ message: "Subject was updated successfully" });
     } catch (error) {
         return next(
             new ApiError(500, `Error updating subject with id=${req.params.subjectID}`)
@@ -159,10 +159,29 @@ exports.delete = async (req, res, next) => {
             return next(new ApiError(404, "Subject not found"));
         }
         await questionService.deleteBySubjectId(req.params.subjectID);
-        return res.send({ messgae: "Subject was deleted successfully" });
+        return res.send({ message: "Subject was deleted successfully" });
     } catch (error) {
         return next(
             new ApiError(500, `Could not delete Subject with id=${req.params.subjectID}`)
+        );
+    }
+};
+
+exports.deleteSelectedSubjects = async (req, res, next) => {
+    try {
+        const subjectService = new SubjectService(MongoDB.client);
+        const questionService = new QuestionService(MongoDB.client);
+        for (const subjectId of req.body) {
+            const document = await subjectService.delete(subjectId);
+            if (!document) {
+                return next(new ApiError(404, "Subject not found"));
+            }
+            await questionService.deleteBySubjectId(subjectId);
+        }
+        return res.send({ message: "Subject was deleted successfully" });
+    } catch (error) {
+        return next(
+            new ApiError(500, `Could not delete selected Subject`)
         );
     }
 };

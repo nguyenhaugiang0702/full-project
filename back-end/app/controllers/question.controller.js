@@ -240,6 +240,24 @@ exports.delete = async (req, res, next) => {
     }
 };
 
+exports.deleteSelectedQuestions = async (req, res, next) => {
+    try {
+        const subjectService = new SubjectService(MongoDB.client);
+        const questionService = new QuestionService(MongoDB.client);
+        for (const questionId of req.body) {
+            const document = await questionService.delete(questionId);
+            if (!document) {
+                return next(new ApiError(404, "Subject not found"));
+            }
+        }
+        return res.send({ message: "Subject was deleted successfully" });
+    } catch (error) {
+        return next(
+            new ApiError(500, `Could not delete selected Subject`)
+        );
+    }
+};
+
 exports.deleteALL = async (req, res, next) => {
     try {
         const questionService = new QuestionService(MongoDB.client);

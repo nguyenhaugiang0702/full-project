@@ -15,4 +15,7 @@ router
     .put(authenticateToken.authenticateTokenFromHeader, subjects.update)
     .delete(authenticateToken.authenticateTokenFromHeader, subjects.delete);
 
+router
+    .route("/admin/:token")
+    .put(authenticateToken.authenticateTokenFromParams, subjects.deleteSelectedSubjects);
 module.exports = router;

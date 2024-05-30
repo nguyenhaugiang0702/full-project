@@ -14,6 +14,7 @@ router
 router
     .route("/subject/:subjectID")
     .get(authenticateToken.authenticateTokenFromHeader, questions.findQuestionsBySubjectID)
+    .put(authenticateToken.authenticateTokenFromHeader, questions.deleteSelectedQuestions)
 
 router
     .route("/subject/:subjectID/random")

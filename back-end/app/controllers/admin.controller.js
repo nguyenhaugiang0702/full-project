@@ -164,6 +164,7 @@ exports.resetpassword = async (req, res, next) => {
         }
         req.body = {
             admin_password: await bcrypt.hash(req.body.admin_password , 10),
+            admin_role: user_IDExist.admin_role,
         }
         const document = await adminService.update(req.admin._id, req.body);
 
@@ -187,6 +188,7 @@ exports.changepassword = async (req, res, next) => {
         }
         req.body = {
             admin_password: await bcrypt.hash(req.body.admin_password , 10),
+            admin_role: user_IDExist.admin_role,
         }
         const document = await adminService.update(req.admin.admin_id, req.body);
 
