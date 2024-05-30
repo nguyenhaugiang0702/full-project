@@ -43,7 +43,7 @@
           <i v-else class="fa-solid fa-eye text-dark"></i>
         </button>
       </div>
-      <button class="btn_login my-4" :disabled="isLoading">
+      <button class="btn_login mt-4" :disabled="isLoading">
         <span
           v-if="isLoading"
           class="spinner-border spinner-border-sm"
@@ -52,6 +52,15 @@
         ></span>
         <span v-else>Đặt lại mật khẩu</span>
       </button>
+      <div class="text_bottom">
+        Quay lại quên mật khẩu.
+        <a
+          class="forgot_route"
+          @click="$router.push({ name: 'forgotpassword' })"
+          >Click Here</a
+        >
+        <br />
+      </div>
     </Form>
   </div>
 </template>
@@ -91,7 +100,7 @@ export default {
           await showSuccess({
             text: "Bạn đã đổi mật khẩu thành công",
           });
-          router.push("/");
+          router.push({ name: "login" });
         }
       } catch (error) {
         console.log("Lỗi khi đặt lại mật khẩu. Vui lòng thử lại." + error);

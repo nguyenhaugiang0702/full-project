@@ -18,10 +18,19 @@
         <label>Email</label>
         <ErrorMessage name="admin_email" class="text-danger"/>
       </div>
-      <button class="btn_login my-4" :disabled="isLoading">
+      <button class="btn_login mt-4" :disabled="isLoading">
         <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         <span v-else>Gửi</span>
       </button>
+      <div class="text_bottom">
+        Quay lại đăng nhập.
+        <a
+          class="forgot_route"
+          @click="$router.push({ name: 'login' })"
+          >Click Here</a
+        >
+        <br />
+      </div>
     </Form>
   </div>
 </template>

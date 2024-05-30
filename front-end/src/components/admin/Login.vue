@@ -50,7 +50,7 @@
       </div>
       <button class="btn_login mt-4">Đăng nhập</button>
       <div class="text_bottom">
-        Forgot Password.
+        Quên mật khẩu?
         <a
           class="forgot_route"
           @click="$router.push({ name: 'forgotpassword' })"

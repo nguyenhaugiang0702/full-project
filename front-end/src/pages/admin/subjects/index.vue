@@ -33,10 +33,46 @@
   <ModalAddSubject :newSubject="newSubject" />
 
   <ModalUpdateSubject :currentSubject="currentSubject" />
-
+  <div class="row my-2">
+    <div class="form-check col-2 ms-3 my-auto">
+      <input
+        class="form-check-input border border-dark"
+        type="checkbox"
+        checked
+        id="flexCheckIndeterminate"
+        v-model="checkedAll"
+        @change="toggleSelectAll"
+      />
+      <label class="form-check-label fw-bold" for="flexCheckIndeterminate">
+        Chọn tất cả
+      </label>
+    </div>
+    <button
+      type="button"
+      class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
+      @click="deleteSelectedSubjects"
+      :disabled="!anyChecked"
+    >
+      Xóa
+    </button>
+  </div>
   <div class="subjects row">
     <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
-      <h4 class="text-uppercase text-center">{{ subject.subject_code }}</h4>
+      <div class="row">
+        <h4 class="col-4"></h4>
+        <h4 class="text-uppercase text-center col-4">
+          {{ subject.subject_code }}
+        </h4>
+        <div class="form-check col-4">
+          <input
+            class="form-check-input float-end border border-dark"
+            type="checkbox"
+            :id="'check' + subject._id"
+            v-model="checked[subject._id]"
+            @change="toggleChecked"
+          />
+        </div>
+      </div>
       <div class="card-body">
         <span class="fs-4 fw-bold text-uppercase">
           {{
@@ -101,7 +137,7 @@
 import ModalAddSubject from "../../../components/admin/modals/subjects/ModalAddSubject.vue";
 import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalUpdateSubject.vue";
 import Paginition from "@/components/admin/Pagination.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
@@ -128,6 +164,51 @@ export default {
     const paginatedSubjects = ref([]);
     const searchValue = ref("");
     const api = new ApiService();
+    const checked = ref({});
+    const checkedAll = ref(false);
+    const selectedIds = ref([]);
+
+    const toggleSelectAll = () => {
+      subjects.value.forEach((subject) => {
+        checked.value[subject._id] = checkedAll.value;
+      });
+      updateSelectedIds();
+    };
+
+    const toggleChecked = () => {
+      const allChecked = Object.values(checked.value).every(
+        (value) => value === true
+      );
+      const someChecked = Object.values(checked.value).every(
+        (value) => value === true
+      );
+      updateSelectedIds();
+      if (selectedIds.value.length === subjects.value.length && allChecked) {
+        checkedAll.value = true;
+      } else {
+        checkedAll.value = false;
+      }
+    };
+
+    const updateSelectedIds = () => {
+      console.log(checked.value);
+      selectedIds.value = Object.keys(checked.value).filter(
+        (key) => checked.value[key]
+      );
+      console.log(selectedIds.value);
+    };
+
+    const resetChecked = () => {
+      checked.value = {};
+      subjects.value.forEach((subject) => {
+        checked.value[subject._id] = false;
+      });
+      checkedAll.value = false;
+    };
+
+    const anyChecked = computed(() => {
+      return Object.values(checked.value).some((isChecked) => isChecked);
+    });
 
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
@@ -158,6 +239,27 @@ export default {
           await showSuccess({
             text: "Dữ liệu đã được xóa thành công.",
           });
+          getSubjects();
+        }
+      }
+    };
+
+    const deleteSelectedSubjects = async () => {
+      const result = await showConfirmation({
+        title: "Bạn có chắc chắn muốn xóa các môn học này không?",
+        text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
+      });
+      if (result.isConfirmed) {
+        const token = Cookies.get("accessToken");
+        const response = await api.put(
+          `subject/admin/${token}`,
+          selectedIds.value
+        );
+        if (response?.status === 200) {
+          await showSuccess({
+            text: "Các môn học đã được xóa thành công.",
+          });
+          resetChecked();
           getSubjects();
         }
       }
@@ -210,7 +312,20 @@ export default {
       paginatedSubjects,
       expandSubject,
       truncatedSubjectContent,
+      checked,
+      checkedAll,
+      toggleSelectAll,
+      toggleChecked,
+      updateSelectedIds,
+      deleteSelectedSubjects,
+      anyChecked,
     };
   },
 };
 </script>
+<style scoped>
+.deleteSelected {
+  position: relative;
+  left: -100px;
+}
+</style>

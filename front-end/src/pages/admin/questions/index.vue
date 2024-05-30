@@ -42,7 +42,7 @@
         Import Questions
       </button>
       <input
-        ref="fileInput"
+        ref="fileInputRef"
         type="file"
         id="fileInput"
         accept=".doc,.docx,.txt"
@@ -67,12 +67,48 @@
   <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id" />
   <ModalUpdateQuestion :currentQuestion="currentQuestion" />
   <ModalDetailQuestion :currentQuestion="currentQuestion" />
+  <div class="row my-2">
+    <div class="form-check col-2 ms-3 my-auto">
+      <input
+        class="form-check-input border border-dark"
+        type="checkbox"
+        checked
+        id="flexCheckIndeterminate"
+        v-model="checkedAll"
+        @change="toggleSelectAll"
+      />
+      <label class="form-check-label fw-bold" for="flexCheckIndeterminate">
+        Chọn tất cả
+      </label>
+    </div>
+    <button
+      type="button"
+      class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
+      @click="deleteSelectedQuestions"
+      :disabled="!anyChecked"
+    >
+      Xóa
+    </button>
+  </div>
   <div class="subjects row">
     <div
       v-for="question in paginatedQuestions"
       :key="question._id"
       class="card"
     >
+      <div class="row">
+        <h4 class="col-4"></h4>
+        <h4 class="text-uppercase text-center col-4"></h4>
+        <div class="form-check col-4">
+          <input
+            class="form-check-input float-end border border-dark"
+            type="checkbox"
+            :id="'check' + question._id"
+            v-model="checked[question._id]"
+            @change="toggleChecked"
+          />
+        </div>
+      </div>
       <div class="card-body">
         <span>
           {{
@@ -152,6 +188,7 @@ import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
 import { showConfirmation, showSuccess } from "@/utils/swalUtils";
+import { error } from "jquery";
 
 export default {
   components: {
@@ -182,6 +219,10 @@ export default {
     const parsedQuestions = ref([]);
     const api = new ApiService();
 
+    const checked = ref({});
+    const checkedAll = ref(false);
+    const selectedIds = ref([]);
+
     const getQuestions = async () => {
       const token = Cookies.get("accessToken");
       const response = await api.get(`question/subject/${subject_id}`, token);
@@ -189,6 +230,46 @@ export default {
         questions.value = response.data;
       }
     };
+
+    const toggleSelectAll = () => {
+      questions.value.forEach((subject) => {
+        checked.value[subject._id] = checkedAll.value;
+      });
+      updateSelectedIds();
+    };
+
+    const toggleChecked = () => {
+      const allChecked = Object.values(checked.value).every(
+        (value) => value === true
+      );
+      const someChecked = Object.values(checked.value).every(
+        (value) => value === true
+      );
+      updateSelectedIds();
+      if (selectedIds.value.length === questions.value.length && allChecked) {
+        checkedAll.value = true;
+      } else {
+        checkedAll.value = false;
+      }
+    };
+
+    const updateSelectedIds = () => {
+      selectedIds.value = Object.keys(checked.value).filter(
+        (key) => checked.value[key]
+      );
+    };
+
+    const resetChecked = () => {
+      checked.value = {};
+      questions.value.forEach((question) => {
+        checked.value[question._id] = false;
+      });
+      checkedAll.value = false;
+    };
+
+    const anyChecked = computed(() => {
+      return Object.values(checked.value).some((isChecked) => isChecked);
+    });
 
     const getSubject = async () => {
       const token = Cookies.get("accessToken");
@@ -237,6 +318,28 @@ export default {
       }
     };
 
+    const deleteSelectedQuestions = async () => {
+      const result = await showConfirmation({
+        title: "Bạn có chắc chắn muốn xóa các câu hỏi này không?",
+        text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
+      });
+      if (result.isConfirmed) {
+        const token = Cookies.get("accessToken");
+        const response = await api.put(
+          `question/subject/${subject_id}`,
+          selectedIds.value,
+          token
+        );
+        if (response?.status === 200) {
+          getQuestions();
+          resetChecked();
+          await showSuccess({
+            text: "Các môn học đã được xóa thành công.",
+          });
+        }
+      }
+    };
+
     const searchQuestions = async (searchValue) => {
       const token = Cookies.get("accessToken");
       const response = await api.get(
@@ -253,11 +356,26 @@ export default {
     }, 300);
 
     const handleFileButtonClick = () => {
-      if (fileInputRef.value) {
-        fileInputRef.value?.click();
-      } else {
-        console.error("File input element is null.");
+      try {
+        addFileInputToDOM();
+        if (fileInputRef.value) {
+          fileInputRef.value.click();
+        }
+      } catch (error) {
+        console.log(error);
       }
+    };
+
+    const addFileInputToDOM = () => {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.doc,.docx,.txt';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', handleFileUpload);
+      document.body.appendChild(fileInput);
+
+      // Làm mới ref với phần tử DOM mới
+      fileInputRef.value = fileInput;
     };
 
     const handleFileUpload = async (event) => {
@@ -271,7 +389,7 @@ export default {
               const text = result.value;
               const data = await parseFileContent(text);
               parsedQuestions.value = { ...data, subject_id };
-              await uploadQuestions(parsedQuestions.value);              
+              await uploadQuestions(parsedQuestions.value);
             })
             .catch((error) => {
               console.error("Error parsing file:", error);
@@ -283,7 +401,11 @@ export default {
 
     const uploadQuestions = async (data) => {
       const token = Cookies.get("accessToken");
-      const response = await api.post('question/subject/bulk', { ...data, subject_id }, token);
+      const response = await api.post(
+        "question/subject/bulk",
+        { ...data, subject_id },
+        token
+      );
       if (response?.status == 200) {
         await showSuccess({
           text: "Dữ liệu đã được tải thành công.",
@@ -346,7 +468,7 @@ export default {
     onMounted(() => {
       getQuestions();
       getSubject();
-      fileInputRef.value = document.getElementById("fileInput");
+      addFileInputToDOM();
     });
 
     return {
@@ -370,11 +492,22 @@ export default {
       handleFileButtonClick,
       parsedQuestions,
       getSubject,
-      uploadQuestions
+      uploadQuestions,
+      anyChecked,
+      checked,
+      checkedAll,
+      toggleSelectAll,
+      toggleChecked,
+      updateSelectedIds,
+      deleteSelectedQuestions,
+      selectedIds,
+      fileInputRef,
+      addFileInputToDOM
     };
   },
 };
 </script>
+
 <style>
 .pagination {
   display: flex;
@@ -417,5 +550,10 @@ export default {
 
 .pagination button {
   margin: 0 5px;
+}
+
+.deleteSelected {
+  position: relative;
+  left: -100px;
 }
 </style>
