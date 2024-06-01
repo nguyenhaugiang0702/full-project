@@ -78,7 +78,8 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  emits: ["refreshUpdate"],
+  setup(props, { emit }) {
     const { currentSubject } = toRefs(props);
     const api = new ApiService();
 
@@ -93,7 +94,8 @@ export default {
         await showSuccess({
           text: "Dữ liệu đã được cập nhật thành công.",
         });
-        window.location.reload();
+        $("#updateSubjectModal").modal("hide");
+        emit("refreshUpdate");
       }
     };
 

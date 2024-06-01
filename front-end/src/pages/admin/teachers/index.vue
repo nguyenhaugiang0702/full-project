@@ -14,19 +14,11 @@
         data-bs-toggle="modal"
         data-bs-target="#addTeacherModal"
       >
-        Thêm mới giao vien
+        Thêm mới giáo vien
       </button>
     </div>
     <div class="col-md-6">
-      <span>Search</span>
-      <input
-        class="form-control border border-dark"
-        list="datalistOptions"
-        id="exampleDataList"
-        placeholder="Type to search..."
-        v-model="searchValue"
-        @input="debouncedSearch"
-      />
+      <Search :searchName="'teachers'" @updateSearch="handleSearchValue"/>
     </div>
   </div>
   <hr />
@@ -82,8 +74,9 @@ import ModalAddTeacher from "../../../components/admin/modals/teachers/ModalAddT
 import ModalUpdateTeacher from "../../../components/admin/modals/teachers/ModalUpdateTeacher.vue";
 import ModalDetailTeacher from "../../../components/admin/modals/teachers/ModalDetailTeacher.vue";
 import Paginition from "@/components/admin/Pagination.vue";
+import Search from "@/components/admin/search/Search.vue";
+import SelectedAll from "@/components/admin/SelectedAll.vue";
 import { onMounted, ref } from "vue";
-import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils"; 
@@ -93,6 +86,8 @@ export default {
     ModalUpdateTeacher,
     ModalDetailTeacher,
     Paginition,
+    Search,
+    SelectedAll
   },
   setup() {
     const newTeacher = ref({
@@ -113,7 +108,6 @@ export default {
 
     const teachers = ref([]);
     const paginatedTeachers = ref([]);
-    const searchValue = ref("");
 
     const api = new ApiService();
 
@@ -151,20 +145,9 @@ export default {
       }
     };
 
-    const searchTeachers = async (searchValue) => {
-      const token = Cookies.get("accessToken");
-      const response = await api.get(
-        `admin?search_value=${searchValue}`,
-        token
-      );
-      if (response.status == 200) {
-        teachers.value = response.data;
-      }
+    const handleSearchValue = (value) => {
+      teachers.value = value;
     };
-
-    const debouncedSearch = debounce(async () => {
-      await searchTeachers(searchValue.value);
-    }, 300);
 
     onMounted(() => {
       getTeachers();
@@ -174,14 +157,12 @@ export default {
       getTeachers,
       editTeacher,
       deleteTeacher,
-      searchTeachers,
-      debouncedSearch,
       newTeacher,
       teachers,
       currentTeacher,
-      searchValue,
       handlePaginatedDocumentUpdate,
       paginatedTeachers,
+      handleSearchValue
     };
   },
 };

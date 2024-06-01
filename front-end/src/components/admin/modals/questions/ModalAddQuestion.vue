@@ -1,4 +1,12 @@
 <template>
+  <button
+    type="button"
+    class="btn btn-primary ms-2 float-start"
+    data-bs-toggle="modal"
+    data-bs-target="#addQuestionModal"
+  >
+    Thêm câu hỏi
+  </button>
   <!-- Modal add -->
   <div
     class="modal fade"
@@ -122,8 +130,9 @@ export default {
     Field,
     ErrorMessage,
   },
-  setup(props) {
-    const { newQuestion } = toRefs(props);
+  emits: ["refreshUpdate"],
+  setup(props, { emit }) {
+    const newQuestion = ref(props.newQuestion);
     const { subject_id } = props;
     const correctOption = ref(0);
     const api = new ApiService();
@@ -152,7 +161,8 @@ export default {
         await showSuccess({
           text: "Dữ liệu đã được thêm mới thành công.",
         });
-        window.location.reload();
+        $("#addQuestionModal").modal("hide");
+        emit("refreshUpdate")
       }
     };
 

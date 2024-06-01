@@ -123,7 +123,8 @@ export default {
     Field,
     ErrorMessage,
   },
-  setup(props) {
+  emits: ["refreshUpdate"],
+  setup(props, { emit }) {
     const { currentQuestion } = toRefs(props);
     const api = new ApiService();
     const updateQuestion = async () => {
@@ -137,7 +138,8 @@ export default {
         await showSuccess({
           text: "Dữ liệu đã được cập nhật thành công.",
         });
-        window.location.reload();
+        $("#updateQuestionModal").modal("hide");
+        emit("refreshUpdate")
       }
     };
 

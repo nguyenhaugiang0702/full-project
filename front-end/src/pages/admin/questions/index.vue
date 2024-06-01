@@ -6,19 +6,12 @@
     </h3>
   </div>
 
-  <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
     <div class="col-md-6">
       <!-- Button add question -->
-      <button
-        type="button"
-        class="btn btn-primary ms-2 float-start"
-        data-bs-toggle="modal"
-        data-bs-target="#addQuestionModal"
-      >
-        Thêm câu hỏi
-      </button>
+      <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id" @refreshUpdate="getQuestions"/>
       <!-- End Button add question -->
+
       <!-- Button tron cau hoi -->
       <button
         type="button"
@@ -33,6 +26,7 @@
         Trộn câu hỏi
       </button>
       <!-- end Button tron cau hoi -->
+
       <!-- Button import file quesstion -->
       <button
         type="button"
@@ -52,43 +46,26 @@
       <!-- end Button import file quesstion -->
     </div>
     <div class="col-md-6">
-      <span>Search</span>
-      <input
-        class="form-control border border-dark"
-        list="datalistOptions"
-        id="exampleDataList"
-        placeholder="Type to search..."
-        v-model="searchValue"
-        @input="debouncedSearch"
+      <Search
+        :subject_id="subject_id"
+        :searchName="'questions'"
+        @updateSearch="handleSearchValue"
       />
     </div>
   </div>
   <hr />
-  <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id" />
-  <ModalUpdateQuestion :currentQuestion="currentQuestion" />
-  <ModalDetailQuestion :currentQuestion="currentQuestion" />
+
   <div class="row my-2">
-    <div class="form-check col-2 ms-3 my-auto">
-      <input
-        class="form-check-input border border-dark"
-        type="checkbox"
-        checked
-        id="flexCheckIndeterminate"
-        v-model="checkedAll"
-        @change="toggleSelectAll"
-      />
-      <label class="form-check-label fw-bold" for="flexCheckIndeterminate">
-        Chọn tất cả
-      </label>
-    </div>
-    <button
-      type="button"
-      class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
-      @click="deleteSelectedQuestions"
-      :disabled="!anyChecked"
-    >
-      Xóa
-    </button>
+    <SelectedAll
+      :selectedName="'questions'"
+      :documents="questions"
+      :checked="checked"
+      :checkedAll="checkedAll"
+      :subject_id="subject_id"
+      @update:checkedAll="updateCheckedAll"
+      @update:checked="updateChecked"
+      @refreshUpdated="getQuestions"
+    />
   </div>
   <div class="subjects row">
     <div
@@ -170,6 +147,8 @@
       </div>
     </div>
   </div>
+  <ModalUpdateQuestion :currentQuestion="currentQuestion" @refreshUpdate="getQuestions"/>
+  <ModalDetailQuestion :currentQuestion="currentQuestion" />
   <Paginition
     :documents="questions"
     @update:paginatedDocument="handlePaginatedDocumentUpdate"
@@ -180,15 +159,14 @@ import ModalAddQuestion from "@/components/admin/modals/questions/ModalAddQuesti
 import ModalUpdateQuestion from "@/components/admin/modals/questions/ModalUpdateQuestion.vue";
 import ModalDetailQuestion from "@/components/admin/modals/questions/ModalDetailQuestion.vue";
 import Paginition from "@/components/admin/Pagination.vue";
+import Search from "@/components/admin/search/Search.vue";
+import SelectedAll from "@/components/admin/SelectedAll.vue";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import { debounce } from "lodash";
 import Cookies from "js-cookie";
-import Swal from "sweetalert2";
 import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
 import { showConfirmation, showSuccess } from "@/utils/swalUtils";
-import { error } from "jquery";
 
 export default {
   components: {
@@ -196,6 +174,8 @@ export default {
     ModalUpdateQuestion,
     ModalDetailQuestion,
     Paginition,
+    Search,
+    SelectedAll
   },
   setup() {
     const newQuestion = ref({
@@ -213,7 +193,6 @@ export default {
     const questions = ref([]);
     const currentQuestion = ref({});
     const subjectInfo = ref({});
-    const searchValue = ref("");
     const paginatedQuestions = ref([]);
     const fileInputRef = ref(null);
     const parsedQuestions = ref([]);
@@ -231,21 +210,13 @@ export default {
       }
     };
 
-    const toggleSelectAll = () => {
-      questions.value.forEach((subject) => {
-        checked.value[subject._id] = checkedAll.value;
-      });
-      updateSelectedIds();
-    };
-
     const toggleChecked = () => {
       const allChecked = Object.values(checked.value).every(
         (value) => value === true
       );
-      const someChecked = Object.values(checked.value).every(
-        (value) => value === true
+      selectedIds.value = Object.keys(checked.value).filter(
+        (key) => checked.value[key]
       );
-      updateSelectedIds();
       if (selectedIds.value.length === questions.value.length && allChecked) {
         checkedAll.value = true;
       } else {
@@ -253,23 +224,13 @@ export default {
       }
     };
 
-    const updateSelectedIds = () => {
-      selectedIds.value = Object.keys(checked.value).filter(
-        (key) => checked.value[key]
-      );
+    const updateCheckedAll = (value) => {
+      checkedAll.value = value;
     };
 
-    const resetChecked = () => {
-      checked.value = {};
-      questions.value.forEach((question) => {
-        checked.value[question._id] = false;
-      });
-      checkedAll.value = false;
+    const updateChecked = (value) => {
+      checked.value = value;
     };
-
-    const anyChecked = computed(() => {
-      return Object.values(checked.value).some((isChecked) => isChecked);
-    });
 
     const getSubject = async () => {
       const token = Cookies.get("accessToken");
@@ -318,42 +279,9 @@ export default {
       }
     };
 
-    const deleteSelectedQuestions = async () => {
-      const result = await showConfirmation({
-        title: "Bạn có chắc chắn muốn xóa các câu hỏi này không?",
-        text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
-      });
-      if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        const response = await api.put(
-          `question/subject/${subject_id}`,
-          selectedIds.value,
-          token
-        );
-        if (response?.status === 200) {
-          getQuestions();
-          resetChecked();
-          await showSuccess({
-            text: "Các môn học đã được xóa thành công.",
-          });
-        }
-      }
+    const handleSearchValue = (value) => {
+      questions.value = value;
     };
-
-    const searchQuestions = async (searchValue) => {
-      const token = Cookies.get("accessToken");
-      const response = await api.get(
-        `question/subject/${subject_id}?search_value=${searchValue}`,
-        token
-      );
-      if (response.status == 200) {
-        questions.value = response.data;
-      }
-    };
-
-    const debouncedSearch = debounce(async () => {
-      await searchQuestions(searchValue.value);
-    }, 300);
 
     const handleFileButtonClick = () => {
       try {
@@ -367,11 +295,11 @@ export default {
     };
 
     const addFileInputToDOM = () => {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.doc,.docx,.txt';
-      fileInput.style.display = 'none';
-      fileInput.addEventListener('change', handleFileUpload);
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = ".doc,.docx,.txt";
+      fileInput.style.display = "none";
+      fileInput.addEventListener("change", handleFileUpload);
       document.body.appendChild(fileInput);
 
       // Làm mới ref với phần tử DOM mới
@@ -482,9 +410,6 @@ export default {
       questions,
       currentQuestion,
       subjectInfo,
-      searchQuestions,
-      debouncedSearch,
-      searchValue,
       handlePaginatedDocumentUpdate,
       paginatedQuestions,
       handleFileUpload,
@@ -493,16 +418,15 @@ export default {
       parsedQuestions,
       getSubject,
       uploadQuestions,
-      anyChecked,
       checked,
       checkedAll,
-      toggleSelectAll,
       toggleChecked,
-      updateSelectedIds,
-      deleteSelectedQuestions,
       selectedIds,
       fileInputRef,
-      addFileInputToDOM
+      addFileInputToDOM,
+      handleSearchValue,
+      updateChecked,
+      updateCheckedAll,
     };
   },
 };

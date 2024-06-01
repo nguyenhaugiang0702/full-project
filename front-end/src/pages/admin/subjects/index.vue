@@ -7,54 +7,26 @@
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
     <div class="col-md-6">
-      <button
-        type="button"
-        class="btn btn-primary ms-2 float-start"
-        data-bs-toggle="modal"
-        data-bs-target="#addSubjectModal"
-      >
-        Thêm mới môn học
-      </button>
+      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects"/>
     </div>
     <div class="col-md-6">
-      <span>Search</span>
-      <input
-        class="form-control border border-dark"
-        list="datalistOptions"
-        id="exampleDataList"
-        placeholder="Type to search..."
-        v-model="searchValue"
-        @input="debouncedSearch"
-      />
+      <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
     </div>
   </div>
   <hr />
 
-  <ModalAddSubject :newSubject="newSubject" />
+  <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects"/>
 
-  <ModalUpdateSubject :currentSubject="currentSubject" />
   <div class="row my-2">
-    <div class="form-check col-2 ms-3 my-auto">
-      <input
-        class="form-check-input border border-dark"
-        type="checkbox"
-        checked
-        id="flexCheckIndeterminate"
-        v-model="checkedAll"
-        @change="toggleSelectAll"
-      />
-      <label class="form-check-label fw-bold" for="flexCheckIndeterminate">
-        Chọn tất cả
-      </label>
-    </div>
-    <button
-      type="button"
-      class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
-      @click="deleteSelectedSubjects"
-      :disabled="!anyChecked"
-    >
-      Xóa
-    </button>
+    <SelectedAll
+      :selectedName="'subjects'"
+      :documents="subjects"
+      :checked="checked"
+      :checkedAll="checkedAll"
+      @update:checkedAll="updateCheckedAll"
+      @update:checked="updateChecked"
+      @refreshUpdated="getSubjects"
+    />
   </div>
   <div class="subjects row">
     <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
@@ -137,8 +109,9 @@
 import ModalAddSubject from "../../../components/admin/modals/subjects/ModalAddSubject.vue";
 import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalUpdateSubject.vue";
 import Paginition from "@/components/admin/Pagination.vue";
+import Search from "@/components/admin/search/Search.vue";
+import SelectedAll from "@/components/admin/SelectedAll.vue";
 import { onMounted, ref, computed } from "vue";
-import { debounce } from "lodash";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
@@ -147,6 +120,8 @@ export default {
     ModalAddSubject,
     ModalUpdateSubject,
     Paginition,
+    Search,
+    SelectedAll,
   },
   setup() {
     const newSubject = ref({
@@ -162,53 +137,24 @@ export default {
 
     const subjects = ref([]);
     const paginatedSubjects = ref([]);
-    const searchValue = ref("");
     const api = new ApiService();
     const checked = ref({});
     const checkedAll = ref(false);
     const selectedIds = ref([]);
 
-    const toggleSelectAll = () => {
-      subjects.value.forEach((subject) => {
-        checked.value[subject._id] = checkedAll.value;
-      });
-      updateSelectedIds();
-    };
-
     const toggleChecked = () => {
       const allChecked = Object.values(checked.value).every(
         (value) => value === true
       );
-      const someChecked = Object.values(checked.value).every(
-        (value) => value === true
+      selectedIds.value = Object.keys(checked.value).filter(
+        (key) => checked.value[key]
       );
-      updateSelectedIds();
       if (selectedIds.value.length === subjects.value.length && allChecked) {
         checkedAll.value = true;
       } else {
         checkedAll.value = false;
       }
     };
-
-    const updateSelectedIds = () => {
-      console.log(checked.value);
-      selectedIds.value = Object.keys(checked.value).filter(
-        (key) => checked.value[key]
-      );
-      console.log(selectedIds.value);
-    };
-
-    const resetChecked = () => {
-      checked.value = {};
-      subjects.value.forEach((subject) => {
-        checked.value[subject._id] = false;
-      });
-      checkedAll.value = false;
-    };
-
-    const anyChecked = computed(() => {
-      return Object.values(checked.value).some((isChecked) => isChecked);
-    });
 
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
@@ -244,41 +190,9 @@ export default {
       }
     };
 
-    const deleteSelectedSubjects = async () => {
-      const result = await showConfirmation({
-        title: "Bạn có chắc chắn muốn xóa các môn học này không?",
-        text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
-      });
-      if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        const response = await api.put(
-          `subject/admin/${token}`,
-          selectedIds.value
-        );
-        if (response?.status === 200) {
-          await showSuccess({
-            text: "Các môn học đã được xóa thành công.",
-          });
-          resetChecked();
-          getSubjects();
-        }
-      }
+    const handleSearchValue = (value) => {
+      subjects.value = value;
     };
-
-    const searchSubjects = async (searchValue) => {
-      const token = Cookies.get("accessToken");
-      const response = await api.get(
-        `subject?search_value=${searchValue}`,
-        token
-      );
-      if (response?.status == 200) {
-        subjects.value = response.data;
-      }
-    };
-
-    const debouncedSearch = debounce(async () => {
-      await searchSubjects(searchValue.value);
-    }, 300);
 
     const expandSubject = (subject) => {
       // Đảo ngược trạng thái của isExpanded khi click vào nút "Xem thêm"
@@ -294,6 +208,14 @@ export default {
       }
     };
 
+    const updateCheckedAll = (value) => {
+      checkedAll.value = value;
+    };
+
+    const updateChecked = (value) => {
+      checked.value = value;
+    };
+
     onMounted(() => {
       getSubjects();
     });
@@ -302,30 +224,20 @@ export default {
       getSubjects,
       editSubject,
       deleteSubject,
-      searchSubjects,
-      debouncedSearch,
       newSubject,
       subjects,
       currentSubject,
-      searchValue,
       handlePaginatedDocumentUpdate,
       paginatedSubjects,
       expandSubject,
       truncatedSubjectContent,
       checked,
       checkedAll,
-      toggleSelectAll,
       toggleChecked,
-      updateSelectedIds,
-      deleteSelectedSubjects,
-      anyChecked,
+      handleSearchValue,
+      updateCheckedAll,
+      updateChecked,
     };
   },
 };
 </script>
-<style scoped>
-.deleteSelected {
-  position: relative;
-  left: -100px;
-}
-</style>
