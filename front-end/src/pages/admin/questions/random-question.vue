@@ -24,7 +24,7 @@
         <button class="btn btn-info ms-3" @click="exportToWord">
           Xuất ra file Word
         </button>
-        <button class="btn btn-success ms-3" @click="saveWorkbook">
+        <button class="btn btn-success ms-3 my-3" @click="saveWorkbook">
           Xuất ra file đáp án Excel
         </button>
       </div>

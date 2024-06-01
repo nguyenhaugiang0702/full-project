@@ -6,10 +6,10 @@
   </div>
   <!-- Button trigger modal -->
   <div class="row d-flex align-items-end mb-4">
-    <div class="col-md-6">
+    <div class="col-md-6 my-2">
       <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects"/>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 my-2">
       <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
     </div>
   </div>

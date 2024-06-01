@@ -4,7 +4,7 @@ import App from "./App.vue";
 import router from "./router/index.js";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import "@fortawesome/fontawesome-free/css/all.min.css";
+import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 import { Card, Table, Menu, List, Drawer, Button, Dropdown } from "ant-design-vue";
 import "ant-design-vue/dist/reset.css";
 

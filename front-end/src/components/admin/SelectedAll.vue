@@ -1,5 +1,5 @@
 <template>
-  <div class="form-check col-2 ms-3 my-auto">
+  <div class="form-check col-sm-2 ms-3 my-2">
     <input
       class="form-check-input border border-dark"
       type="checkbox"
@@ -140,5 +140,13 @@ export default {
 .deleteSelected {
   position: relative;
   left: -100px;
+}
+
+@media (max-width: 768px) {
+  .deleteSelected {
+    position: absolute;
+    width: 15%;
+    left: 140px;
+  }
 }
 </style>

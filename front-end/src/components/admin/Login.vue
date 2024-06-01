@@ -123,7 +123,6 @@ export default {
 
 <style scoped>
 @import "../../../src/assets/css/login.css";
-@import "@fortawesome/fontawesome-free/css/all.min.css";
 .text-danger {
   position: absolute;
   top: 45px;

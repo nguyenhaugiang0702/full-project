@@ -15,7 +15,7 @@
       <!-- Button tron cau hoi -->
       <button
         type="button"
-        class="btn btn-success ms-2 float-start"
+        class="btn btn-success ms-2 float-start my-2"
         @click="
           $router.push({
             name: 'admin-questions-random',
@@ -30,7 +30,7 @@
       <!-- Button import file quesstion -->
       <button
         type="button"
-        class="btn btn-secondary ms-2 float-start"
+        class="btn btn-secondary ms-2 float-start my-2"
         @click="handleFileButtonClick"
       >
         Import Questions
@@ -45,7 +45,7 @@
       />
       <!-- end Button import file quesstion -->
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 my-2">
       <Search
         :subject_id="subject_id"
         :searchName="'questions'"

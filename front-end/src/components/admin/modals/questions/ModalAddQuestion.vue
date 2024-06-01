@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="btn btn-primary ms-2 float-start"
+    class="btn btn-primary ms-2 float-start my-2"
     data-bs-toggle="modal"
     data-bs-target="#addQuestionModal"
   >

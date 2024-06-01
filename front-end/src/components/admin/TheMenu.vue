@@ -30,8 +30,7 @@
       <router-link
         :to="{ name: 'admin-teachers-changepassword' }"
         :class="{
-          active:
-            isActive('admin-teachers-changepassword')
+          active: isActive('admin-teachers-changepassword'),
         }"
       >
         <i class="fas fa-list"></i>
@@ -57,10 +56,12 @@
   </nav>
 </template>
 <script>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useMenu } from "../../store/use-menu.js";
 import { defineComponent, toRefs, onMounted, ref } from "vue";
+import { showConfirmation } from "@/utils/swalUtils.js";
+import axios from "axios";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 
@@ -68,17 +69,25 @@ export default defineComponent({
   setup() {
     const store = useMenu();
     const route = useRoute();
+    const router = useRouter();
     const isActive = (name) => route.name === name;
     const admin = ref({});
     const api = new ApiService();
 
-    const logout = () => {
-      document.cookie =
-        "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-      document.cookie =
-        "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-      delete axios.defaults.headers.common["Authorization"];
-      window.location.href = "/";
+    const logout = async () => {
+      const result = await showConfirmation({
+        title: "Bạn có chắc chắn muốn thoát không?",
+        confirmButtonText: "Có",
+        cancelButtonText: "Không"
+      });
+      if (result.isConfirmed) {
+        document.cookie =
+          "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        document.cookie =
+          "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        delete axios.defaults.headers.common["Authorization"];
+        router.push({ name: "login" });
+      }
     };
 
     onMounted(async () => {
