@@ -6,10 +6,57 @@
     </h3>
   </div>
 
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="infoModal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="infoModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="infoModalLabel">Modal title</h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <Carousel :value="images">
+            <template #item="slotProps">
+              <img class="w-100" :src="slotProps.data" alt="Slide" />
+              <img class="w-100" :src="slotProps.data" alt="Slide" />
+            </template>
+          </Carousel>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="button" class="btn btn-primary">Understood</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row d-flex align-items-end mb-4">
     <div class="col-md-6">
       <!-- Button add question -->
-      <ModalAddQuestion :newQuestion="newQuestion" :subject_id="subject_id" @refreshUpdate="getQuestions"/>
+      <ModalAddQuestion
+        :newQuestion="newQuestion"
+        :subject_id="subject_id"
+        @refreshUpdate="getQuestions"
+      />
       <!-- End Button add question -->
 
       <!-- Button tron cau hoi -->
@@ -33,7 +80,16 @@
         class="btn btn-secondary ms-2 float-start my-2"
         @click="handleFileButtonClick"
       >
-        Import Questions
+        Upload File câu hỏi
+      </button>
+
+      <button
+        type="button"
+        class="btn ms-1 float-start my-2 rounded-circle border border-dark"
+        data-bs-toggle="modal"
+        data-bs-target="#infoModal"
+      >
+        <i class="fa-solid fa-question text-warning"></i>
       </button>
       <input
         ref="fileInputRef"
@@ -68,86 +124,20 @@
     />
   </div>
   <div class="subjects row">
-    <div
+    <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
-      class="card"
-    >
-      <div class="row">
-        <h4 class="col-4"></h4>
-        <h4 class="text-uppercase text-center col-4"></h4>
-        <div class="form-check col-4">
-          <input
-            class="form-check-input float-end border border-dark"
-            type="checkbox"
-            :id="'check' + question._id"
-            v-model="checked[question._id]"
-            @change="toggleChecked"
-          />
-        </div>
-      </div>
-      <div class="card-body">
-        <span>
-          {{
-            question.isExpanded
-              ? question.question_name
-              : truncatedQuestionContent(question.question_name)
-          }}
-        </span>
-        <span
-          v-if="question.question_name.length > 100"
-          class="fw-bold hover-text ms-2"
-          @click="expandQuestion(question)"
-        >
-          {{ question.isExpanded ? "Thu gọn" : "Xem thêm" }}
-        </span>
-      </div>
-      <div class="card-footer">
-        <div class="options-container">
-          <div
-            v-for="(option, index) in question.options"
-            :key="index"
-            class="option-circle"
-            :class="{ correct: option.is_correct }"
-          >
-            {{ String.fromCharCode(65 + index) }}
-          </div>
-        </div>
-        <div class="row mt-2">
-          <button
-            class="edit_student col-3 mx-auto btn btn-warning ms-2"
-            name="edit_teacher"
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#updateQuestionModal"
-            @click="editQuestion(question)"
-          >
-            <i class="fa-solid fa-pen-to-square"></i>
-            Sửa
-          </button>
-
-          <button
-            class="col-5 mx-auto btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#showDetailQuestionModal"
-            @click="editQuestion(question)"
-          >
-            <i class="fa-solid fa-circle-info"></i>
-            Xem chi tiết
-          </button>
-          <button
-            class="edit_student col-3 mx-auto btn btn-danger"
-            name="edit_teacher"
-            @click="deleteQuestion(question._id)"
-          >
-            <i class="fa-solid fa-trash"></i>
-            Xóa
-          </button>
-        </div>
-      </div>
-    </div>
+      :question="question"
+      :checked="checked"
+      :toggleChecked="toggleChecked"
+      :editQuestion="editQuestion"
+      :deleteQuestion="deleteQuestion"
+    />
   </div>
-  <ModalUpdateQuestion :currentQuestion="currentQuestion" @refreshUpdate="getQuestions"/>
+  <ModalUpdateQuestion
+    :currentQuestion="currentQuestion"
+    @refreshUpdate="getQuestions"
+  />
   <ModalDetailQuestion :currentQuestion="currentQuestion" />
   <Paginition
     :documents="questions"
@@ -161,12 +151,15 @@ import ModalDetailQuestion from "@/components/admin/modals/questions/ModalDetail
 import Paginition from "@/components/admin/Pagination.vue";
 import Search from "@/components/admin/search/Search.vue";
 import SelectedAll from "@/components/admin/SelectedAll.vue";
+import QuestionsCard from "@/components/admin/card/questions/QuestionsCard.vue";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
-import { showConfirmation, showSuccess } from "@/utils/swalUtils";
+import Carousel from "primevue/carousel";
+import { showConfirmation, showSuccess, showWarning } from "@/utils/swalUtils";
+import image1 from "@/assets/images/image.png";
 
 export default {
   components: {
@@ -175,9 +168,13 @@ export default {
     ModalDetailQuestion,
     Paginition,
     Search,
-    SelectedAll
+    SelectedAll,
+    QuestionsCard,
+    Carousel,
   },
   setup() {
+    const images = ref([image1, image1, image1]);
+
     const newQuestion = ref({
       question_name: "",
       options: [
@@ -187,6 +184,7 @@ export default {
         { answer: "", is_correct: false },
       ],
     });
+    console.log(image1);
 
     const route = useRoute();
     const subject_id = route.params.id;
@@ -248,20 +246,6 @@ export default {
       currentQuestion.value = { ...question };
     };
 
-    const expandQuestion = (question) => {
-      // Đảo ngược trạng thái của isExpanded khi click vào nút "Xem thêm"
-      question.isExpanded = !question.isExpanded;
-    };
-
-    const truncatedQuestionContent = (content) => {
-      const maxLength = 100;
-      if (content.length <= maxLength) {
-        return content;
-      } else {
-        return content.slice(0, maxLength) + "...";
-      }
-    };
-
     const deleteQuestion = async (questionID) => {
       const result = await showConfirmation({
         title: "Bạn có chắc chắn muốn xóa câu hỏi này không?",
@@ -312,10 +296,10 @@ export default {
         const reader = new FileReader();
         reader.onload = async (e) => {
           const arrayBuffer = e.target.result;
-          Mammoth.extractRawText({ arrayBuffer }) // Pass arrayBuffer here
+          Mammoth.convertToHtml({ arrayBuffer }) // Pass arrayBuffer here
             .then(async (result) => {
-              const text = result.value;
-              const data = await parseFileContent(text);
+              const html = result.value;
+              const data = await parseFileContent(html);
               parsedQuestions.value = { ...data, subject_id };
               await uploadQuestions(parsedQuestions.value);
             })
@@ -342,55 +326,56 @@ export default {
       }
     };
 
-    const parseFileContent = (content) => {
-      const questionsArray = content
-        .split(/\d+\./)
-        .filter((item) => item.trim() !== "");
+    const parseFileContent = (htmlContent) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, "text/html");
+      const questions = [];
 
-      const questionsData = questionsArray.map((questionBlock) => {
-        // Tìm vị trí của 'a -' để tách tên câu hỏi và các đáp án
-        const indexOfFirstAnswer = questionBlock.indexOf("a -");
+      let currentQuestion = null;
+      let optionIndex = 0;
 
-        // Tách tên câu hỏi từ đầu chuỗi đến ngay trước 'a -'
-        const questionName = questionBlock
-          .substring(0, indexOfFirstAnswer)
-          .trim();
+      doc.querySelectorAll("p").forEach((p) => {
+        const strongElement = p.querySelector("strong");
+        const emElement = p.querySelector("em");
 
-        // Phần còn lại là các đáp án
-        const answersPart = questionBlock.substring(indexOfFirstAnswer).trim();
+        if (strongElement && !emElement) {
+          if (currentQuestion && optionIndex === 4) {
+            questions.push(currentQuestion);
+          }
+          // Loại bỏ các số thứ tự câu hỏi ví dụ 1. 1+1₫?
+          let questionText = strongElement.textContent.trim();
+          questionText = questionText.replace(/^\d+\.\s*/, "");
 
-        // Sử dụng regex để tìm tất cả các đáp án
-        const answerLines = answersPart.match(
-          /([a-d] - .+?)(?=[a-d] - |\s*ĐÁP ÁN|$)/gs
-        );
+          currentQuestion = {
+            question_name: questionText,
+            options: [
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+            ],
+          };
 
-        // Tìm đáp án đúng, chú ý cả dấu cách hoặc dấu gạch ngang khác nhau
-        const correctAnswerMatch = answersPart.match(
-          /ĐÁP ÁN\s*[-–]\s*([a-d])/i
-        );
-        const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1] : null;
-
-        // Tạo một đối tượng question mới
-        const newQuestion = {
-          question_name: questionName,
-          options: [],
-        };
-
-        // Lặp qua các câu trả lời và đánh dấu đáp án đúng
-        answerLines.forEach((answer) => {
-          const option = answer[0]; // Ký tự đầu tiên là a, b, c hoặc d
-          const content = answer.substring(3).trim(); // Bỏ qua 'a - ' hoặc 'b - ' để lấy nội dung
-          const isCorrect = correctAnswer === option.toUpperCase(); // So sánh đáp án đúng
-          newQuestion.options.push({
-            answer: content,
+          optionIndex = 0;
+        } else if (currentQuestion && optionIndex < 4) {
+          // Xử lý các đáp án
+          let optionText = p.textContent.trim();
+          optionText = optionText.replace(/^[A-D]\.\s+|^\d+\.\s+/, ""); // Loại bỏ A. B. C. D.
+          const isCorrect = p.querySelector("strong em") !== null;
+          currentQuestion.options[optionIndex] = {
+            answer: optionText,
             is_correct: isCorrect,
-          });
-        });
-
-        return newQuestion;
+          };
+          optionIndex++;
+        }
       });
 
-      return questionsData;
+      // Đảm bảo câu hỏi cuối cùng cũng được thêm vào nếu đủ 4 đáp án
+      if (currentQuestion && optionIndex === 4) {
+        questions.push(currentQuestion);
+      }
+      console.log(questions);
+      return questions;
     };
 
     onMounted(() => {
@@ -404,8 +389,6 @@ export default {
       newQuestion,
       editQuestion,
       deleteQuestion,
-      expandQuestion,
-      truncatedQuestionContent,
       subject_id,
       questions,
       currentQuestion,
@@ -427,6 +410,7 @@ export default {
       handleSearchValue,
       updateChecked,
       updateCheckedAll,
+      images,
     };
   },
 };

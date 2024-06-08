@@ -4,10 +4,10 @@
       <span class="text-decoration-underline">Các môn học:</span>
     </h3>
   </div>
-  <!-- Button trigger modal -->
+
   <div class="row d-flex align-items-end mb-4">
     <div class="col-md-6 my-2">
-      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects"/>
+      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
     </div>
     <div class="col-md-6 my-2">
       <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
@@ -15,7 +15,10 @@
   </div>
   <hr />
 
-  <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects"/>
+  <ModalUpdateSubject
+    :currentSubject="currentSubject"
+    @refreshUpdate="getSubjects"
+  />
 
   <div class="row my-2">
     <SelectedAll
@@ -28,76 +31,17 @@
       @refreshUpdated="getSubjects"
     />
   </div>
-  <div class="subjects row">
-    <div v-for="subject in paginatedSubjects" :key="subject._id" class="card">
-      <div class="row">
-        <h4 class="col-4"></h4>
-        <h4 class="text-uppercase text-center col-4">
-          {{ subject.subject_code }}
-        </h4>
-        <div class="form-check col-4">
-          <input
-            class="form-check-input float-end border border-dark"
-            type="checkbox"
-            :id="'check' + subject._id"
-            v-model="checked[subject._id]"
-            @change="toggleChecked"
-          />
-        </div>
-      </div>
-      <div class="card-body">
-        <span class="fs-4 fw-bold text-uppercase">
-          {{
-            subject.isExpanded
-              ? subject.subject_name
-              : truncatedSubjectContent(subject.subject_name)
-          }}
-        </span>
-        <span
-          v-if="subject.subject_name.length > 20"
-          class="fw-bold hover-text ms-2"
-          @click="expandSubject(subject)"
-        >
-          {{ subject.isExpanded ? "Thu gọn" : "Xem thêm" }}
-        </span>
-      </div>
-      <div class="text-center">Số câu hỏi: {{ subject.questionCount }}</div>
-      <div class="row mt-2">
-        <button
-          class="edit_student col-3 mx-auto btn btn-warning ms-2"
-          name="edit_teacher"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#updateSubjectModal"
-          @click="editSubject(subject)"
-        >
-          <i class="fa-solid fa-pen-to-square"></i>
-          Sửa
-        </button>
 
-        <button
-          class="edit_student col-5 mx-auto btn btn-primary"
-          name="edit_teacher"
-          @click="
-            $router.push({
-              name: 'admin-questions',
-              params: { id: subject._id },
-            })
-          "
-        >
-          <i class="fa-solid fa-circle-info"></i>
-          Xem chi tiết
-        </button>
-        <button
-          class="edit_student col-3 col-sm-3 mx-auto btn btn-danger"
-          name="edit_teacher"
-          @click="deleteSubject(subject._id)"
-        >
-          <i class="fa-solid fa-trash"></i>
-          Xóa
-        </button>
-      </div>
-    </div>
+  <div class="subjects row">
+    <SubjectsCard
+      v-for="subject in paginatedSubjects"
+      :key="subject._id"
+      :subject="subject"
+      :checked="checked"
+      :toggleChecked="toggleChecked"
+      :editSubject="editSubject"
+      :deleteSubject="deleteSubject"
+    />
   </div>
   <Paginition
     :documents="subjects"
@@ -111,6 +55,7 @@ import ModalUpdateSubject from "../../../components/admin/modals/subjects/ModalU
 import Paginition from "@/components/admin/Pagination.vue";
 import Search from "@/components/admin/search/Search.vue";
 import SelectedAll from "@/components/admin/SelectedAll.vue";
+import SubjectsCard from "@/components/admin/card/subjects/SubjectsCard.vue";
 import { onMounted, ref, computed } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
@@ -122,6 +67,7 @@ export default {
     Paginition,
     Search,
     SelectedAll,
+    SubjectsCard,
   },
   setup() {
     const newSubject = ref({
@@ -194,20 +140,6 @@ export default {
       subjects.value = value;
     };
 
-    const expandSubject = (subject) => {
-      // Đảo ngược trạng thái của isExpanded khi click vào nút "Xem thêm"
-      subject.isExpanded = !subject.isExpanded;
-    };
-
-    const truncatedSubjectContent = (content) => {
-      const maxLength = 20;
-      if (content.length <= maxLength) {
-        return content;
-      } else {
-        return content.slice(0, maxLength) + "...";
-      }
-    };
-
     const updateCheckedAll = (value) => {
       checkedAll.value = value;
     };
@@ -229,8 +161,6 @@ export default {
       currentSubject,
       handlePaginatedDocumentUpdate,
       paginatedSubjects,
-      expandSubject,
-      truncatedSubjectContent,
       checked,
       checkedAll,
       toggleChecked,

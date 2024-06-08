@@ -27,10 +27,13 @@
     "mammoth": "^1.7.2",
     "pdfmake": "^0.2.10",
     "pinia": "^2.1.7",
+    "primevue": "^3.52.0",
+    "slick-carousel": "^1.8.1",
     "sweetalert2": "^11.11.0",
     "vee-validate": "^4.12.8",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
+    "vue-slick-carousel": "^1.0.6",
     "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },

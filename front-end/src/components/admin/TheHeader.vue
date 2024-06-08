@@ -15,26 +15,6 @@
           >Trường chính trị Thành phố Cần Thơ | Quản Trị
         </span>
       </div>
-      <div
-        class="col-sm-3 d-none d-sm-flex align-items-center justify-content-sm-end"
-      >
-        <div class="dropdown me-5">
-          <div
-            class="dropdown-toggle text-white"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Admin
-          </div>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" @click="logout" href="#">Đăng Xuất</a>
-            </li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
   <a-drawer v-model:open="open_menu" title="Danh Mục" placement="left">

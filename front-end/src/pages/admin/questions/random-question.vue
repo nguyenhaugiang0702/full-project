@@ -5,7 +5,7 @@
       {{ subjectInfo.subject_code }} - Số câu: {{ subjectInfo.questionCount }}
     </h4>
     <div class="header text-center border border-dark">
-      <h2>Trộn câu hỏi</h2>
+      <h2 class="mt-3">Trộn câu hỏi</h2>
       <div class="text-center mt-4">
         <button
           class="btn btn-danger"
@@ -152,7 +152,7 @@ export default {
                             text: `${String.fromCharCode(65 + i)}. ${
                               option.answer
                             }`,
-                            bold: option.is_correct,
+                            // bold: option.is_correct,
                           }),
                         ],
                         indent: { left: 720 },
@@ -212,7 +212,8 @@ export default {
 
       // Hiển thị thông báo thành công
       showSuccess({
-        text: `Đã tạo thành công đề thi và sheet đáp án Đề ${examCode - 1}.`
+        text: `Đã tạo thành công đề thi và sheet đáp án Đề ${examCode}.`,
+        timer: 1500,
       });
     };
 
