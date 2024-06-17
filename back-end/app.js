@@ -14,11 +14,16 @@ app.use("/api/admin", adminsRouter);
 app.use("/api/subject", subjectRouter);
 app.use("/api/question", questionsRouter)
 
+
+app.get("/", (req, res) => {
+    res.json({ message: "Welcome to contact book application" });
+});
+
 // handle 404 response
 app.use((req, res, next) => {
     // Code ở đây sẽ chạy khi không có route được định nghĩa nào
     // khớp với yêu cầu. Gọi next() để chuyển sang middleware xử lý lỗi
-    return next(new ApiError(404, "Resource not found1"));
+    return next(new ApiError(404, "Resource not found"));
 });
 
 // define error-handling middleware last, after other app.use() and routes calls
@@ -29,10 +34,6 @@ app.use((err, req, res, next) => {
     return res.status(err.statusCode || 500).json({
         message: err.message || "Internal Server Error",
     });
-});
-
-app.get("/", (req, res) => {
-    res.json({ message: "Welcome to contact book application" });
 });
 
 module.exports = app;
