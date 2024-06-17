@@ -16,4 +16,4 @@ async function startServer() {
     }
 }
 
-module.exports = startServer;
+startServer();
