@@ -32,12 +32,13 @@ class adminService {
     async authenticate(payload) {
         const adminData = this.extractAdminData(payload);
         const admin = await this.Admin.findOne({ admin_id: adminData.admin_id, admin_email: adminData.admin_email });
-        const isPasswordValid = await bcrypt.compare(adminData.admin_password, admin.admin_password);
-
-        if (isPasswordValid) {
-            return admin;
-        } else {
-            throw new Error('Mật khẩu không đúng');
+        if (admin) {
+            const isPasswordValid = await bcrypt.compare(adminData.admin_password, admin.admin_password);
+            if (isPasswordValid) {
+                return admin;
+            } else {
+                throw new Error('Mật khẩu không đúng');
+            }
         }
     }
 
@@ -141,15 +142,15 @@ class adminService {
 
     // check validate
     async checkValidate(adminName, adminEmail, adminId, id, role, option) {
-        if(option == 'add' || !id ){
+        if (option == 'add' || !id) {
             id = null
-        }else if(option == 'update' || id){
+        } else if (option == 'update' || id) {
             id = id;
         }
         const nameExist = await this.findByAdminName(adminName, id, role);
         const emailExist = await this.findByAdminEmail(adminEmail, id, role);
         const IDExist = await this.findByAdminID(adminId, id, role);
-        let latestID = null;    
+        let latestID = null;
 
         if (IDExist) {
             latestID = await this.findLatestAdminID(role);
