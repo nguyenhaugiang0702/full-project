@@ -19,8 +19,8 @@ app.use("/api/subject", subjectRouter);
 app.use("/api/question", questionsRouter)
 
 
-app.get("/home", (req, res) => {
-    res.json({ message: "Welcome to contact book application" });
+app.get("/", (req, res) => {
+    res.json({ message: "Welcome to random-questions" });
 });
 
 // handle 404 response
