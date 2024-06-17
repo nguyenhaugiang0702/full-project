@@ -5,7 +5,7 @@ const adminsRouter = require("./app/routes/admin.route");
 const subjectRouter = require("./app/routes/subject.route");
 const questionsRouter = require("./app/routes/question.route");
 const ApiError = require("./app/api-error");
-
+const startServer = require('./index');
 const app = express();
 
 app.use(cors());
@@ -35,5 +35,7 @@ app.use((err, req, res, next) => {
         message: err.message || "Internal Server Error",
     });
 });
+
+startServer();
 
 module.exports = app;
