@@ -51,47 +51,25 @@ app.use((err, req, res, next) => {
     });
 });
 
+const uri = config.db.uri;
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+async function startServer() {
+    try {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        await client.connect();
+        console.log('Connected to the DB');
+        const PORT = process.env.PORT || 3000;
+        app.locals.db = client.db('random_questions'); // Set the db on app locals
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(config.db.uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("random_questions").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.log("Cannot connect to the DB !!!", error);
+        process.exit();
+    }
 }
-run().catch(console.dir);
 
-
-// async function startServer() {
-//     try {
-//         await MongoDB.connect(config.db.uri);
-//         console.log('Connected to the DB')
-//         const PORT = config.app.port;
-//         app.listen(PORT, () => {
-//             console.log(`Server is running on port ${PORT}`);
-//         })
-//     } catch (error) {
-//         console.log("Can not connect to the DB !!!", error);
-//         process.exit();
-//     }
-// }
-
-// startServer();
+startServer();
 
 module.exports = app;
