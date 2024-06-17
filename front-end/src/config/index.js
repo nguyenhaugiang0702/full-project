@@ -3,7 +3,7 @@ const apiPort = import.meta.env.VITE_APP_API_PORT;
 const appPort = import.meta.env.VITE_APP_PORT;
 
 const config = {
-    apiUrl: `${apiUrl}:${apiPort}/api/`,
+    apiUrl: `${apiUrl}/api/`,
     appPort: appPort,
 };
 
