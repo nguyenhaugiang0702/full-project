@@ -4,6 +4,10 @@
       {
         "src": "/(.*)",
         "dest": "/index.js"
+      },
+      {
+        "src": "/home",
+        "dest": "/app.js"
       }
     ]
   }
