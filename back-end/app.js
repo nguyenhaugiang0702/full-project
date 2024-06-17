@@ -15,7 +15,7 @@ app.use("/api/subject", subjectRouter);
 app.use("/api/question", questionsRouter)
 
 
-app.get("/", (req, res) => {
+app.get("/home", (req, res) => {
     res.json({ message: "Welcome to contact book application" });
 });
 
