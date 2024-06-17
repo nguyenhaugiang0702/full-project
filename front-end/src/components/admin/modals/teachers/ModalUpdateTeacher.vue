@@ -22,7 +22,10 @@
           ></button>
         </div>
         <div class="modal-body">
-          <Form @submit="updateTeacher" :validation-schema="updateTeacherSchema">
+          <Form
+            @submit="updateTeacher"
+            :validation-schema="updateTeacherSchema"
+          >
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">ID</label>
@@ -66,7 +69,19 @@
               >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Lưu</button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span v-else>Lưu</span>
+              </button>
             </div>
           </Form>
         </div>
@@ -75,7 +90,7 @@
   </div>
 </template>
 <script>
-import { toRefs } from "vue";
+import { toRefs, ref } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { updateTeacherSchema } from "@/utils/validate";
@@ -92,19 +107,31 @@ export default {
   setup(props) {
     const { currentTeacher } = toRefs(props);
     const api = new ApiService();
+    const isLoading = ref(false);
 
     const updateTeacher = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.put(
-        `admin/${currentTeacher.value._id}`,
-        currentTeacher.value,
-        token
-      );
-      if (response?.status == 200) {
-        await showSuccess({
-          text: "Dữ liệu đã được cập nhật thành công.",
-        });
-        window.location.reload();
+      isLoading.value = true;
+      try {
+        const token = Cookies.get("accessToken");
+        const apiCall = await api.put(
+          `admin/${currentTeacher.value._id}`,
+          currentTeacher.value,
+          token
+        );
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
+        if (response?.status == 200) {
+          await showSuccess({
+            text: "Dữ liệu đã được cập nhật thành công.",
+          });
+          $("#updateTeacherModal").modal("hide");
+          emit("refreshTeacher");
+          
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -112,6 +139,7 @@ export default {
       currentTeacher,
       updateTeacher,
       updateTeacherSchema,
+      isLoading,
     };
   },
 };

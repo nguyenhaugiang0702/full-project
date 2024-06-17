@@ -98,7 +98,19 @@
                 >
                   Đóng
                 </button>
-                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  :disabled="isLoading"
+                >
+                  <span
+                    v-if="isLoading"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  <span v-else>Lưu</span>
+                </button>
               </div>
             </Form>
           </div>
@@ -136,33 +148,43 @@ export default {
     const { subject_id } = props;
     const correctOption = ref(0);
     const api = new ApiService();
+    const isLoading = ref(false);
 
     const addQuestion = async () => {
-      newQuestion.value.options.forEach((option, index) => {
-        option.is_correct = index === correctOption.value;
-      });
-      const newQuestionData = {
-        ...newQuestion.value,
-        subject_id,
-      };
-      const token = Cookies.get("accessToken");
-      const response = await api.post("question", newQuestionData, token);
-      if (response?.status == 200) {
-        newQuestion.value = {
-          question_name: "",
-          options: [
-            { answer: "", is_correct: false },
-            { answer: "", is_correct: false },
-            { answer: "", is_correct: false },
-            { answer: "", is_correct: false },
-          ],
-        };
-        correctOption.value = 0;
-        await showSuccess({
-          text: "Dữ liệu đã được thêm mới thành công.",
+      try {
+        isLoading.value = true;
+        newQuestion.value.options.forEach((option, index) => {
+          option.is_correct = index === correctOption.value;
         });
-        $("#addQuestionModal").modal("hide");
-        emit("refreshUpdate")
+        const newQuestionData = {
+          ...newQuestion.value,
+          subject_id,
+        };
+        const token = Cookies.get("accessToken");
+        const apiCall = await api.post("question", newQuestionData, token);
+        const delay = new Promise(resolve => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
+        if (response?.status == 200) {
+          newQuestion.value = {
+            question_name: "",
+            options: [
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+              { answer: "", is_correct: false },
+            ],
+          };
+          correctOption.value = 0;
+          await showSuccess({
+            text: "Dữ liệu đã được thêm mới thành công.",
+          });
+          $("#addQuestionModal").modal("hide");
+          emit("refreshUpdate");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -172,6 +194,7 @@ export default {
       correctOption,
       subject_id,
       questionSchema,
+      isLoading,
     };
   },
 };

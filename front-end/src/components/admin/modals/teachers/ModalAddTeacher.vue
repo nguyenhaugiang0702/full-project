@@ -86,7 +86,19 @@
               >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Lưu</button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span v-else>Lưu</span>
+              </button>
             </div>
           </Form>
         </div>
@@ -109,25 +121,34 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  setup(props, {emit}) {
     const { newTeacher } = toRefs(props);
     const api = new ApiService();
     const showPassword = ref(false);
+    const isLoading = ref(false);
 
     const addTeacher = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.post("admin", newTeacher.value, token);
-      if (response?.status == 200) {
-        newTeacher.value = {
-          admin_id: "",
-          admin_name: "",
-          admin_email: "",
-          admin_password: "",
-        };
-        await showSuccess({
-          text: "Dữ liệu đã được thêm mới thành công.",
-        });
-        window.location.reload();
+      isLoading.value = true;
+      try {
+        const token = Cookies.get("accessToken");
+        const response = await api.post("admin", newTeacher.value, token);
+        if (response?.status == 200) {
+          newTeacher.value = {
+            admin_id: "",
+            admin_name: "",
+            admin_email: "",
+            admin_password: "",
+          };
+          await showSuccess({
+            text: "Dữ liệu đã được thêm mới thành công.",
+          });
+          $("#addTeacherModal").modal("hide");
+          emit('refreshTeacher');
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -141,6 +162,7 @@ export default {
       showPassword,
       createTeacherSchema,
       togglePasswordVisibility,
+      isLoading,
     };
   },
 };

@@ -10,9 +10,14 @@
         <button
           class="btn btn-danger"
           @click="shuffleQuestions"
-          :disabled="loading"
+          :disabled="isLoading"
         >
-          <span v-if="loading" class="spinner"></span>
+          <span
+            v-if="isLoading"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
           <span v-else>Bắt đầu</span>
         </button>
         <input
@@ -20,16 +25,33 @@
           v-model="numberRandom"
           class="ms-3 text-dark number-random text-center border border-dark"
           min="1"
+          @keypress.enter="shuffleQuestions"
         />
-        <button class="btn btn-info ms-3" @click="exportToWord">
-          Xuất ra file Word
+        <button
+          class="btn btn-info ms-3"
+          @click="exportToWord"
+          :disabled="isExporting"
+        >
+          <span
+            v-if="isExporting"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <span v-else>Xuất ra file Word</span>
         </button>
-        <button class="btn btn-success ms-3 my-3" @click="saveWorkbook">
-          Xuất ra file đáp án Excel
+        <button class="btn btn-success ms-3 my-3" @click="saveWorkbook" :disabled="isSavingExcel">
+          <span
+            v-if="isSavingExcel"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <span v-else>Xuất ra file đáp án Excel</span>
         </button>
       </div>
     </div>
-    <div class="exam-content" :class="{ loading: loading }">
+    <div class="exam-content">
       <div
         v-for="(question, index) in questionsRandom"
         :key="index"
@@ -68,28 +90,33 @@ export default {
   setup() {
     const questionsRandom = ref([]);
     const subject_id = useRoute().params.id;
-    const loading = ref(false);
+    const isLoading = ref(false);
+    const isExporting = ref(false);
+    const isSavingExcel = ref(false);
     const numberRandom = ref(1);
     const api = new ApiService();
     const subjectInfo = ref([]);
     const currentDocxIndex = ref(101);
     const workbook = ref(XLSX.utils.book_new());
 
+
     const getQuestionsRandom = async (numberRandom) => {
-      loading.value = true;
       const token = Cookies.get("accessToken");
+      isLoading.value = true;
       try {
-        const response = await api.get(
+        const apiCall = api.get(
           `question/subject/${subject_id}/random?numberRandom=${numberRandom}`,
           token
         );
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response.status === 200) {
           questionsRandom.value = response.data;
         }
       } catch (error) {
         console.error("Failed to fetch questions", error);
       } finally {
-        loading.value = false;
+        isLoading.value = false;
       }
     };
 
@@ -109,68 +136,77 @@ export default {
       getSubject();
     });
 
-    const exportToWord = () => {
+    const exportToWord = async () => {
       if (questionsRandom.value.length === 0) {
         showWarning({
-          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước."
+          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
         });
         return;
       }
 
-      const examCode = currentDocxIndex.value; // Sử dụng chỉ số đề làm mã đề
-      const doc = new Document({
-        sections: [
-          {
-            properties: {},
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: `Mã đề: ${examCode}`,
-                    bold: true,
-                    size: 24,
-                  }),
-                ],
-                alignment: "center",
-                spacing: { after: 400 }, // khoảng cách sau đoạn văn bản
-              }),
-              ...questionsRandom.value
-                .map((question, index) => [
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: `${index + 1}. ${question.question_name}`,
-                        bold: true,
-                      }),
-                    ],
-                  }),
-                  ...question.options.map(
-                    (option, i) =>
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${String.fromCharCode(65 + i)}. ${
-                              option.answer
-                            }`,
-                            // bold: option.is_correct,
-                          }),
-                        ],
-                        indent: { left: 720 },
-                      })
-                  ),
-                  new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
-                ])
-                .flat(),
-            ],
-          },
-        ],
-      });
+      isExporting.value = true;
+      try {
+        // Thêm độ trễ 1.5 giây
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      Packer.toBlob(doc).then((blob) => {
+        const examCode = currentDocxIndex.value; // Sử dụng chỉ số đề làm mã đề
+        const doc = new Document({
+          sections: [
+            {
+              properties: {},
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `Mã đề: ${examCode}`,
+                      bold: true,
+                      size: 24,
+                    }),
+                  ],
+                  alignment: "center",
+                  spacing: { after: 400 }, // khoảng cách sau đoạn văn bản
+                }),
+                ...questionsRandom.value
+                  .map((question, index) => [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `${index + 1}. ${question.question_name}`,
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                    ...question.options.map(
+                      (option, i) =>
+                        new Paragraph({
+                          children: [
+                            new TextRun({
+                              text: `${String.fromCharCode(65 + i)}. ${
+                                option.answer
+                              }`,
+                              // bold: option.is_correct,
+                            }),
+                          ],
+                          indent: { left: 720 },
+                        })
+                    ),
+                    new Paragraph(""), // thêm khoảng cách giữa các câu hỏi
+                  ])
+                  .flat(),
+              ],
+            },
+          ],
+        });
+
+        const blob = await Packer.toBlob(doc);
         saveAs(blob, `Đề_${examCode}.docx`);
         addToWorkbook(examCode);
         currentDocxIndex.value++;
-      });
+      } catch (error) {
+        console.error("Failed to export to Word", error);
+      } finally {
+        isExporting.value = false;
+      }
     };
 
     const addToWorkbook = (examCode) => {
@@ -217,22 +253,35 @@ export default {
       });
     };
 
-    const saveWorkbook = () => {
+    const saveWorkbook = async () => {
       if (workbook.value.SheetNames.length === 0) {
         showWarning({
-          text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu."
+          text: "Chưa có đề nào. Vui lòng thêm đề trước khi lưu.",
         });
         return;
       }
-      // Xuất Workbook ra file Excel
-      XLSX.writeFile(workbook.value, "questions.xlsx");
+
+      isSavingExcel.value = true;
+      try {
+        // Thêm độ trễ 1.5 giây
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        // Xuất Workbook ra file Excel
+        XLSX.writeFile(workbook.value, "questions.xlsx");
+      } catch (error) {
+        console.error("Failed to save workbook", error);
+      } finally {
+        isSavingExcel.value = false;
+      }
     };
 
     return {
       getQuestionsRandom,
       shuffleQuestions,
       questionsRandom,
-      loading,
+      isLoading,
+      isExporting,
+      isSavingExcel,
       numberRandom,
       exportToWord,
       saveWorkbook,
@@ -253,40 +302,6 @@ export default {
   padding: 20px;
   border-radius: 5px;
   border: 1px solid #dee2e6;
-}
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #007bff;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loading {
-  position: relative;
-}
-
-.loading::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-top: -25px;
-  margin-left: -25px;
 }
 .number-random {
   width: 75px;

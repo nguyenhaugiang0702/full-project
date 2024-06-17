@@ -6,7 +6,7 @@
   </div>
   <div class="container">
     <Form @submit="changePassword" :validation-schema="changePasswordSchema">
-      <div class="mb-3">
+      <div class="mb-3 col-sm-5">
         <label for="exampleFormControlInput1" class="form-label">ID</label>
         <input
           type="email"
@@ -17,7 +17,7 @@
           readonly
         />
       </div>
-      <div class="mb-3">
+      <div class="mb-3 col-sm-5">
         <label for="exampleFormControlInput1" class="form-label">Tên</label>
         <input
           type="email"
@@ -28,9 +28,9 @@
           readonly
         />
       </div>
-      <div class="mb-3">
+      <div class="mb-3 col-sm-5">
         <label for="exampleFormControlInput1" class="form-label"
-          >Email address</label
+          >Email:</label
         >
         <input
           type="email"
@@ -41,7 +41,7 @@
           readonly
         />
       </div>
-      <div class="mb-3">
+      <div class="mb-3 col-sm-5">
         <label for="exampleFormControlInput1" class="form-label"
           >New Password</label
         >
@@ -49,13 +49,13 @@
           type="email"
           class="form-control border border-dark border-1"
           id="exampleFormControlInput1"
-          placeholder="name@example.com"
+          placeholder="ví dụ: abc@@123"
           v-model="newPass.admin_password"
           name="admin_password"
         />
         <ErrorMessage name="admin_password" class="text-danger" />
       </div>
-      <div class="mb-3">
+      <div class="mb-3 col-sm-5">
         <label for="exampleFormControlInput1" class="form-label"
           >Confirm Password</label
         >
@@ -63,13 +63,17 @@
           type="email"
           class="form-control border border-dark border-1"
           id="exampleFormControlInput1"
-          placeholder="name@example.com"
+          placeholder="ví dụ: abc@@123"
           name="confirm_admin_password"
         />
         <ErrorMessage name="confirm_admin_password" class="text-danger" />
       </div>
-      <div class="row d-flex justify-content-center">
-        <button type="submit" class="btn btn-primary col-sm-1 col-md-1">Lưu</button>
+      <div class="col-sm-5">
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-primary col-sm-1 col-md-2">
+            Lưu
+          </button>
+        </div>
       </div>
     </Form>
   </div>
@@ -102,7 +106,10 @@ export default {
 
     const changePassword = async () => {
       const token = Cookies.get("accessToken");
-      const response = await api.put(`admin/changepassword/${token}`, newPass.value);
+      const response = await api.put(
+        `admin/changepassword/${token}`,
+        newPass.value
+      );
       if (response?.status === 200) {
         document.cookie =
           "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";

@@ -92,10 +92,7 @@ a:hover i {
   color: #0d6efd;
   transition: 0.5s;
 }
-.logout {
-  position: absolute;
-  bottom: 0;
-}
+
 
 .contain {
   display: flex;

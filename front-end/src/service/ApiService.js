@@ -91,7 +91,6 @@ class ApiService {
                 icon: 'error',
                 timer: 1500,
                 showConfirmButton: false,
-                position: "top-end",
             });
         } else {
             console.log(error);

@@ -62,7 +62,19 @@
               >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Lưu</button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span v-else>Lưu</span>
+              </button>
             </div>
           </Form>
         </div>
@@ -93,21 +105,31 @@ export default {
   emits: ["refreshUpdate"],
   setup(props, { emit }) {
     const newSubject = ref(props.newSubject);
+    const isLoading = ref(false);
     const api = new ApiService();
 
     const addSubject = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.post("subject", newSubject.value, token);
-      if (response?.status == 200) {
-        newSubject.value = {
-          subject_name: "",
-          subject_code: "",
-        };
-        await showSuccess({
-          text: "Dữ liệu đã được thêm mới thành công.",
-        });
-        $("#addSubjectModal").modal("hide");
-        emit("refreshUpdate");
+      try {
+        isLoading.value = true;
+        const token = Cookies.get("accessToken");
+        const apiCall = await api.post("subject", newSubject.value, token);
+        const delay = new Promise(resolve => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
+        if (response?.status == 200) {
+          newSubject.value = {
+            subject_name: "",
+            subject_code: "",
+          };
+          await showSuccess({
+            text: "Dữ liệu đã được thêm mới thành công.",
+          });
+          $("#addSubjectModal").modal("hide");
+          emit("refreshUpdate");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -115,6 +137,7 @@ export default {
       newSubject,
       addSubject,
       subjectSchema,
+      isLoading,
     };
   },
 };

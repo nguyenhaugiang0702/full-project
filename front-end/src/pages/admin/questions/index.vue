@@ -19,7 +19,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="infoModalLabel">Modal title</h1>
+          <h1 class="modal-title fs-5" id="infoModalLabel">Quy tắt thêm câu hỏi</h1>
           <button
             type="button"
             class="btn-close"
@@ -31,19 +31,13 @@
           <Carousel :value="images">
             <template #item="slotProps">
               <img class="w-100" :src="slotProps.data" alt="Slide" />
-              <img class="w-100" :src="slotProps.data" alt="Slide" />
             </template>
           </Carousel>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>
-          <button type="button" class="btn btn-primary">Understood</button>
         </div>
       </div>
     </div>
@@ -134,10 +128,7 @@
       :deleteQuestion="deleteQuestion"
     />
   </div>
-  <ModalUpdateQuestion
-    :currentQuestion="currentQuestion"
-    @refreshUpdate="getQuestions"
-  />
+  <ModalUpdateQuestion :currentQuestion="currentQuestion" @refreshUpdate="getQuestions" />
   <ModalDetailQuestion :currentQuestion="currentQuestion" />
   <Paginition
     :documents="questions"
@@ -159,7 +150,8 @@ import ApiService from "@/service/ApiService";
 import Mammoth from "mammoth";
 import Carousel from "primevue/carousel";
 import { showConfirmation, showSuccess, showWarning } from "@/utils/swalUtils";
-import image1 from "@/assets/images/image.png";
+import QuestionName from "@/assets/images/QuestionName.png";
+import Answer from "@/assets/images/Answer.png";
 
 export default {
   components: {
@@ -173,7 +165,7 @@ export default {
     Carousel,
   },
   setup() {
-    const images = ref([image1, image1, image1]);
+    const images = ref([QuestionName, Answer]);
 
     const newQuestion = ref({
       question_name: "",
@@ -184,7 +176,6 @@ export default {
         { answer: "", is_correct: false },
       ],
     });
-    console.log(image1);
 
     const route = useRoute();
     const subject_id = route.params.id;
@@ -209,12 +200,8 @@ export default {
     };
 
     const toggleChecked = () => {
-      const allChecked = Object.values(checked.value).every(
-        (value) => value === true
-      );
-      selectedIds.value = Object.keys(checked.value).filter(
-        (key) => checked.value[key]
-      );
+      const allChecked = Object.values(checked.value).every((value) => value === true);
+      selectedIds.value = Object.keys(checked.value).filter((key) => checked.value[key]);
       if (selectedIds.value.length === questions.value.length && allChecked) {
         checkedAll.value = true;
       } else {

@@ -95,7 +95,19 @@
                 >
                   Đóng
                 </button>
-                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button
+                type="submit"
+                class="btn btn-primary"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span v-else>Lưu</span>
+              </button>
               </div>
             </Form>
           </div>
@@ -105,7 +117,7 @@
   </div>
 </template>
 <script>
-import { toRefs } from "vue";
+import { toRefs, ref } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { Form, Field, ErrorMessage } from "vee-validate";
@@ -127,19 +139,29 @@ export default {
   setup(props, { emit }) {
     const { currentQuestion } = toRefs(props);
     const api = new ApiService();
+    const isLoading = ref(false);
     const updateQuestion = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.put(
-        `question/${currentQuestion.value._id}`,
-        currentQuestion.value,
-        token
-      );
-      if (response?.status == 200) {
-        await showSuccess({
-          text: "Dữ liệu đã được cập nhật thành công.",
-        });
-        $("#updateQuestionModal").modal("hide");
-        emit("refreshUpdate")
+      try {
+        isLoading.value = true;
+        const token = Cookies.get("accessToken");
+        const apiCall = await api.put(
+          `question/${currentQuestion.value._id}`,
+          currentQuestion.value,
+          token
+        );
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
+        if (response?.status == 200) {
+          await showSuccess({
+            text: "Dữ liệu đã được cập nhật thành công.",
+          });
+          $("#updateQuestionModal").modal("hide");
+          emit("refreshUpdate");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -153,6 +175,7 @@ export default {
       updateQuestion,
       setCorrectOption,
       questionSchema,
+      isLoading
     };
   },
 };

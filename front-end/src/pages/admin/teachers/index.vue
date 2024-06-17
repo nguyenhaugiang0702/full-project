@@ -14,7 +14,7 @@
         data-bs-toggle="modal"
         data-bs-target="#addTeacherModal"
       >
-        Thêm mới giáo vien
+        Thêm mới giáo viên danh 
       </button>
     </div>
     <div class="col-md-6">
@@ -22,8 +22,8 @@
     </div>
   </div>
   <hr />
-  <ModalAddTeacher :newTeacher="newTeacher" />
-  <ModalUpdateTeacher :currentTeacher="currentTeacher" />
+  <ModalAddTeacher :newTeacher="newTeacher" @refreshTeacher="getTeachers"/>
+  <ModalUpdateTeacher :currentTeacher="currentTeacher" @refreshTeacher="getTeachers"/>
   <ModalDetailTeacher :currentTeacher="currentTeacher" />
   <div class="subjects row mx-auto">
     <div v-for="teacher in teachers" :key="teacher._id" class="card">
@@ -40,7 +40,7 @@
           @click="editTeacher(teacher)"
         >
           <i class="fa-solid fa-pen-to-square"></i>
-          Sua
+          Sửa
         </button>
 
         <button
@@ -51,7 +51,7 @@
           @click="editTeacher(teacher)"
         >
           <i class="fa-solid fa-circle-info"></i>
-          Xem chi tiet
+          Xem chi tiết
         </button>
         <button
           class="edit_student col-3 mx-auto btn btn-danger"
@@ -59,7 +59,7 @@
           @click="deleteTeacher(teacher._id)"
         >
           <i class="fa-solid fa-trash"></i>
-          Xoa
+          Xóa
         </button>
       </div>
     </div>

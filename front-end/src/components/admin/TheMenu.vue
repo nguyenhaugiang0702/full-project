@@ -21,9 +21,21 @@
             isActive('admin-questions') ||
             isActive('admin-questions-radndom'),
         }"
+        @click.native="emitNavigate"
       >
         <i class="fas fa-list"></i>
         <span class="nav-item">Môn Học</span>
+      </router-link>
+    </li>
+    <li>
+      <router-link
+        v-if="admin.admin_role == 'admin'"
+        :to="{ name: 'admin-teachers' }"
+        :class="{ active: isActive('admin-teachers') }"
+        @click.native="emitNavigate"
+      >
+        <i class="fas fa-user-tie"></i>
+        <span class="nav-item">Giảng Viên</span>
       </router-link>
     </li>
     <li>
@@ -32,23 +44,15 @@
         :class="{
           active: isActive('admin-teachers-changepassword'),
         }"
+        @click.native="emitNavigate"
       >
-        <i class="fas fa-list"></i>
+        <i class="fas fa-lock"></i>
         <span class="nav-item">Đổi mật khẩu</span>
       </router-link>
     </li>
+
     <li>
-      <router-link
-        v-if="admin.admin_role == 'admin'"
-        :to="{ name: 'admin-teachers' }"
-        :class="{ active: isActive('admin-teachers') }"
-      >
-        <i class="fas fa-user-tie"></i>
-        <span class="nav-item">Giảng Viên</span>
-      </router-link>
-    </li>
-    <li>
-      <a @click="logout" class="logout">
+      <a @click="logout">
         <i class="fas fa-sign-out-alt"></i>
         <span class="nav-item">Đăng xuất</span>
       </a>
@@ -66,7 +70,8 @@ import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 
 export default defineComponent({
-  setup() {
+  emits: ['navigate'],
+  setup(_, { emit }) {
     const store = useMenu();
     const route = useRoute();
     const router = useRouter();
@@ -78,7 +83,7 @@ export default defineComponent({
       const result = await showConfirmation({
         title: "Bạn có chắc chắn muốn thoát không?",
         confirmButtonText: "Có",
-        cancelButtonText: "Không"
+        cancelButtonText: "Không",
       });
       if (result.isConfirmed) {
         document.cookie =
@@ -88,6 +93,10 @@ export default defineComponent({
         delete axios.defaults.headers.common["Authorization"];
         router.push({ name: "login" });
       }
+    };
+
+    const emitNavigate = () => {
+      emit('navigate');
     };
 
     onMounted(async () => {
@@ -104,6 +113,7 @@ export default defineComponent({
       isActive,
       ...storeToRefs(store),
       admin,
+      emitNavigate,
     };
   },
 });
@@ -111,7 +121,7 @@ export default defineComponent({
 
 <style scoped>
 .active {
-  color: blue;
+  color: #0d6efd;
   font-weight: bold;
 }
 
