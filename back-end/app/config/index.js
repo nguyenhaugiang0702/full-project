@@ -16,7 +16,7 @@ const config = {
     viteApp:{
         port: process.env.VITE_APP_API_PORT,
         url: process.env.VITE_APP_API_URL,
-        viteURL: `${process.env.VITE_APP_API_URL}:${process.env.VITE_APP_API_PORT}`,
+        // viteURL: `${process.env.VITE_APP_API_URL}:${process.env.VITE_APP_API_PORT}`,
     }
 };
 

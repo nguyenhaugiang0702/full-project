@@ -155,7 +155,7 @@ exports.forgotPassword = async (req, res, next) => {
             "my_secret_key_admin_email",
             { expiresIn: "15m" }
         );
-        const resetUrl = `${config.viteApp.viteURL}/resetpassword/${accessTokenWithEmail}`;
+        const resetUrl = `${config.viteApp.url}/resetpassword/${accessTokenWithEmail}`;
         const message = `
         <p>Chúng tôi đã nhận được yêu cầu đổi mật khẩu. Vui lòng click vào link bên dưới để thay đổi mật khẩu:</p>
         <a href="${resetUrl}">Click Here</a>
