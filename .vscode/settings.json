@@ -1,0 +1,8 @@
+{
+    "explorer.compactFolders": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "editor.fontFamily": "'Fira Code', 'Source Code Pro', 'Consolas', 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": true
+}
