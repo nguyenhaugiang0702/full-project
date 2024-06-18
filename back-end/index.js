@@ -58,9 +58,9 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
   try {
-    await MongoDB.connect(process.env.MONGODB_URI);
+    await MongoDB.connect(config.db.uri);
     console.log("Connected to the DB");
-    const PORT = process.env.PORT || 3000;
+    const PORT = config.app.port;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
