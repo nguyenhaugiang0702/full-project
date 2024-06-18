@@ -153,9 +153,14 @@ export default {
     };
 
     const handleRefresh = async () => {
-      isLoading.value = true;
-      await getSubjects();
-      isLoading.value = false;
+      try {
+        isLoading.value = true;
+        await getSubjects();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     onMounted(() => {
