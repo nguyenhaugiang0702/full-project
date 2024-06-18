@@ -1,49 +1,52 @@
 <template>
-  <div class="main-top">
-    <h3 class="ms-2 text-underline">
-      <span class="text-decoration-underline">Các môn học:</span>
-    </h3>
-  </div>
-
-  <div class="row d-flex align-items-end mb-4">
-    <div class="col-md-6 my-2">
-      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
+  <div v-if="isLoading" class="loader"></div>
+  <div v-else>
+    <div class="main-top">
+      <h3 class="ms-2 text-underline">
+        <span class="text-decoration-underline">Các môn học:</span>
+      </h3>
     </div>
-    <div class="col-md-6 my-2">
-      <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
+
+    <div class="row d-flex align-items-end mb-4">
+      <div class="col-md-6 my-2">
+        <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
+      </div>
+      <div class="col-md-6 my-2">
+        <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
+      </div>
     </div>
-  </div>
-  <hr />
+    <hr />
 
-  <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
+    <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
 
-  <div class="row my-2">
-    <SelectedAll
-      :selectedName="'subjects'"
+    <div class="row my-2">
+      <SelectedAll
+        :selectedName="'subjects'"
+        :documents="subjects"
+        :checked="checked"
+        :checkedAll="checkedAll"
+        @update:checkedAll="updateCheckedAll"
+        @update:checked="updateChecked"
+        @refreshUpdated="handleRefresh"
+      />
+    </div>
+
+    <div class="subjects row">
+      <SubjectsCard
+        v-for="subject in paginatedSubjects"
+        :key="subject._id"
+        :subject="subject"
+        :checked="checked"
+        :toggleChecked="toggleChecked"
+        :editSubject="editSubject"
+        :deleteSubject="deleteSubject"
+      />
+    </div>
+    <Paginition
       :documents="subjects"
-      :checked="checked"
-      :checkedAll="checkedAll"
-      @update:checkedAll="updateCheckedAll"
-      @update:checked="updateChecked"
-      @refreshUpdated="getSubjects"
+      @update:paginatedDocument="handlePaginatedDocumentUpdate"
     />
   </div>
-
-  <div class="subjects row">
-    <SubjectsCard
-      v-for="subject in paginatedSubjects"
-      :key="subject._id"
-      :subject="subject"
-      :checked="checked"
-      :toggleChecked="toggleChecked"
-      :editSubject="editSubject"
-      :deleteSubject="deleteSubject"
-    />
-  </div>
-  <Paginition
-    :documents="subjects"
-    @update:paginatedDocument="handlePaginatedDocumentUpdate"
-  />
 </template>
 
 <script>
@@ -149,6 +152,12 @@ export default {
       checked.value = value;
     };
 
+    const handleRefresh = async () => {
+      isLoading.value = true;
+      await getSubjects();
+      isLoading.value = false;
+    };
+
     onMounted(() => {
       getSubjects();
     });
@@ -169,6 +178,7 @@ export default {
       updateCheckedAll,
       updateChecked,
       isLoading,
+      handleRefresh,
     };
   },
 };
