@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
 class SubjectService {
     constructor(client) {
-        this.Subject = client.db().collection("subjects");
+        this.Subject = client.db("random_questions").collection("subjects");
     }
     extractSubjectData(payload) {
         const subject = {

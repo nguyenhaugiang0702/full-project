@@ -7,6 +7,7 @@ const ApiError = require("./app/api-error");
 const app = express();
 const config = require("./app/config");
 const MongoDB = require("./app/utils/mongodb.util");
+require('dotenv').config();
 
 const allowedOrigins = [
   "https://full-project-v1.vercel.app",
@@ -57,9 +58,9 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
   try {
-    await MongoDB.connect(config.db.uri);
+    await MongoDB.connect(process.env.MONGODB_URI);
     console.log("Connected to the DB");
-    const PORT = config.app.port;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
