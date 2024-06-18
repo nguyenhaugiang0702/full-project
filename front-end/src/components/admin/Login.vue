@@ -48,12 +48,18 @@
         </button>
         <ErrorMessage name="admin_password" class="text-danger" />
       </div>
-      <button class="btn_login mt-4">Đăng nhập</button>
+      <button class="btn_login mt-4" :disabled="isLoading">
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <span v-else>Đăng nhập</span>
+      </button>
       <div class="text_bottom">
         Quên mật khẩu?
-        <a
-          class="forgot_route"
-          @click="$router.push({ name: 'forgotpassword' })"
+        <a class="forgot_route" @click="$router.push({ name: 'forgotpassword' })"
           >Click Here</a
         >
         <br />
@@ -84,25 +90,32 @@ export default {
     const router = useRouter();
     const api = new ApiService();
     const showPassword = ref(false);
+    const isLoading = ref(false);
 
     const loginAdmin = async () => {
-      const adminData = {
-        ...admin.value,
-        admin_id: Number(admin.value.admin_id),
-      };
-      const response = await api.post("admin/login", adminData);
-      if (response?.status == 200) {
-        admin.value = {
-          admin_id: "",
-          admin_email: "",
-          admin_password: "",
+      try {
+        const adminData = {
+          ...admin.value,
+          admin_id: Number(admin.value.admin_id),
         };
-        const token = response.data.accessToken;
-        Cookies.set("accessToken", token, { expires: 24 });
-        await showSuccess({
-          text: "Đăng nhập thành công.",
-        });
-        router.push({ name: "admin" });
+        const response = await api.post("admin/login", adminData);
+        if (response?.status == 200) {
+          admin.value = {
+            admin_id: "",
+            admin_email: "",
+            admin_password: "",
+          };
+          const token = response.data.accessToken;
+          Cookies.set("accessToken", token, { expires: 24 });
+          await showSuccess({
+            text: "Đăng nhập thành công.",
+          });
+          router.push({ name: "admin" });
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -116,6 +129,7 @@ export default {
       showPassword,
       togglePasswordVisibility,
       loginSchema,
+      isLoading,
     };
   },
 };
