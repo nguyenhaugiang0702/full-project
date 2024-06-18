@@ -6,10 +6,7 @@ class MongoDB {
     static async connect(uri) {
       try {
         if (!this.client) {
-          this.client = new MongoClient(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-          });
+          this.client = new MongoClient(uri);
           await this.client.connect();
           console.log("Connected to MongoDB");
         }
