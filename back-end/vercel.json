@@ -16,5 +16,6 @@
     "api/*.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [{ "src": "/(.*)", "des": "/" }]
 }
