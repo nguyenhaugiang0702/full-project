@@ -152,7 +152,7 @@ export default {
       checked.value = value;
     };
 
-    onMounted(() => {
+    computed(() => {
       getSubjects();
     });
 
