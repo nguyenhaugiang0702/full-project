@@ -17,5 +17,7 @@
       "maxDuration": 60
     }
   },
-  "rewrites": [{ "src": "/(.*)", "des": "/" }]
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }
