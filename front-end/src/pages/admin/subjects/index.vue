@@ -56,7 +56,7 @@ import Paginition from "@/components/admin/Pagination.vue";
 import Search from "@/components/admin/search/Search.vue";
 import SelectedAll from "@/components/admin/SelectedAll.vue";
 import SubjectsCard from "@/components/admin/card/subjects/SubjectsCard.vue";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watchEffect } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
@@ -152,8 +152,15 @@ export default {
       checked.value = value;
     };
 
-    computed(() => {
-      getSubjects();
+    onMounted(async () => {
+      try {
+        isLoading.value = true;
+        await getSubjects();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
+      }
     });
 
     return {
