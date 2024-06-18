@@ -135,7 +135,7 @@ export default {
           await showSuccess({
             text: "Dữ liệu đã được xóa thành công.",
           });
-          getSubjects();
+          handleRefresh();
         }
       }
     };
@@ -159,7 +159,7 @@ export default {
     };
 
     onMounted(() => {
-      getSubjects();
+      handleRefresh();
     });
 
     return {
