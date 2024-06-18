@@ -6,7 +6,7 @@ const questionsRouter = require("./app/routes/question.route");
 const ApiError = require("./app/api-error");
 const app = express();
 const config = require("./app/config");
-const MongoClient = require("mongodb").MongoClient;
+const MongoDB = require("./app/utils/mongodb.util");
 
 const allowedOrigins = [
   "https://full-project-v1.vercel.app",
