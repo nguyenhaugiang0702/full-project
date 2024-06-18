@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const bcrypt = require('bcrypt');
+const MongoDB = require("../utils/mongodb.util");
 
 class adminService {
     constructor(client) {
