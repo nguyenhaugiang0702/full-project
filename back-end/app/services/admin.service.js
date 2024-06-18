@@ -4,7 +4,7 @@ const MongoDB = require("../utils/mongodb.util");
 
 class adminService {
     constructor(client) {
-        this.Admin = client.db('random_questions').collection("admin");
+        this.Admin = client.db().collection("admin");
     }
     // Định nghĩa các phương thức truy xuất CSDL sử dụng mongodb API
     extractAdminData(payload) {
