@@ -93,11 +93,12 @@ export default {
     const isLoading = ref(false);
 
     const loginAdmin = async () => {
+      isLoading.value = true;
+      const adminData = {
+        ...admin.value,
+        admin_id: Number(admin.value.admin_id),
+      };
       try {
-        const adminData = {
-          ...admin.value,
-          admin_id: Number(admin.value.admin_id),
-        };
         const response = await api.post("admin/login", adminData);
         if (response?.status == 200) {
           admin.value = {
