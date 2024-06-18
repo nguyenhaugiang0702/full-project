@@ -1,52 +1,52 @@
 <template>
-  <div class="main-top">
-    <h3 class="ms-2 text-underline">
-      <span class="text-decoration-underline">Các môn học:</span>
-    </h3>
-  </div>
-
-  <div class="row d-flex align-items-end mb-4">
-    <div class="col-md-6 my-2">
-      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
+  <div v-if="isLoading" class="loader"></div>
+  <div v-else>
+    <div class="main-top">
+      <h3 class="ms-2 text-underline">
+        <span class="text-decoration-underline">Các môn học:</span>
+      </h3>
     </div>
-    <div class="col-md-6 my-2">
-      <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
+
+    <div class="row d-flex align-items-end mb-4">
+      <div class="col-md-6 my-2">
+        <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
+      </div>
+      <div class="col-md-6 my-2">
+        <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
+      </div>
     </div>
-  </div>
-  <hr />
+    <hr />
 
-  <ModalUpdateSubject
-    :currentSubject="currentSubject"
-    @refreshUpdate="getSubjects"
-  />
+    <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
 
-  <div class="row my-2">
-    <SelectedAll
-      :selectedName="'subjects'"
+    <div class="row my-2">
+      <SelectedAll
+        :selectedName="'subjects'"
+        :documents="subjects"
+        :checked="checked"
+        :checkedAll="checkedAll"
+        @update:checkedAll="updateCheckedAll"
+        @update:checked="updateChecked"
+        @refreshUpdated="getSubjects"
+      />
+    </div>
+
+    <div class="subjects row">
+      <SubjectsCard
+        v-for="subject in paginatedSubjects"
+        :key="subject._id"
+        :subject="subject"
+        :checked="checked"
+        :toggleChecked="toggleChecked"
+        :editSubject="editSubject"
+        :deleteSubject="deleteSubject"
+      />
+    </div>
+    <Paginition
       :documents="subjects"
-      :checked="checked"
-      :checkedAll="checkedAll"
-      @update:checkedAll="updateCheckedAll"
-      @update:checked="updateChecked"
-      @refreshUpdated="getSubjects"
+      @update:paginatedDocument="handlePaginatedDocumentUpdate"
     />
   </div>
-
-  <div class="subjects row">
-    <SubjectsCard
-      v-for="subject in paginatedSubjects"
-      :key="subject._id"
-      :subject="subject"
-      :checked="checked"
-      :toggleChecked="toggleChecked"
-      :editSubject="editSubject"
-      :deleteSubject="deleteSubject"
-    />
-  </div>
-  <Paginition
-    :documents="subjects"
-    @update:paginatedDocument="handlePaginatedDocumentUpdate"
-  />
 </template>
 
 <script>
@@ -87,14 +87,11 @@ export default {
     const checked = ref({});
     const checkedAll = ref(false);
     const selectedIds = ref([]);
+    const isLoading = ref(false);
 
     const toggleChecked = () => {
-      const allChecked = Object.values(checked.value).every(
-        (value) => value === true
-      );
-      selectedIds.value = Object.keys(checked.value).filter(
-        (key) => checked.value[key]
-      );
+      const allChecked = Object.values(checked.value).every((value) => value === true);
+      selectedIds.value = Object.keys(checked.value).filter((key) => checked.value[key]);
       if (selectedIds.value.length === subjects.value.length && allChecked) {
         checkedAll.value = true;
       } else {
@@ -104,9 +101,16 @@ export default {
 
     const getSubjects = async () => {
       const token = Cookies.get("accessToken");
-      const response = await api.get("subject", token);
-      if (response?.status == 200) {
-        subjects.value = response.data;
+      isLoading.value = true;
+      try {
+        const response = await api.get("subject", token);
+        if (response?.status == 200) {
+          subjects.value = response.data;
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -167,7 +171,12 @@ export default {
       handleSearchValue,
       updateCheckedAll,
       updateChecked,
+      isLoading,
     };
   },
 };
 </script>
+
+<style scoped>
+@import "../../../assets/css/loading.css";
+</style>
