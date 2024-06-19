@@ -117,7 +117,7 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div class="subjects row">
+  <div :class="['subjects', 'row', { loader_documents: isLoading }]">
     <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
@@ -190,12 +190,20 @@ export default {
     const checked = ref({});
     const checkedAll = ref(false);
     const selectedIds = ref([]);
+    const isLoading = ref(false);
 
     const getQuestions = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.get(`question/subject/${subject_id}`, token);
-      if (response.status == 200) {
-        questions.value = response.data;
+      isLoading.value = true;
+      try {
+        const token = Cookies.get("accessToken");
+        const response = await api.get(`question/subject/${subject_id}`, token);
+        if (response.status == 200) {
+          questions.value = response.data;
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -398,32 +406,14 @@ export default {
       updateChecked,
       updateCheckedAll,
       images,
+      isLoading,
     };
   },
 };
 </script>
 
 <style>
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-.pagination button {
-  margin: 10px 10px;
-  padding: 5px 5px;
-  border: 1px solid #000;
-  border-radius: 10px;
-}
-
-.pagination button:hover {
-  background-color: #0d6efd;
-  color: white;
-  border-radius: 10px;
-  transition: 0.6s;
-  cursor: pointer;
-}
+@import "../../../assets/css/loading.css";
 
 .main-container {
   display: flex;
@@ -433,18 +423,6 @@ export default {
 
 .subjects {
   flex-grow: 1;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.pagination button {
-  margin: 0 5px;
 }
 
 .deleteSelected {
