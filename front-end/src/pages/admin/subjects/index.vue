@@ -119,6 +119,7 @@ export default {
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
       paginatedSubjects.value = newPaginatedDocument;
+      console.log(paginatedSubjects.value);
     };
 
     const editSubject = (subject) => {
@@ -168,6 +169,7 @@ export default {
 
     onMounted(() => {
       getSubjects();
+      handlePaginatedDocumentUpdate();
     });
 
     return {
