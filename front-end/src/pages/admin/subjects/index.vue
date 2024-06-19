@@ -106,9 +106,12 @@ export default {
         const response = await api.get("subject", token);
         if (response?.status == 200) {
           subjects.value = response.data;
+          console.log("Subjects fetched successfully:", response.data); // Logging the fetched data
+        } else {
+          console.error("Failed to fetch subjects:", response);
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error while fetching subjects:", error);
       } finally {
         isLoading.value = false;
       }
