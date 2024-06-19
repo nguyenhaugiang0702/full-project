@@ -29,7 +29,7 @@ export default {
       isLoading.value = true;
       setTimeout(() => {
         isLoading.value = false;
-      }, 1500);
+      }, 1000);
     };
 
     // Watch for route changes

@@ -1,5 +1,4 @@
 <template>
-  <div v-if="isLoading" class="loader"></div>
   <div class="main-top">
     <h3 class="ms-2 text-underline">
       <span class="text-decoration-underline">Các môn học:</span>
