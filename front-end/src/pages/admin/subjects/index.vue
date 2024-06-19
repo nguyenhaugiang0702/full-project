@@ -27,7 +27,7 @@
         :checkedAll="checkedAll"
         @update:checkedAll="updateCheckedAll"
         @update:checked="updateChecked"
-        @refreshUpdated="handleRefresh"
+        @refreshUpdated="getSubjects"
       />
     </div>
 
@@ -164,7 +164,7 @@ export default {
     };
 
     onMounted(() => {
-      handleRefresh();
+      getSubjects();
     });
 
     return {
