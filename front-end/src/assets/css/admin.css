@@ -105,6 +105,7 @@ a:hover i {
   position: relative;
   padding: 20px;
   width: 100%;
+  overflow: auto;
 }
 .main-top {
   display: flex;
@@ -116,6 +117,10 @@ a:hover i {
   margin: 10px 30px;
   color: rgb(110, 109, 109);
   cursor: pointer;
+}
+
+.subjects{
+  overflow: auto;
 }
 
 .subjects .card {
