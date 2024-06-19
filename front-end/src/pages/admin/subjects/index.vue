@@ -1,52 +1,50 @@
 <template>
   <div v-if="isLoading" class="loader"></div>
-  <div v-if="!isLoading">
-    <div class="main-top">
-      <h3 class="ms-2 text-underline">
-        <span class="text-decoration-underline">Các môn học:</span>
-      </h3>
-    </div>
+  <div class="main-top">
+    <h3 class="ms-2 text-underline">
+      <span class="text-decoration-underline">Các môn học:</span>
+    </h3>
+  </div>
 
-    <div class="row d-flex align-items-end mb-4">
-      <div class="col-md-6 my-2">
-        <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
-      </div>
-      <div class="col-md-6 my-2">
-        <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
-      </div>
+  <div class="row d-flex align-items-end mb-4">
+    <div class="col-md-6 my-2">
+      <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
     </div>
-    <hr />
-
-    <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
-
-    <div class="row my-2">
-      <SelectedAll
-        :selectedName="'subjects'"
-        :documents="subjects"
-        :checked="checked"
-        :checkedAll="checkedAll"
-        @update:checkedAll="updateCheckedAll"
-        @update:checked="updateChecked"
-        @refreshUpdated="getSubjects"
-      />
+    <div class="col-md-6 my-2">
+      <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
     </div>
+  </div>
+  <hr />
 
-    <div class="subjects row">
-      <SubjectsCard
-        v-for="subject in paginatedSubjects"
-        :key="subject._id"
-        :subject="subject"
-        :checked="checked"
-        :toggleChecked="toggleChecked"
-        :editSubject="editSubject"
-        :deleteSubject="deleteSubject"
-      />
-    </div>
-    <Paginition
+  <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
+
+  <div class="row my-2">
+    <SelectedAll
+      :selectedName="'subjects'"
       :documents="subjects"
-      @update:paginatedDocument="handlePaginatedDocumentUpdate"
+      :checked="checked"
+      :checkedAll="checkedAll"
+      @update:checkedAll="updateCheckedAll"
+      @update:checked="updateChecked"
+      @refreshUpdated="getSubjects"
     />
   </div>
+
+  <div class="subjects row">
+    <SubjectsCard
+      v-for="subject in paginatedSubjects"
+      :key="subject._id"
+      :subject="subject"
+      :checked="checked"
+      :toggleChecked="toggleChecked"
+      :editSubject="editSubject"
+      :deleteSubject="deleteSubject"
+    />
+  </div>
+  <Paginition
+    :documents="subjects"
+    @update:paginatedDocument="handlePaginatedDocumentUpdate"
+  />
 </template>
 
 <script>
@@ -119,7 +117,6 @@ export default {
 
     const handlePaginatedDocumentUpdate = (newPaginatedDocument) => {
       paginatedSubjects.value = newPaginatedDocument;
-      console.log(paginatedSubjects.value);
     };
 
     const editSubject = (subject) => {
@@ -139,7 +136,7 @@ export default {
           await showSuccess({
             text: "Dữ liệu đã được xóa thành công.",
           });
-          handleRefresh();
+          getSubjects();
         }
       }
     };
@@ -156,20 +153,8 @@ export default {
       checked.value = value;
     };
 
-    const handleRefresh = async () => {
-      try {
-        isLoading.value = true;
-        await getSubjects();
-      } catch (error) {
-        console.log(error);
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
     onMounted(() => {
       getSubjects();
-      handlePaginatedDocumentUpdate();
     });
 
     return {
@@ -188,7 +173,6 @@ export default {
       updateCheckedAll,
       updateChecked,
       isLoading,
-      handleRefresh,
     };
   },
 };
