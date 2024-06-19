@@ -15,7 +15,10 @@
   </div>
   <hr />
 
-  <ModalUpdateSubject :currentSubject="currentSubject" @refreshUpdate="getSubjects" />
+  <ModalUpdateSubject
+    :currentSubject="currentSubject"
+    @refreshUpdate="getSubjects"
+  />
 
   <div class="row my-2">
     <SelectedAll
@@ -29,7 +32,7 @@
     />
   </div>
 
-  <div :class="['subjects row', { loader: isLoading }]">
+  <div :class="['subjects row', { "loader-documents": isLoading }]">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
       :key="subject._id"
@@ -87,8 +90,12 @@ export default {
     const isLoading = ref(false);
 
     const toggleChecked = () => {
-      const allChecked = Object.values(checked.value).every((value) => value === true);
-      selectedIds.value = Object.keys(checked.value).filter((key) => checked.value[key]);
+      const allChecked = Object.values(checked.value).every(
+        (value) => value === true
+      );
+      selectedIds.value = Object.keys(checked.value).filter(
+        (key) => checked.value[key]
+      );
       if (selectedIds.value.length === subjects.value.length && allChecked) {
         checkedAll.value = true;
       } else {
