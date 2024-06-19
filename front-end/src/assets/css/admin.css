@@ -118,10 +118,6 @@ a:hover i {
   cursor: pointer;
 }
 
-.subjects{
-  overflow: hidden;
-}
-
 .subjects .card {
   width: 30%;
   margin: 10px;
