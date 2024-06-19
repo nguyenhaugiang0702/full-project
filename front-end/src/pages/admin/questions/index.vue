@@ -117,7 +117,8 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div :class="['subjects', 'row', { loader_documents: isLoading }]">
+  <div v-if="isLoading" class="loader_documents"></div>
+  <div v-if="!isLoading" class="subjects row">
     <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
