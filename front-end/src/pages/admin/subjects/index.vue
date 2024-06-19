@@ -30,7 +30,7 @@
     />
   </div>
 
-  <div class="subjects row" :class="{ "loader": isLoading }">
+  <div :class="['subjects row', { loader: isLoading }]">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
       :key="subject._id"
