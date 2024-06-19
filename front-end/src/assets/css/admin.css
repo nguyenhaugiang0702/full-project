@@ -105,7 +105,6 @@ a:hover i {
   position: relative;
   padding: 20px;
   width: 100%;
-  overflow: hidden;
 }
 .main-top {
   display: flex;
@@ -120,6 +119,7 @@ a:hover i {
 }
 
 .subjects{
+  overflow: hidden;
 }
 
 .subjects .card {
