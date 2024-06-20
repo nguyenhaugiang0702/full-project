@@ -29,8 +29,7 @@
       @refreshUpdated="getSubjects"
     />
   </div>
-  <div v-if="isLoading" class="loader_documents"></div>
-  <div v-if="isLoadingDelete" class="loader_documents"></div>
+  <div v-if="isLoading || isLoadingDelete" class="loader_documents"></div>
   <div v-if="!isLoading || !isLoadingDelete" class="subjects row">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
