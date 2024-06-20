@@ -171,6 +171,7 @@ exports.forgotPassword = async (req, res, next) => {
     return res.status(200).json({
       status: "success",
       message: "password reset link send to the user email",
+      resetUrl: resetUrl
     });
   } catch (error) {
     const errorMessage = error.message || "Có lỗi xảy ra";
