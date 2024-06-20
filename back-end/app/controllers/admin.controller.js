@@ -155,13 +155,12 @@ exports.forgotPassword = async (req, res, next) => {
       "my_secret_key_admin_email",
       { expiresIn: "15m" }
     );
-    const resetUrl = `${config.viteApp.url}/resetpassword/${encodeURIComponent(accessTokenWithEmail)}`;
+    const resetUrl = `${config.viteApp.url}/resetpassword/${accessTokenWithEmail}`;
     const message = `
         <p>Chúng tôi đã nhận được yêu cầu đổi mật khẩu. Vui lòng click vào link bên dưới để thay đổi mật khẩu:</p>
         <a href="${resetUrl}" target="_blank">Click Here</a>
         <p>Thời hạn là 15 phút, sau thời gian này bạn không thể đổi mật khẩu.</p>
     `;
-    console.log(resetUrl);
     await sendEmail({
       email: userEmailExist.admin_email,
       subject: "Yêu cầu thay đổi mật khẩu",
@@ -171,7 +170,6 @@ exports.forgotPassword = async (req, res, next) => {
     return res.status(200).json({
       status: "success",
       message: "password reset link send to the user email",
-      resetUrl: resetUrl
     });
   } catch (error) {
     const errorMessage = error.message || "Có lỗi xảy ra";
@@ -339,7 +337,7 @@ exports.update = async (req, res, next) => {
       return next(new ApiError(404, "Không tìm thấy giảng viên"));
     }
 
-    return res.send({ message: "admin was updated successfully" });
+    return res.send({ message: "admin was updated successfully", info: message });
   } catch (error) {
     return next(
       new ApiError(500, `Error updating admin with id=${req.params.id}`)
