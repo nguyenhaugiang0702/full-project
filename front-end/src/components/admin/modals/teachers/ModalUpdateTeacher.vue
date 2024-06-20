@@ -22,10 +22,7 @@
           ></button>
         </div>
         <div class="modal-body">
-          <Form
-            @submit="updateTeacher"
-            :validation-schema="updateTeacherSchema"
-          >
+          <Form @submit="updateTeacher" :validation-schema="updateTeacherSchema">
             <div class="row">
               <div class="mb-3">
                 <label class="form-label">ID</label>
@@ -62,18 +59,10 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 Đóng
               </button>
-              <button
-                type="submit"
-                class="btn btn-primary"
-                :disabled="isLoading"
-              >
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
                 <span
                   v-if="isLoading"
                   class="spinner-border spinner-border-sm"
@@ -104,6 +93,7 @@ export default {
       required: true,
     },
   },
+  emits: ["refreshTeacher"],
   setup(props) {
     const { currentTeacher } = toRefs(props);
     const api = new ApiService();
@@ -121,12 +111,11 @@ export default {
         const delay = new Promise((resolve) => setTimeout(resolve, 1500));
         const [response] = await Promise.all([apiCall, delay]);
         if (response?.status == 200) {
+          $("#updateTeacherModal").modal("hide");
           await showSuccess({
             text: "Dữ liệu đã được cập nhật thành công.",
           });
-          $("#updateTeacherModal").modal("hide");
           emit("refreshTeacher");
-          
         }
       } catch (error) {
         console.log(error);
