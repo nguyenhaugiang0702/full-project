@@ -30,7 +30,7 @@
     />
   </div>
   <div v-if="isLoading || isLoadingDelete" class="loader_documents"></div>
-  <div v-if="!isLoading || !isLoadingDelete" class="subjects row">
+  <div v-if="!isLoading && !isLoadingDelete" class="subjects row">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
       :key="subject._id"
