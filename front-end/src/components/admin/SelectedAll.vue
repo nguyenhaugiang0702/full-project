@@ -111,7 +111,9 @@ export default {
           } else {
             url = deleteMap[props.selectedName] + `${token}`;
           }
-          const response = await api.put(url, selectedIds.value, token);
+          const apiCall = await api.put(url, selectedIds.value, token);
+          const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+          const [response] = await Promise.all([apiCall, delay]);
           if (response?.status === 200) {
             resetChecked();
             showSuccess({
