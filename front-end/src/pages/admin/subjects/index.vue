@@ -134,10 +134,10 @@ export default {
           const response = await api.delete(`subject/${subjectId}`, token);
           if (response.status == 200) {
             isLoadingDelete.value = false;
-            showSuccess({
+            await showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
-            getSubjects();
+            await getSubjects();
           }
         } catch (error) {
           console.log(error);
