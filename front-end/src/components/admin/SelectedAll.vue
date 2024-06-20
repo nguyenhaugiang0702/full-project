@@ -54,7 +54,6 @@ export default {
     const api = new ApiService();
     const { documents, checked } = toRefs(props);
     const localCheckedAll = ref(props.checkedAll);
-    const isLoading = ref(false);
 
     watch(
       () => props.checkedAll,
@@ -104,7 +103,6 @@ export default {
       });
       if (result.isConfirmed) {
         try {
-          isLoading.value = true;
           emit("update:isLoading", true);
           const token = Cookies.get("accessToken");
           let url;
@@ -117,15 +115,14 @@ export default {
           if (response?.status === 200) {
             resetChecked();
             emit("refreshUpdated");
-            await showSuccess({
-              text: "Dữ liệu đã được xóa thành công.",
-            });
           }
         } catch (error) {
           console.log(error);
         } finally {
-          isLoading.value = false;
           emit("update:isLoading", false);
+          await showSuccess({
+            text: "Dữ liệu đã được xóa thành công.",
+          });
         }
       }
     };
@@ -140,7 +137,6 @@ export default {
       toggleSelectAll,
       deleteSelected,
       localCheckedAll,
-      isLoading,
     };
   },
 };
