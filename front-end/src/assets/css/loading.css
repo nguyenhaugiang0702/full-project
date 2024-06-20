@@ -50,6 +50,7 @@
 
   .loader-container {
     position: relative;
+    height: 50%;
   }
 
   .loader-container-navigator {
