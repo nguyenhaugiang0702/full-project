@@ -37,19 +37,15 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 
 @media (max-width: 768px) {
-  .loader_documents {
+  .loader_documents, .loader {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
-
-  .main{
-    height: 0;
   }
 
   .loader-container {
