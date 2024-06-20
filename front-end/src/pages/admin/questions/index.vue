@@ -385,7 +385,7 @@ export default {
     };
 
     const handleLoading = (value) => {
-      isLoading.value = value;
+      isLoadingDelete.value = value;
     };
 
     onMounted(() => {
