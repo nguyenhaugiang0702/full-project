@@ -69,12 +69,26 @@
       <!-- end Button tron cau hoi -->
 
       <!-- Button import file quesstion -->
-      <button
+      <!-- <button
         type="button"
         class="btn btn-secondary ms-2 float-start my-2"
         @click="handleFileButtonClick"
       >
         Upload File câu hỏi
+      </button> -->
+      <button
+        type="button"
+        class="btn btn-secondary ms-2 float-start my-2"
+        :disabled="isLoadingUpload"
+        @click="handleFileButtonClick"
+      >
+        <span
+          v-if="isLoadingUpload"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <span v-else>Upload File câu hỏi</span>
       </button>
 
       <button
@@ -118,8 +132,11 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div v-if="isLoading || isLoadingDelete" class="loader_documents"></div>
-  <div v-if="!isLoading && !isLoadingDelete" class="subjects row">
+  <div
+    v-if="isLoading || isLoadingDelete || isLoadingUpload"
+    class="loader_documents"
+  ></div>
+  <div v-if="!isLoading && !isLoadingDelete && !isLoadingUpload" class="subjects row">
     <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
@@ -194,6 +211,7 @@ export default {
     const selectedIds = ref([]);
     const isLoading = ref(false);
     const isLoadingDelete = ref(false);
+    const isLoadingUpload = ref(false);
 
     const getQuestions = async () => {
       isLoading.value = true;
@@ -299,6 +317,7 @@ export default {
     const handleFileUpload = async (event) => {
       const file = event.target.files[0];
       if (file) {
+        isLoadingUpload.value = true;
         const reader = new FileReader();
         reader.onload = async (e) => {
           const arrayBuffer = e.target.result;
@@ -311,6 +330,9 @@ export default {
             })
             .catch((error) => {
               console.error("Error parsing file:", error);
+            })
+            .finally(() => {
+              isLoadingUpload.value = false;
             });
         };
         reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
@@ -325,6 +347,7 @@ export default {
         token
       );
       if (response?.status == 200) {
+        isLoadingUpload.value = false;
         await showSuccess({
           text: "Dữ liệu đã được tải thành công.",
         });
@@ -424,6 +447,7 @@ export default {
       isLoading,
       handleLoading,
       isLoadingDelete,
+      isLoadingUpload,
     };
   },
 };
