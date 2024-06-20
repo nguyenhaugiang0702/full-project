@@ -126,13 +126,20 @@ export default {
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
       });
       if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        const response = await api.delete(`subject/${subjectId}`, token);
-        if (response.status == 200) {
-          await showSuccess({
-            text: "Dữ liệu đã được xóa thành công.",
-          });
-          getSubjects();
+        try {
+          isLoading.value = true;
+          const token = Cookies.get("accessToken");
+          const response = await api.delete(`subject/${subjectId}`, token);
+          if (response.status == 200) {
+            await showSuccess({
+              text: "Dữ liệu đã được xóa thành công.",
+            });
+            getSubjects();
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          isLoading.value = false;
         }
       }
     };
