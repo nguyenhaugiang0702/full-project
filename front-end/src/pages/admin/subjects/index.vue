@@ -25,6 +25,7 @@
       :checkedAll="checkedAll"
       @update:checkedAll="updateCheckedAll"
       @update:checked="updateChecked"
+      @update:isLoading="handleLoading"
       @refreshUpdated="getSubjects"
     />
   </div>
@@ -156,6 +157,10 @@ export default {
       checked.value = value;
     };
 
+    const handleLoading = (value) => {
+      isLoading.value = value;
+    };
+
     onMounted(() => {
       getSubjects();
     });
@@ -176,6 +181,7 @@ export default {
       updateCheckedAll,
       updateChecked,
       isLoading,
+      handleLoading,
     };
   },
 };

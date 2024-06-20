@@ -54,6 +54,7 @@ export default {
     const api = new ApiService();
     const { documents, checked } = toRefs(props);
     const localCheckedAll = ref(props.checkedAll);
+    const isLoading = ref(false);
 
     watch(
       () => props.checkedAll,
@@ -71,9 +72,7 @@ export default {
     };
 
     const updateSelectedIds = () => {
-      selectedIds.value = Object.keys(checked.value).filter(
-        (key) => checked.value[key]
-      );
+      selectedIds.value = Object.keys(checked.value).filter((key) => checked.value[key]);
     };
 
     const resetChecked = () => {
@@ -104,20 +103,29 @@ export default {
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
       });
       if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        let url;
-        if (props.selectedName == "questions") {
-          url = deleteMap[props.selectedName];
-        } else {
-          url = deleteMap[props.selectedName] + `${token}`;
-        }
-        const response = await api.put(url, selectedIds.value, token);
-        if (response?.status === 200) {
-          await showSuccess({
-            text: "Dữ liệu đã được xóa thành công.",
-          });
-          resetChecked();
-          emit("refreshUpdated");
+        try {
+          isLoading.value = true;
+          emit("update:isLoading", true);
+          const token = Cookies.get("accessToken");
+          let url;
+          if (props.selectedName == "questions") {
+            url = deleteMap[props.selectedName];
+          } else {
+            url = deleteMap[props.selectedName] + `${token}`;
+          }
+          const response = await api.put(url, selectedIds.value, token);
+          if (response?.status === 200) {
+            resetChecked();
+            emit("refreshUpdated");
+            await showSuccess({
+              text: "Dữ liệu đã được xóa thành công.",
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          isLoading.value = false;
+          emit("update:isLoading", false);
         }
       }
     };
@@ -132,6 +140,7 @@ export default {
       toggleSelectAll,
       deleteSelected,
       localCheckedAll,
+      isLoading,
     };
   },
 };
