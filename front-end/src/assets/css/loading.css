@@ -24,15 +24,26 @@
   animation: l20-1 0.8s infinite linear alternate, l20-2 1.6s infinite linear;
 }
 
+.loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  width: 100%;
+  position: relative;
+}
+
 @media (max-width: 768px) {
   .loader_documents {
     position: absolute;
-    z-index: 9999;
-    width: 50px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: 8px solid #0d6efd;
-    animation: l20-1 0.8s infinite linear alternate, l20-2 1.6s infinite linear;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .loader-container {
+    position: relative;
+    height: 100%;
   }
 }
 
