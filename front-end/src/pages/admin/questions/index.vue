@@ -114,6 +114,7 @@
       :subject_id="subject_id"
       @update:checkedAll="updateCheckedAll"
       @update:checked="updateChecked"
+      @update:isLoading="handleLoading"
       @refreshUpdated="getQuestions"
     />
   </div>
@@ -374,6 +375,10 @@ export default {
       return questions;
     };
 
+    const handleLoading = (value) => {
+      isLoading.value = value;
+    };
+
     onMounted(() => {
       getQuestions();
       getSubject();
@@ -408,6 +413,7 @@ export default {
       updateCheckedAll,
       images,
       isLoading,
+      handleLoading,
     };
   },
 };
