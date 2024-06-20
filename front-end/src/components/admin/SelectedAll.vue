@@ -115,8 +115,9 @@ export default {
           const delay = new Promise((resolve) => setTimeout(resolve, 1500));
           const [response] = await Promise.all([apiCall, delay]);
           if (response?.status === 200) {
+            emit("update:isLoading", false);
             resetChecked();
-            showSuccess({
+            await showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
             emit("refreshUpdated");
