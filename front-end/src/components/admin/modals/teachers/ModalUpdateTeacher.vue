@@ -94,7 +94,7 @@ export default {
     },
   },
   emits: ["refreshTeacher"],
-  setup(props) {
+  setup(props, { emit }) {
     const { currentTeacher } = toRefs(props);
     const api = new ApiService();
     const isLoading = ref(false);
@@ -111,10 +111,10 @@ export default {
         const delay = new Promise((resolve) => setTimeout(resolve, 1500));
         const [response] = await Promise.all([apiCall, delay]);
         if (response?.status == 200) {
-          $("#updateTeacherModal").modal("hide");
           await showSuccess({
             text: "Dữ liệu đã được cập nhật thành công.",
           });
+          $("#updateTeacherModal").modal("hide");
           emit("refreshTeacher");
         }
       } catch (error) {
