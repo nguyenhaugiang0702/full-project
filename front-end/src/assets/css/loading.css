@@ -54,7 +54,7 @@
   }
 
   .loader-container-navigator {
-    position: relative;
+    position: absolute;
     height: 100%;
   }
 }
