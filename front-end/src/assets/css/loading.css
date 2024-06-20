@@ -1,5 +1,5 @@
 .loader {
-  position: absolute;
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -36,6 +36,13 @@
 @media (max-width: 768px) {
   .loader_documents {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .loader {
+    position: relative;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
