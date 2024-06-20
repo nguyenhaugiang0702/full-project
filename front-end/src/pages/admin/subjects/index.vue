@@ -133,10 +133,11 @@ export default {
           const token = Cookies.get("accessToken");
           const response = await api.delete(`subject/${subjectId}`, token);
           if (response.status == 200) {
-            await showSuccess({
+            isLoadingDelete.value = false;
+            showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
-            await getSubjects();
+            getSubjects();
           }
         } catch (error) {
           console.log(error);
