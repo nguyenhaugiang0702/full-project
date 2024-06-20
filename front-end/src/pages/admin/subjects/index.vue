@@ -30,7 +30,8 @@
     />
   </div>
   <div v-if="isLoading" class="loader_documents"></div>
-  <div v-if="!isLoading" class="subjects row">
+  <div v-if="isLoadingDelete" class="loader_documents"></div>
+  <div v-if="!isLoading || !isLoadingDelete" class="subjects row">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
       :key="subject._id"
@@ -86,6 +87,7 @@ export default {
     const checkedAll = ref(false);
     const selectedIds = ref([]);
     const isLoading = ref(false);
+    const isLoadingDelete = ref(false);
 
     const toggleChecked = () => {
       const allChecked = Object.values(checked.value).every((value) => value === true);
@@ -128,19 +130,19 @@ export default {
       });
       if (result.isConfirmed) {
         try {
-          isLoading.value = true;
+          isLoadingDelete.value = true;
           const token = Cookies.get("accessToken");
           const response = await api.delete(`subject/${subjectId}`, token);
           if (response.status == 200) {
-            await getSubjects();
             await showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
+            await getSubjects();
           }
         } catch (error) {
           console.log(error);
         } finally {
-          isLoading.value = false;
+          isLoadingDelete.value = false;
         }
       }
     };
@@ -182,6 +184,7 @@ export default {
       updateChecked,
       isLoading,
       handleLoading,
+      isLoadingDelete,
     };
   },
 };
