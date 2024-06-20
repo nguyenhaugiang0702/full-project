@@ -48,9 +48,13 @@
     transform: translate(-50%, -50%);
   }
 
+  .main{
+    height: 0;
+  }
+
   .loader-container {
     position: relative;
-    height: 50%;
+    height: 100%;
   }
 
   .loader-container-navigator {
