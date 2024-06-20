@@ -16,7 +16,7 @@
     type="button"
     class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
     @click="deleteSelected"
-    :disabled="!anyChecked || isLoading"
+    :disabled="!anyChecked"
   >
     Xóa
   </button>
@@ -48,7 +48,7 @@ export default {
       type: String,
     },
   },
-  emits: ["update:checkedAll", "update:checked", "refreshUpdated"],
+  emits: ["update:checkedAll", "update:checked", "refreshUpdated", "update:isLoading"],
   setup(props, { emit }) {
     const selectedIds = ref([]);
     const api = new ApiService();
