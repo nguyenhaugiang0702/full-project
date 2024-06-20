@@ -137,7 +137,7 @@ export default {
             await showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
-            await getSubjects();
+            getSubjects();
           }
         } catch (error) {
           console.log(error);
