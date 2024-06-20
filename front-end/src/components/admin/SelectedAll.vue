@@ -16,7 +16,7 @@
     type="button"
     class="btn btn-danger ms-2 float-start col-sm-1 deleteSelected"
     @click="deleteSelected"
-    :disabled="!anyChecked"
+    :disabled="!anyChecked || isLoading"
   >
     Xóa
   </button>
@@ -115,14 +115,14 @@ export default {
           if (response?.status === 200) {
             resetChecked();
             emit("refreshUpdated");
+            await showSuccess({
+              text: "Dữ liệu đã được xóa thành công.",
+            });
           }
         } catch (error) {
           console.log(error);
         } finally {
           emit("update:isLoading", false);
-          await showSuccess({
-            text: "Dữ liệu đã được xóa thành công.",
-          });
         }
       }
     };
