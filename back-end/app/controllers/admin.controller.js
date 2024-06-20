@@ -282,13 +282,6 @@ exports.update = async (req, res, next) => {
         return next(new ApiError(400, "ID phải là số > 0"));
     }
 
-    // if (
-    //     req.body.admin_password.length < 8 ||
-    //     req.body.admin_password.length > 50
-    // ) {
-    //     return next(new ApiError(400, "Mật khẩu phải từ 8 đến 50 ký tự"));
-    // }
-
     if (
         req.body.admin_name.trim().length < 5 ||
         req.body.admin_name.trim().length > 50
@@ -340,6 +333,13 @@ exports.update = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Không tìm thấy giảng viên"));
         }
+
+        const message = `<p>Xin chào ${req.body.admin_name},</p><p>Thông tin đăng nhập của bạn đã được thay đổi là:</p><p>ID: ${adminID}</p><p>Email: ${req.body.admin_email}</p><h3>Vui lòng không chia sẻ cho bất kỳ ai</h3>`;
+        await sendEmail({
+            email: req.body.admin_email,
+            subject: "Thông tin của bạn đã được thay đổi ",
+            html: message,
+        });
 
         return res.send({ message: "admin was updated successfully" });
     } catch (error) {
