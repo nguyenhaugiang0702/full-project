@@ -5,8 +5,8 @@
       <TheMenu @navigate="handleNavigate" />
       <section class="main">
         <router-view v-if="!isLoading"></router-view>
-        <div class="loader-container">
-          <div v-if="isLoading" class="loader"></div>
+        <div v-if="isLoading" class="loader-container">
+          <div class="loader"></div>
         </div>
       </section>
     </div>
