@@ -114,7 +114,7 @@ export default {
           const response = await api.put(url, selectedIds.value, token);
           if (response?.status === 200) {
             resetChecked();
-            await showSuccess({
+            showSuccess({
               text: "Dữ liệu đã được xóa thành công.",
             });
             emit("refreshUpdated");
