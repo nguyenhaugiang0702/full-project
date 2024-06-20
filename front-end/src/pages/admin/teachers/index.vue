@@ -14,18 +14,21 @@
         data-bs-toggle="modal"
         data-bs-target="#addTeacherModal"
       >
-        Thêm mới giáo viên danh 
+        Thêm mới giáo viên danh
       </button>
     </div>
     <div class="col-md-6">
-      <Search :searchName="'teachers'" @updateSearch="handleSearchValue"/>
+      <Search :searchName="'teachers'" @updateSearch="handleSearchValue" />
     </div>
   </div>
   <hr />
-  <ModalAddTeacher :newTeacher="newTeacher" @refreshTeacher="getTeachers"/>
-  <ModalUpdateTeacher :currentTeacher="currentTeacher" @refreshTeacher="getTeachers"/>
+  <ModalAddTeacher :newTeacher="newTeacher" @refreshTeacher="getTeachers" />
+  <ModalUpdateTeacher :currentTeacher="currentTeacher" @refreshTeacher="getTeachers" />
   <ModalDetailTeacher :currentTeacher="currentTeacher" />
-  <div class="subjects row mx-auto">
+  <div class="loader-container" v-if="isLoading || isLoadingDelete">
+    <div class="loader_documents"></div>
+  </div>
+  <div v-if="!isLoading && !isLoadingDelete" class="subjects row mx-auto">
     <div v-for="teacher in teachers" :key="teacher._id" class="card">
       <h4>ID: {{ teacher.admin_id }}</h4>
       <h4>{{ teacher.admin_name }}</h4>
@@ -79,7 +82,7 @@ import SelectedAll from "@/components/admin/SelectedAll.vue";
 import { onMounted, ref } from "vue";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
-import { showSuccess, showConfirmation } from "@/utils/swalUtils"; 
+import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 export default {
   components: {
     ModalAddTeacher,
@@ -87,7 +90,7 @@ export default {
     ModalDetailTeacher,
     Paginition,
     Search,
-    SelectedAll
+    SelectedAll,
   },
   setup() {
     const newTeacher = ref({
@@ -108,14 +111,23 @@ export default {
 
     const teachers = ref([]);
     const paginatedTeachers = ref([]);
+    const isLoading = ref(false);
+    const isLoadingDelete = ref(false);
 
     const api = new ApiService();
 
     const getTeachers = async () => {
-      const token = Cookies.get("accessToken");
-      const response = await api.get("admin", token);
-      if (response.status == 200) {
-        teachers.value = response.data;
+      try {
+        isLoading.value = true;
+        const token = Cookies.get("accessToken");
+        const response = await api.get("admin", token);
+        if (response.status == 200) {
+          teachers.value = response.data;
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -134,13 +146,21 @@ export default {
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
       });
       if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        const response = await api.delete(`admin/${teacherId}`, token);
-        if (response.status == 200) {
-          await showSuccess({
-            text: "Dữ liệu đã được xóa thành công.",
-          });
-          getTeachers();
+        try {
+          isLoadingDelete.value = true;
+          const token = Cookies.get("accessToken");
+          const response = await api.delete(`admin/${teacherId}`, token);
+          if (response.status == 200) {
+            isLoadingDelete.value = false;
+            await showSuccess({
+              text: "Dữ liệu đã được xóa thành công.",
+            });
+            getTeachers();
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          isLoadingDelete.value = false;
         }
       }
     };
@@ -162,7 +182,9 @@ export default {
       currentTeacher,
       handlePaginatedDocumentUpdate,
       paginatedTeachers,
-      handleSearchValue
+      handleSearchValue,
+      isLoading,
+      isLoadingDelete,
     };
   },
 };

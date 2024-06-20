@@ -132,10 +132,9 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div
-    v-if="isLoading || isLoadingDelete || isLoadingUpload"
-    class="loader_documents"
-  ></div>
+  <div class="loader-container" v-if="isLoading || isLoadingDelete || isLoadingUpload">
+    <div class="loader_documents"></div>
+  </div>
   <div v-if="!isLoading && !isLoadingDelete && !isLoadingUpload" class="subjects row">
     <QuestionsCard
       v-for="question in paginatedQuestions"
