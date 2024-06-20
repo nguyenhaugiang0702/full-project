@@ -118,8 +118,8 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div v-if="isLoading" class="loader_documents"></div>
-  <div v-if="!isLoading" class="subjects row">
+  <div v-if="isLoading || isLoadingDelete" class="loader_documents"></div>
+  <div v-if="!isLoading && !isLoadingDelete" class="subjects row">
     <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
@@ -193,6 +193,7 @@ export default {
     const checkedAll = ref(false);
     const selectedIds = ref([]);
     const isLoading = ref(false);
+    const isLoadingDelete = ref(false);
 
     const getQuestions = async () => {
       isLoading.value = true;
@@ -249,13 +250,21 @@ export default {
         text: "Bạn sẽ không thể khôi phục lại dữ liệu này!",
       });
       if (result.isConfirmed) {
-        const token = Cookies.get("accessToken");
-        const response = await api.delete(`question/${questionID}`, token);
-        if (response.status == 200) {
-          await showSuccess({
-            text: "Dữ liệu đã được xóa thành công.",
-          });
-          await getQuestions();
+        try {
+          isLoadingDelete.value = true;
+          const token = Cookies.get("accessToken");
+          const response = await api.delete(`question/${questionID}`, token);
+          if (response.status == 200) {
+            isLoadingDelete.value = false;
+            await showSuccess({
+              text: "Dữ liệu đã được xóa thành công.",
+            });
+            getQuestions();
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          isLoadingDelete.value = false;
         }
       }
     };
@@ -414,6 +423,7 @@ export default {
       images,
       isLoading,
       handleLoading,
+      isLoadingDelete,
     };
   },
 };
