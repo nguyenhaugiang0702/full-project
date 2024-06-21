@@ -128,7 +128,7 @@ export default {
       isLoading.value = true;
       const token = Cookies.get("accessToken");
       try {
-        const apiCall = await api.get("admin", token);
+        apiCall = await api.get("admin", token);
         const delay = new Promise((resolve) => setTimeout(resolve, 500));
         const [response] = await Promise.all([apiCall, delay]);
         if (response.status == 200) {
