@@ -201,6 +201,7 @@ export default {
       handleLoading,
       isLoadingDelete,
       handleSearchLoading,
+      isLoadingSearch,
     };
   },
 };

@@ -41,6 +41,7 @@ export default {
     const searchQuestions = async (searchValue) => {
       try {
         const token = Cookies.get("accessToken");
+        emit("refreshSearch", true);
         const apiCall = await api.get(
           `${searchMap[props.searchName]}${searchValue}`,
           token
@@ -48,12 +49,14 @@ export default {
         const delay = new Promise((resolve) => setTimeout(resolve, 500));
         const [response] = await Promise.all([apiCall, delay]);
         if (response?.status === 200) {
+          emit("refreshSearch", false);
           documents.value = response.data;
           emit("updateSearch", documents.value);
         }
       } catch (error) {
         console.log(error);
       } finally {
+        emit("refreshSearch", false);
       }
     };
 
