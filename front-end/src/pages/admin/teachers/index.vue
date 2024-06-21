@@ -18,17 +18,24 @@
       </button>
     </div>
     <div class="col-md-6">
-      <Search :searchName="'teachers'" @updateSearch="handleSearchValue" />
+      <Search
+        :searchName="'teachers'"
+        @updateSearch="handleSearchValue"
+        @refreshSearch="handleSearchLoading"
+      />
     </div>
   </div>
   <hr />
   <ModalAddTeacher :newTeacher="newTeacher" @refreshTeacher="getTeachers" />
   <ModalUpdateTeacher :currentTeacher="currentTeacher" @refreshTeacher="getTeachers" />
   <ModalDetailTeacher :currentTeacher="currentTeacher" />
-  <div class="loader-container" v-if="isLoading || isLoadingDelete">
+  <div class="loader-container" v-if="isLoading || isLoadingDelete || isLoadingSearch">
     <div class="loader_documents"></div>
   </div>
-  <div v-if="!isLoading && !isLoadingDelete" class="subjects row mx-auto">
+  <div
+    v-if="!isLoading && !isLoadingDelete && !isLoadingSearch"
+    class="subjects row mx-auto"
+  >
     <div v-for="teacher in teachers" :key="teacher._id" class="card">
       <h4>ID: {{ teacher.admin_id }}</h4>
       <h4>{{ teacher.admin_name }}</h4>
@@ -113,6 +120,7 @@ export default {
     const paginatedTeachers = ref([]);
     const isLoading = ref(false);
     const isLoadingDelete = ref(false);
+    const isLoadingSearch = ref(false);
 
     const api = new ApiService();
 
@@ -173,6 +181,10 @@ export default {
       teachers.value = value;
     };
 
+    const handleSearchLoading = (value) => {
+      isLoadingSearch.value = value;
+    };
+
     onMounted(() => {
       getTeachers();
     });
@@ -189,6 +201,8 @@ export default {
       handleSearchValue,
       isLoading,
       isLoadingDelete,
+      isLoadingSearch,
+      handleSearchLoading,
     };
   },
 };

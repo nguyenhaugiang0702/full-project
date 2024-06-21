@@ -114,6 +114,7 @@
         :subject_id="subject_id"
         :searchName="'questions'"
         @updateSearch="handleSearchValue"
+        @refreshSearch="handleSearchLoading"
       />
     </div>
   </div>
@@ -132,10 +133,16 @@
       @refreshUpdated="getQuestions"
     />
   </div>
-  <div class="loader-container" v-if="isLoading || isLoadingDelete || isLoadingUpload">
+  <div
+    class="loader-container"
+    v-if="isLoading || isLoadingDelete || isLoadingUpload || isLoadingSearch"
+  >
     <div class="loader_documents"></div>
   </div>
-  <div v-if="!isLoading && !isLoadingDelete && !isLoadingUpload" class="subjects row">
+  <div
+    v-if="!isLoading && !isLoadingDelete && !isLoadingUpload && !isLoadingSearch"
+    class="subjects row"
+  >
     <QuestionsCard
       v-for="question in paginatedQuestions"
       :key="question._id"
@@ -211,6 +218,7 @@ export default {
     const isLoading = ref(false);
     const isLoadingDelete = ref(false);
     const isLoadingUpload = ref(false);
+    const isLoadingSearch = ref(false);
 
     const getQuestions = async () => {
       isLoading.value = true;
@@ -416,6 +424,10 @@ export default {
       isLoadingDelete.value = value;
     };
 
+    const handleSearchLoading = (value) => {
+      isLoadingSearch.value = value;
+    };
+
     onMounted(() => {
       getQuestions();
       getSubject();
@@ -453,6 +465,8 @@ export default {
       handleLoading,
       isLoadingDelete,
       isLoadingUpload,
+      isLoadingSearch,
+      handleSearchLoading,
     };
   },
 };
