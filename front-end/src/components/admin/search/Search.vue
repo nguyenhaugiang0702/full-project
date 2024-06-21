@@ -26,7 +26,7 @@ export default {
       type: String,
     },
   },
-  emits: ["updateSearch"],
+  emits: ["updateSearch", "refreshSearch"],
   setup(props, { emit }) {
     const api = new ApiService();
     const documents = ref([]);
@@ -39,16 +39,21 @@ export default {
     };
 
     const searchQuestions = async (searchValue) => {
-      const token = Cookies.get("accessToken");
-      const apiCall = await api.get(
-        `${searchMap[props.searchName]}${searchValue}`,
-        token
-      );
-      const delay = new Promise((resolve) => setTimeout(resolve, 500));
-      const [response] = await Promise.all([apiCall, delay]);
-      if (response?.status === 200) {
-        documents.value = response.data;
-        emit("updateSearch", documents.value);
+      try {
+        const token = Cookies.get("accessToken");
+        const apiCall = await api.get(
+          `${searchMap[props.searchName]}${searchValue}`,
+          token
+        );
+        const delay = new Promise((resolve) => setTimeout(resolve, 500));
+        const [response] = await Promise.all([apiCall, delay]);
+        if (response?.status === 200) {
+          documents.value = response.data;
+          emit("updateSearch", documents.value);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
       }
     };
 

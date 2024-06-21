@@ -10,7 +10,11 @@
       <ModalAddSubject :newSubject="newSubject" @refreshUpdate="getSubjects" />
     </div>
     <div class="col-md-6 my-2">
-      <Search :searchName="'subjects'" @updateSearch="handleSearchValue" />
+      <Search
+        :searchName="'subjects'"
+        @updateSearch="handleSearchValue"
+        @refreshSearch="handleSearchLoading"
+      />
     </div>
   </div>
   <hr />
@@ -29,10 +33,10 @@
       @refreshUpdated="getSubjects"
     />
   </div>
-  <div class="loader-container" v-if="isLoading || isLoadingDelete">
+  <div class="loader-container" v-if="isLoading || isLoadingDelete || isLoadingSearch">
     <div class="loader_documents"></div>
   </div>
-  <div v-if="!isLoading && !isLoadingDelete" class="subjects row">
+  <div v-if="!isLoading && !isLoadingDelete && !isLoadingSearch" class="subjects row">
     <SubjectsCard
       v-for="subject in paginatedSubjects"
       :key="subject._id"
@@ -89,6 +93,7 @@ export default {
     const selectedIds = ref([]);
     const isLoading = ref(false);
     const isLoadingDelete = ref(false);
+    const isLoadingSearch = ref(false);
 
     const toggleChecked = () => {
       const allChecked = Object.values(checked.value).every((value) => value === true);
@@ -157,6 +162,10 @@ export default {
       subjects.value = value;
     };
 
+    const handleSearchLoading = (value) => {
+      isLoadingSearch.value = value;
+    };
+
     const updateCheckedAll = (value) => {
       checkedAll.value = value;
     };
@@ -191,6 +200,7 @@ export default {
       isLoading,
       handleLoading,
       isLoadingDelete,
+      handleSearchLoading,
     };
   },
 };
