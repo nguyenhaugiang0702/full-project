@@ -16,19 +16,20 @@
         />
         <span></span>
         <label>Email</label>
-        <ErrorMessage name="admin_email" class="text-danger"/>
+        <ErrorMessage name="admin_email" class="text-danger" />
       </div>
       <button class="btn_login mt-4" :disabled="isLoading">
-        <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
         <span v-else>Gửi</span>
       </button>
       <div class="text_bottom">
         Quay lại đăng nhập.
-        <a
-          class="forgot_route"
-          @click="$router.push({ name: 'login' })"
-          >Click Here</a
-        >
+        <a class="forgot_route" @click="$router.push({ name: 'login' })">Click Here</a>
         <br />
       </div>
     </Form>
@@ -42,7 +43,7 @@ import { ref } from "vue";
 import { forgotPasswordSchema } from "@/utils/validate";
 import { Form, Field, ErrorMessage } from "vee-validate";
 export default {
-  components:{Form, Field, ErrorMessage},
+  components: { Form, Field, ErrorMessage },
   setup() {
     const email = ref({
       admin_email: "",
@@ -53,14 +54,16 @@ export default {
     const sendEMail = async () => {
       isLoading.value = true;
       try {
-        const response = await api.post("admin/forgotpassword", email.value);
+        const apiCall = await api.post("admin/forgotpassword", email.value);
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response?.status === 200) {
           email.value = {
-            admin_email: ''
+            admin_email: "",
           };
           await showSuccess({
             text: "Yêu cầu của bạn đã được gửi đi, vui lòng kiểm tra hộp thư",
-            timer: 1500
+            timer: 1500,
           });
         }
       } catch (error) {
@@ -73,7 +76,7 @@ export default {
       sendEMail,
       email,
       isLoading,
-      forgotPasswordSchema
+      forgotPasswordSchema,
     };
   },
 };

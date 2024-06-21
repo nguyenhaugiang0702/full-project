@@ -34,13 +34,18 @@ export default {
 
     const searchMap = {
       questions: `question/subject/${props.subject_id}?search_value=`,
-      subjects: 'subject?search_value=',
-      teachers: 'admin?search_value=',
+      subjects: "subject?search_value=",
+      teachers: "admin?search_value=",
     };
 
     const searchQuestions = async (searchValue) => {
       const token = Cookies.get("accessToken");
-      const response = await api.get(`${searchMap[props.searchName]}${searchValue}`, token);
+      const apiCall = await api.get(
+        `${searchMap[props.searchName]}${searchValue}`,
+        token
+      );
+      const delay = new Promise((resolve) => setTimeout(resolve, 500));
+      const [response] = await Promise.all([apiCall, delay]);
       if (response?.status === 200) {
         documents.value = response.data;
         emit("updateSearch", documents.value);

@@ -216,7 +216,9 @@ export default {
       isLoading.value = true;
       try {
         const token = Cookies.get("accessToken");
-        const response = await api.get(`question/subject/${subject_id}`, token);
+        const apiCall = await api.get(`question/subject/${subject_id}`, token);
+        const delay = new Promise((resolve) => setTimeout(resolve, 500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response.status == 200) {
           questions.value = response.data;
         }
@@ -270,7 +272,9 @@ export default {
         try {
           isLoadingDelete.value = true;
           const token = Cookies.get("accessToken");
-          const response = await api.delete(`question/${questionID}`, token);
+          const apiCall = await api.delete(`question/${questionID}`, token);
+          const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+          const [response] = await Promise.all([apiCall, delay]);
           if (response.status == 200) {
             isLoadingDelete.value = false;
             await showSuccess({
@@ -340,11 +344,13 @@ export default {
 
     const uploadQuestions = async (data) => {
       const token = Cookies.get("accessToken");
-      const response = await api.post(
+      const apiCall = await api.post(
         "question/subject/bulk",
         { ...data, subject_id },
         token
       );
+      const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+      const [response] = await Promise.all([apiCall, delay]);
       if (response?.status == 200) {
         isLoadingUpload.value = false;
         await showSuccess({

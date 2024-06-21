@@ -1,9 +1,5 @@
 <template>
-  <a-menu
-    v-model:openKeys="openKeys"
-    v-model:selectedKeys="selectedKeys"
-    mode="inline"
-  >
+  <a-menu v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" mode="inline">
     <a-menu-item key="admin-subjects">
       <router-link :to="{ name: 'admin-subjects' }">
         <i class="fa-solid fa-user-gear me-2"></i>
@@ -20,10 +16,10 @@
             isActive('admin-questions-radndom'),
         }"
       >
-      <div class="ms-4">
-        <i class="fas fa-list me-2"></i>
-        <span class="">Môn Học</span>
-      </div>
+        <div class="ms-4">
+          <i class="fas fa-list me-2"></i>
+          <span class="">Môn Học</span>
+        </div>
       </router-link>
     </a-menu-item>
     <a-menu-item key="admin-teachers">
@@ -32,19 +28,19 @@
         :to="{ name: 'admin-teachers' }"
         :class="{ active: isActive('admin-teachers') }"
       >
-      <div class="ms-4">
-        <i class="fas fa-user-tie me-2"></i>
-        <span class="">Giảng Viên</span>
-      </div>
+        <div class="ms-4">
+          <i class="fas fa-user-tie me-2"></i>
+          <span class="">Giảng Viên</span>
+        </div>
       </router-link>
     </a-menu-item>
     <a-menu-item>
-    <div class="ms-4">
-      <a @click="logout" class="logout">
-        <i class="fas fa-sign-out-alt me-2"></i>
-        <span class="">Đăng xuất</span>
-      </a>
-    </div>
+      <div class="ms-4">
+        <a @click="logout" class="logout">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          <span class="">Đăng xuất</span>
+        </a>
+      </div>
     </a-menu-item>
   </a-menu>
 </template>
@@ -71,13 +67,11 @@ export default defineComponent({
       const result = await showConfirmation({
         title: "Bạn có chắc chắn muốn thoát không?",
         confirmButtonText: "Có",
-        cancelButtonText: "Không"
+        cancelButtonText: "Không",
       });
       if (result.isConfirmed) {
-        document.cookie =
-          "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-        document.cookie =
-          "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        document.cookie = "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        document.cookie = "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
         delete axios.defaults.headers.common["Authorization"];
         router.push({ name: "login" });
       }
@@ -85,7 +79,9 @@ export default defineComponent({
 
     onMounted(async () => {
       const token = Cookies.get("accessToken");
-      const response = await api.get(`admin/${token}`);
+      const apiCall = await api.get(`admin/${token}`);
+      const delay = new Promise((resolve) => setTimeout(resolve, 300));
+      const [response] = await Promise.all([apiCall, delay]);
       if (response.status == 200) {
         admin.value = response.data;
       }

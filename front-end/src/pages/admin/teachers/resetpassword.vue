@@ -4,11 +4,7 @@
   </div>
   <div class="center">
     <h1>Đặt lại mật khẩu</h1>
-    <Form
-      class="form"
-      @submit="resetPassword"
-      :validation-schema="changePasswordSchema"
-    >
+    <Form class="form" @submit="resetPassword" :validation-schema="changePasswordSchema">
       <div class="txt_field">
         <Field
           as="input"
@@ -54,9 +50,7 @@
       </button>
       <div class="text_bottom">
         Quay lại quên mật khẩu.
-        <a
-          class="forgot_route"
-          @click="$router.push({ name: 'forgotpassword' })"
+        <a class="forgot_route" @click="$router.push({ name: 'forgotpassword' })"
           >Click Here</a
         >
         <br />
@@ -89,13 +83,14 @@ export default {
     const resetPassword = async () => {
       isLoading.value = true;
       const token = route.params.token;
-
       try {
-        const response = await api.put(
+        const apiCall = await api.put(
           `admin/resetpassword/${token}`,
           password.value,
           token
         );
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response.status === 200) {
           await showSuccess({
             text: "Bạn đã đổi mật khẩu thành công",

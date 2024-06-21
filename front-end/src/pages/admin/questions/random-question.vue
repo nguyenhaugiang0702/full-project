@@ -1,17 +1,13 @@
 <template>
   <div class="container">
     <h4>
-      Môn học: {{ subjectInfo.subject_name }} - Mã môn:
-      {{ subjectInfo.subject_code }} - Số câu: {{ subjectInfo.questionCount }}
+      Môn học: {{ subjectInfo.subject_name }} - Mã môn: {{ subjectInfo.subject_code }} -
+      Số câu: {{ subjectInfo.questionCount }}
     </h4>
     <div class="header text-center border border-dark">
       <h2 class="mt-3">Trộn câu hỏi</h2>
       <div class="text-center mt-4">
-        <button
-          class="btn btn-danger"
-          @click="shuffleQuestions"
-          :disabled="isLoading"
-        >
+        <button class="btn btn-danger" @click="shuffleQuestions" :disabled="isLoading">
           <span
             v-if="isLoading"
             class="spinner-border spinner-border-sm"
@@ -27,11 +23,7 @@
           min="1"
           @keypress.enter="shuffleQuestions"
         />
-        <button
-          class="btn btn-info ms-3"
-          @click="exportToWord"
-          :disabled="isExporting"
-        >
+        <button class="btn btn-info ms-3" @click="exportToWord" :disabled="isExporting">
           <span
             v-if="isExporting"
             class="spinner-border spinner-border-sm"
@@ -40,7 +32,11 @@
           ></span>
           <span v-else>Xuất ra file Word</span>
         </button>
-        <button class="btn btn-success ms-3 my-3" @click="saveWorkbook" :disabled="isSavingExcel">
+        <button
+          class="btn btn-success ms-3 my-3"
+          @click="saveWorkbook"
+          :disabled="isSavingExcel"
+        >
           <span
             v-if="isSavingExcel"
             class="spinner-border spinner-border-sm"
@@ -52,22 +48,11 @@
       </div>
     </div>
     <div class="exam-content">
-      <div
-        v-for="(question, index) in questionsRandom"
-        :key="index"
-        class="mb-4"
-      >
+      <div v-for="(question, index) in questionsRandom" :key="index" class="mb-4">
         <h5>{{ index + 1 }}. {{ question.question_name }}</h5>
         <div class="options ms-3">
-          <div
-            v-for="(option, i) in question.options"
-            :key="i"
-            class="form-check"
-          >
-            <label
-              class="form-check-label"
-              :class="{ 'fw-bold': option.is_correct }"
-            >
+          <div v-for="(option, i) in question.options" :key="i" class="form-check">
+            <label class="form-check-label" :class="{ 'fw-bold': option.is_correct }">
               {{ String.fromCharCode(65 + i) }}. {{ option.answer }}
             </label>
           </div>
@@ -99,7 +84,6 @@ export default {
     const currentDocxIndex = ref(101);
     const workbook = ref(XLSX.utils.book_new());
 
-
     const getQuestionsRandom = async (numberRandom) => {
       const token = Cookies.get("accessToken");
       isLoading.value = true;
@@ -108,7 +92,7 @@ export default {
           `question/subject/${subject_id}/random?numberRandom=${numberRandom}`,
           token
         );
-        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const delay = new Promise((resolve) => setTimeout(resolve, 500));
         const [response] = await Promise.all([apiCall, delay]);
         if (response.status === 200) {
           questionsRandom.value = response.data;
@@ -139,7 +123,8 @@ export default {
     const exportToWord = async () => {
       if (questionsRandom.value.length === 0) {
         showWarning({
-          text: "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
+          text:
+            "Chưa có câu hỏi nào được random. Vui lòng nhấn nút 'Bắt đầu' để random câu hỏi trước.",
         });
         return;
       }
@@ -181,9 +166,7 @@ export default {
                         new Paragraph({
                           children: [
                             new TextRun({
-                              text: `${String.fromCharCode(65 + i)}. ${
-                                option.answer
-                              }`,
+                              text: `${String.fromCharCode(65 + i)}. ${option.answer}`,
                               // bold: option.is_correct,
                             }),
                           ],
@@ -217,17 +200,15 @@ export default {
       for (let i = 0; i < questionsRandom.value.length; i += chunkSize) {
         // Tạo dữ liệu cho vùng hiện tại
         const chunkData = [["Câu", "Đáp án"]];
-        questionsRandom.value
-          .slice(i, i + chunkSize)
-          .forEach((question, index) => {
-            const rowData = [`${i + index + 1}`];
-            question.options.forEach((option, idx) => {
-              if (option.is_correct) {
-                rowData.push(String.fromCharCode(65 + idx));
-              }
-            });
-            chunkData.push(rowData);
+        questionsRandom.value.slice(i, i + chunkSize).forEach((question, index) => {
+          const rowData = [`${i + index + 1}`];
+          question.options.forEach((option, idx) => {
+            if (option.is_correct) {
+              rowData.push(String.fromCharCode(65 + idx));
+            }
           });
+          chunkData.push(rowData);
+        });
 
         // Xác định vị trí bắt đầu của vùng hiện tại trong worksheet
         const startRow = 0; // +1 để tạo khoảng cách giữa các vùng

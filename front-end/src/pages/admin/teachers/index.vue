@@ -119,8 +119,10 @@ export default {
     const getTeachers = async () => {
       try {
         isLoading.value = true;
+        const apiCall = await api.get("admin", token);
+        const delay = new Promise((resolve) => setTimeout(resolve, 500));
+        const [response] = await Promise.all([apiCall, delay]);
         const token = Cookies.get("accessToken");
-        const response = await api.get("admin", token);
         if (response.status == 200) {
           teachers.value = response.data;
         }
@@ -149,7 +151,9 @@ export default {
         try {
           isLoadingDelete.value = true;
           const token = Cookies.get("accessToken");
-          const response = await api.delete(`admin/${teacherId}`, token);
+          const apiCall = await api.delete(`admin/${teacherId}`, token);
+          const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+          const [response] = await Promise.all([apiCall, delay]);
           if (response.status == 200) {
             isLoadingDelete.value = false;
             await showSuccess({

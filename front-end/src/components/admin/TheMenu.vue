@@ -3,9 +3,7 @@
     <li @click="window.location.reload()">
       <a>
         <div class="row py-4 d-flex">
-          <i
-            class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"
-          ></i>
+          <i class="fa-solid fa-user-gear col-1 fs-4 align-items-center ms-4"></i>
           <div class="text-uppercase fw-bold col-7 ms-4 fs-4 text-break">
             {{ admin.admin_name }}
           </div>
@@ -70,7 +68,7 @@ import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService";
 
 export default defineComponent({
-  emits: ['navigate'],
+  emits: ["navigate"],
   setup(_, { emit }) {
     const store = useMenu();
     const route = useRoute();
@@ -86,22 +84,22 @@ export default defineComponent({
         cancelButtonText: "Không",
       });
       if (result.isConfirmed) {
-        document.cookie =
-          "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-        document.cookie =
-          "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        document.cookie = "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        document.cookie = "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
         delete axios.defaults.headers.common["Authorization"];
         router.push({ name: "login" });
       }
     };
 
     const emitNavigate = () => {
-      emit('navigate');
+      emit("navigate");
     };
 
     onMounted(async () => {
       const token = Cookies.get("accessToken");
-      const response = await api.get(`admin/${token}`);
+      const apiCall = await api.get(`admin/${token}`);
+      const delay = new Promise((resolve) => setTimeout(resolve, 300));
+      const [response] = await Promise.all([apiCall, delay]);
       if (response?.status == 200) {
         admin.value = response.data;
       }

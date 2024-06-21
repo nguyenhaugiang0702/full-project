@@ -106,7 +106,9 @@ export default {
 
     const getTeacher = async () => {
       const token = Cookies.get("accessToken");
-      const response = await api.get(`admin/${token}`);
+      const apiCall = await api.get(`admin/${token}`);
+      const delay = new Promise((resolve) => setTimeout(resolve, 500));
+      const [response] = await Promise.all([apiCall, delay]);
       if (response?.status == 200) {
         teacherInfo.value = response.data;
       }
@@ -116,7 +118,9 @@ export default {
       try {
         isLoading.value = true;
         const token = Cookies.get("accessToken");
-        const response = await api.put(`admin/changepassword/${token}`, newPass.value);
+        const apiCall = await api.put(`admin/changepassword/${token}`, newPass.value);
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response?.status === 200) {
           document.cookie = "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
           document.cookie = "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";

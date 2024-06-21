@@ -99,7 +99,9 @@ export default {
         admin_id: Number(admin.value.admin_id),
       };
       try {
-        const response = await api.post("admin/login", adminData);
+        const apiCall = await api.post("admin/login", adminData);
+        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response?.status == 200) {
           admin.value = {
             admin_id: "",

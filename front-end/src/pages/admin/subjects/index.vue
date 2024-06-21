@@ -104,7 +104,9 @@ export default {
       const token = Cookies.get("accessToken");
       isLoading.value = true;
       try {
-        const response = await api.get("subject", token);
+        const apiCall = await api.get("subject", token);
+        const delay = new Promise((resolve) => setTimeout(resolve, 500));
+        const [response] = await Promise.all([apiCall, delay]);
         if (response?.status == 200) {
           subjects.value = response.data;
         }
@@ -133,7 +135,9 @@ export default {
         try {
           isLoadingDelete.value = true;
           const token = Cookies.get("accessToken");
-          const response = await api.delete(`subject/${subjectId}`, token);
+          const apiCall = await api.delete(`subject/${subjectId}`, token);
+          const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+          const [response] = await Promise.all([apiCall, delay]);
           if (response.status == 200) {
             isLoadingDelete.value = false;
             await showSuccess({
