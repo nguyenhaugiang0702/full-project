@@ -92,6 +92,7 @@ import { changePasswordSchema } from "@/utils/validate";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { showSuccess } from "@/utils/swalUtils";
 import { useRouter } from "vue-router";
+import axios from "axios";
 export default {
   components: { Form, Field, ErrorMessage },
   setup() {
