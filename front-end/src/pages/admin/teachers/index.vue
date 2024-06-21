@@ -125,12 +125,12 @@ export default {
     const api = new ApiService();
 
     const getTeachers = async () => {
+      isLoading.value = true;
+      const token = Cookies.get("accessToken");
       try {
-        isLoading.value = true;
         const apiCall = await api.get("admin", token);
         const delay = new Promise((resolve) => setTimeout(resolve, 500));
         const [response] = await Promise.all([apiCall, delay]);
-        const token = Cookies.get("accessToken");
         if (response.status == 200) {
           teachers.value = response.data;
         }
