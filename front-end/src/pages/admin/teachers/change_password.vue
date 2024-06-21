@@ -67,7 +67,7 @@
           <button
             type="submit"
             class="btn btn-primary col-sm-1 col-md-2"
-            @click="saveWorkbook"
+            @click="changePassword"
             :disabled="isLoading"
           >
             <span
