@@ -10,7 +10,7 @@ const MongoDB = require("./app/utils/mongodb.util");
 require('dotenv').config();
 
 const allowedOrigins = [
-  "https://full-project-v1.vercel.app",
+  "https://radomquestiontct.vercel.app",
   "https://full-project-six.vercel.app",
 ];
 
