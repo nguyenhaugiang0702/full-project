@@ -14,7 +14,7 @@
         data-bs-toggle="modal"
         data-bs-target="#addTeacherModal"
       >
-        Thêm mới giáo viên danh
+        Thêm mới giáo viên
       </button>
     </div>
     <div class="col-md-6">
