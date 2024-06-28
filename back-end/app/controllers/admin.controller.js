@@ -126,7 +126,7 @@ exports.login = async (req, res, next) => {
     const accessToken = jwt.sign(
       { admin_id: admin._id },
       "my_secret_key_admin",
-      { expiresIn: 24 * 60 * 60 }
+      { expiresIn: 7 * 24 * 60 * 60 }
     );
     return res.json({
       message: "Thanh cong",
