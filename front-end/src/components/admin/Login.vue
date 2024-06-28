@@ -109,7 +109,7 @@ export default {
             admin_password: "",
           };
           const token = response.data.accessToken;
-          Cookies.set("accessToken", token, { expires: 24 });
+          Cookies.set("accessToken", token, { expires: 7 });
           await showSuccess({
             text: "Đăng nhập thành công.",
           });

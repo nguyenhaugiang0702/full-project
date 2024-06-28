@@ -71,7 +71,7 @@ class ApiService {
         if (error.response && error.response.status === 403) {
             Swal.fire({
                 title: 'Bạn chưa đăng nhập',
-                text: 'Vui lòng đăng nhập để tiếp tục',
+                text: error.response.data.message,
                 icon: 'warning',
                 timer: 1500,
                 showConfirmButton: true,
@@ -79,7 +79,7 @@ class ApiService {
         } else if (error.response && error.response.status === 401) {
             Swal.fire({
                 title: 'Phiên xử lý hết hạn',
-                text: 'Vui lòng đăng nhập để tiếp tục',
+                text: error.response.data.message,
                 icon: 'warning',
                 timer: 1500,
                 showConfirmButton: true,
