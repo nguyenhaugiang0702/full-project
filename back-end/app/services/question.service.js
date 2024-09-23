@@ -3,7 +3,7 @@ const stringSimilarity = require('string-similarity');
 
 class QuestionService {
     constructor(client) {
-        this.Question = client.db().collection("questions");
+        this.Question = client.db("random_questions").collection("questions");
     }
     extractQuestionData(payload) {
         const question = {
