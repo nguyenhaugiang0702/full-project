@@ -1,6 +1,7 @@
 # project_full
 
 # 1. Database
+![Database](./images_app/database/database.png)
 
 # 2. Interface and functionality 
 
