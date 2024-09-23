@@ -65,6 +65,7 @@ export default {
   justify-content: center;
   align-items: center;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 .pagination button {
   margin: 10px 10px;
