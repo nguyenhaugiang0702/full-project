@@ -5,7 +5,8 @@
 
 # 2. Interface and functionality 
 
-## 2.1 Login Page
+## 2.1 Login Page 
+### Account Admin : 1, nuluat87@gmail.com, admin@123
 ![Login Page](./images_app/login.png)
 
 ## 2.2 Subjects Management Page
